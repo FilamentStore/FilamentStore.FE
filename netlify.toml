@@ -1,0 +1,19 @@
+[build]
+  publish = "dist/FilamentStore.FE/browser"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Продакшн — гілка main
+[context.production]
+  command = "ng build --configuration production"
+
+# Dev — гілка develop
+[context.branch-deploy]
+  command = "ng build --configuration development"
+
+# SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
