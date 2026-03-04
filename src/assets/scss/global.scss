@@ -1,0 +1,97 @@
+html {
+  scroll-behavior: smooth;
+
+  font-family: sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 21px;
+  color: var(--color-text-main);
+  letter-spacing: 0;
+
+  background-color: var(--color-bg);
+}
+
+button {
+  color: var(--color-text-main);
+  background-color: var(--color-bg);
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 41px;
+  letter-spacing: -0.01em;
+
+  @include on-tablet {
+    font-size: 48px;
+    line-height: 56px;
+  }
+}
+
+h2 {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 31px;
+  letter-spacing: 0;
+
+  @include on-tablet {
+    font-size: 32px;
+    line-height: 41px;
+    letter-spacing: -0.01em;
+  }
+}
+
+h3 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 26px;
+  letter-spacing: 0;
+
+  @include on-tablet {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 31px;
+  }
+}
+
+h4 {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+  letter-spacing: 0;
+
+  @include on-tablet {
+    font-size: 20px;
+    line-height: 26px;
+  }
+}
+
+.uppercase {
+  font-family: Mont, sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.buttonText {
+  font-family: Mont, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 21px;
+  letter-spacing: 0;
+}
+
+.smallText {
+  font-family: Mont, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 15px;
+  letter-spacing: 0;
+}
+
+.no-scroll {
+  overflow: hidden;
+  height: 100dvh;
+}
