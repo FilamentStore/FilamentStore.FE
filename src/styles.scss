@@ -1,6 +1,34 @@
 @use 'variables';
 @use 'global';
 
+:root {
+  --color-bg: #f2f7f6;
+  --color-surface: #e0eeeb;
+  --color-card: #ffffff;
+  --color-text-main: #111918;
+  --color-text-buttons: #ffffff;
+  --color-text-secondary: #5e7470;
+  --color-icon: #22a794;
+  --color-element: #b5cecc;
+  --color-accent: #22a794;
+  --color-success: #27ae60;
+  --color-error: #eb5757;
+}
+
+html[data-theme='dark'] {
+  --color-bg: #0f1121;
+  --color-surface: #161827;
+  --color-card: #323542;
+  --color-text-main: #f1f2f9;
+  --color-text-buttons: #f1f2f9;
+  --color-text-secondary: #75767f;
+  --color-icon: #4a4d58;
+  --color-element: #3b3e4a;
+  --color-accent: #905bff;
+  --color-success: #27ae60;
+  --color-error: #eb5757;
+}
+
 @font-face {
   font-family: 'Mont';
   src: url('./assets/fonts/Mont-Regular.otf') format('opentype');

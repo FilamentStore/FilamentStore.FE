@@ -1,0 +1,55 @@
+@use 'index' as *;
+
+:host {
+  display: block;
+  width: 32px;
+  height: 32px;
+}
+
+.arrow {
+  cursor: pointer;
+
+  &Up {
+    rotate: 0deg;
+  }
+
+  &Down {
+    rotate: 180deg;
+  }
+
+  &Left {
+    rotate: -90deg;
+  }
+
+  &Right {
+    rotate: 90deg;
+  }
+
+  &Disabled {
+    opacity: 0.4;
+  }
+
+  &Icon {
+    width: 10px;
+    height: 10px;
+  }
+
+  &Button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    border: 1px solid var(--color-element);
+    transition: background-color 0.2s ease;
+
+    &Disabled {
+      cursor: not-allowed;
+    }
+
+    &:not([disabled]):hover {
+      background-color: var(--color-icon);
+    }
+  }
+}
