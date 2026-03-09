@@ -100,7 +100,6 @@
   color: $color-text-secondary;
   text-decoration: none;
   font-weight: 600;
-  transition: color 0.25s ease;
 
   @include on-tablet {
     display: flex;
@@ -114,18 +113,14 @@
     left: 0;
     width: 100%;
     height: 3px;
-    background: $color-text-main;
+    background: $color-text-secondary;
     transform: scaleX(0);
     transform-origin: center;
     transition: transform 0.25s ease;
   }
 
-  &:hover {
-    color: $color-text-main;
-
-    &::after {
-      transform: scaleX(1);
-    }
+  &:hover::after {
+    transform: scaleX(1);
   }
 }
 
@@ -153,12 +148,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    order: 1;
     width: auto;
     height: 36px;
     padding-inline: 14px;
     border: 1.5px solid $color-element;
     border-radius: 100px;
-    box-shadow: none;
     text-decoration: none;
     color: $color-text-secondary;
     transition:
@@ -176,26 +171,8 @@
   }
 
   &.icon--active {
-    color: $color-text-main;
-
-    &::after {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 3px;
-      left: 0;
-      bottom: 0;
-      background: $color-text-main;
-    }
-
-    @include on-desktop {
-      border-color: $color-accent;
-      color: $color-accent;
-
-      &::after {
-        display: none;
-      }
-    }
+    color: $color-accent;
+    border-color: $color-accent;
   }
 }
 
@@ -214,6 +191,10 @@
 
   &--bag {
     mask-image: url('../../../../assets/icons/icon-shopping-bag.svg');
+  }
+
+  &--account {
+    mask-image: url('../../../../assets/icons/user-account.svg');
   }
 }
 
@@ -240,17 +221,72 @@
 }
 
 .icon-burger-menu {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  order: 99;
   width: 48px;
   height: 100%;
-  background: url('../../../../assets/icons/icon-burger-menu.svg') center / 16px
-    no-repeat;
   background-color: transparent;
   border: none;
   box-shadow: -1px 0px 0px 0px $color-element;
   cursor: pointer;
 
+  &::before {
+    content: '';
+    display: block;
+    width: 14px;
+    height: 9px;
+    background-color: $color-text-secondary;
+    mask-image: url('../../../../assets/icons/icon-burger-menu.svg');
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+  }
+
   @include on-tablet {
     display: none;
   }
+}
+
+.icon-account {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding-inline: 14px;
+  margin-right: 8px;
+  text-decoration: none;
+  border: 1.5px solid $color-accent;
+  border-radius: 100px;
+  background-color: transparent;
+  color: $color-accent;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+
+  &:hover {
+    background-color: $color-accent;
+    color: $color-text-buttons;
+  }
+
+  &.icon-account--active {
+    background-color: $color-accent;
+    color: $color-text-buttons;
+  }
+
+  @include on-tablet {
+    order: 3;
+    margin-right: 0;
+    padding-inline: 14px;
+  }
+
+  @include on-desktop {
+    padding-inline: 16px;
+  }
+}
+
+.icon-account__label {
+  display: block;
 }

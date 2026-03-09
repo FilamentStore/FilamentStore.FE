@@ -2,7 +2,7 @@
   <div class="container">
     <div class="menu-top">
       <a routerLink="/" class="logo-link" (click)="onClose()">
-        <img src="assets/icons/Logo.png" alt="Logo" class="logo" />
+        <img src="assets/icons/logo.png" alt="Logo" class="logo" />
       </a>
 
       <div class="header-icons">
@@ -70,7 +70,7 @@
         (click)="onClose()"
         aria-label="Go to Favorites"
       >
-        <img src="assets/icons/icon-favorite.svg" alt="Favorites" />
+        <span class="icon-img icon-img--favorite" aria-hidden="true"></span>
       </a>
       <a
         routerLink="/cart"
@@ -79,7 +79,7 @@
         (click)="onClose()"
         aria-label="Go to Shopping Bag"
       >
-        <img src="assets/icons/icon-shopping-bag.svg" alt="Shopping Bag" />
+        <span class="icon-img icon-img--bag" aria-hidden="true"></span>
       </a>
     </div>
   </div>
