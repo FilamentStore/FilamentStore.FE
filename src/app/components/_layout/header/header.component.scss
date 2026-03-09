@@ -199,6 +199,24 @@
   }
 }
 
+.icon-img {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-color: currentColor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+
+  &--favorite {
+    mask-image: url('../../../../assets/icons/icon-favorite.svg');
+  }
+
+  &--bag {
+    mask-image: url('../../../../assets/icons/icon-shopping-bag.svg');
+  }
+}
+
 .icon-counter {
   position: absolute;
   top: 10px;

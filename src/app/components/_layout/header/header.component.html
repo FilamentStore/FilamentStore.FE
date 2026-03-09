@@ -49,7 +49,7 @@
       class="icon"
       aria-label="Go to Favorites"
     >
-      <img src="assets/icons/icon-favorite.svg" alt="Favorites" />
+      <span class="icon-img icon-img--favorite" aria-hidden="true"></span>
       @if (favoritesCount > 0) {
         <span class="icon-counter">{{ favoritesCount }}</span>
       }
@@ -61,7 +61,7 @@
       class="icon"
       aria-label="Go to Shopping Bag"
     >
-      <img src="assets/icons/icon-shopping-bag.svg" alt="Shopping Bag" />
+      <span class="icon-img icon-img--bag" aria-hidden="true"></span>
       @if (cartCount > 0) {
         <span class="icon-counter">{{ cartCount }}</span>
       }
