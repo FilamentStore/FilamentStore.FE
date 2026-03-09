@@ -12,6 +12,5 @@ import { NavbarComponent } from '../navbar/navbar.component';
 export class HeaderComponent {
   favoritesCount = 0;
   cartCount = 0;
-
   isMenuOpen = false;
 }
