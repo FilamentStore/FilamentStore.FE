@@ -1,0 +1,89 @@
+<header class="header uppercase">
+  <div class="header-left">
+    <div class="header-logo">
+      <a routerLink="/" class="logo-link">
+        <img class="nav-img" src="assets/icons/Logo.png" alt="Logo" />
+      </a>
+    </div>
+
+    <div class="header-nav">
+      <nav class="nav">
+        <ul class="nav-list">
+          <li>
+            <a
+              routerLink="/"
+              routerLinkActive="is-active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="nav-link"
+            >
+              home
+            </a>
+          </li>
+          <li>
+            <a
+              routerLink="/phones"
+              routerLinkActive="is-active"
+              class="nav-link"
+            >
+              phones
+            </a>
+          </li>
+          <li>
+            <a
+              routerLink="/tablets"
+              routerLinkActive="is-active"
+              class="nav-link"
+            >
+              tablets
+            </a>
+          </li>
+          <li>
+            <a
+              routerLink="/accessories"
+              routerLinkActive="is-active"
+              class="nav-link"
+            >
+              accessories
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <div class="header-icons">
+    <a
+      routerLink="/favorites"
+      routerLinkActive="icon--active"
+      class="icon"
+      aria-label="Go to Favorites"
+    >
+      <img src="assets/icons/icon-favorite-heart.svg" alt="Favorites" />
+      @if (favoritesCount > 0) {
+        <span class="icon-counter">{{ favoritesCount }}</span>
+      }
+    </a>
+
+    <a
+      routerLink="/cart"
+      routerLinkActive="icon--active"
+      class="icon"
+      aria-label="Go to Shopping Bag"
+    >
+      <img src="assets/icons/icon-shopping-bag.svg" alt="Shopping Bag" />
+      @if (cartCount > 0) {
+        <span class="icon-counter">{{ cartCount }}</span>
+      }
+    </a>
+
+    <button
+      (click)="isMenuOpen = true"
+      class="icon-burger-menu"
+      aria-label="Menu"
+    ></button>
+  </div>
+</header>
+
+@if (isMenuOpen) {
+  <app-navbar [isOpen]="isMenuOpen" (closeMenu)="isMenuOpen = false" />
+}
