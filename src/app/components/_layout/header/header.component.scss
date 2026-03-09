@@ -86,24 +86,42 @@
 .nav-link {
   display: none;
   align-items: center;
+  position: relative;
   color: $color-text-secondary;
   text-decoration: none;
-  text-transform: uppercase;
-  transition: color 0.3s ease;
+  font-weight: 600;
+  transition: color 0.25s ease;
 
   @include on-tablet {
     display: flex;
     height: 70px;
   }
 
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: $color-text-main;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.25s ease;
+  }
+
   &:hover {
     color: $color-text-main;
+
+    &::after {
+      transform: scaleX(1);
+    }
   }
 }
 
 .is-active {
   position: relative;
-  color: $color-text-main;
+  color: $color-accent;
 
   &::after {
     content: '';
@@ -112,7 +130,8 @@
     height: 3px;
     left: 0;
     bottom: 0;
-    background: $color-text-main;
+    background: $color-accent;
+    transform: scaleX(1);
   }
 }
 
@@ -129,10 +148,27 @@
     box-shadow: -1px 0 0 0 $color-element;
     text-decoration: none;
     color: $color-text-secondary;
-    transition: color 0.3s ease;
+    transition: color 0.25s ease;
+
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: $color-text-main;
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform 0.25s ease;
+    }
 
     &:hover {
       color: $color-text-main;
+
+      &::before {
+        transform: scaleX(1);
+      }
     }
   }
 
