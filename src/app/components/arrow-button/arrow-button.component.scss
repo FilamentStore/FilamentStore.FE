@@ -30,8 +30,14 @@
   }
 
   &Icon {
+    display: block;
     width: 10px;
-    height: 10px;
+    height: 6px;
+    background-color: currentColor;
+    mask-image: url('../../../assets/icons/icon-arrow-up.svg');
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
   }
 
   &Button {
@@ -41,15 +47,20 @@
     width: 100%;
     height: 100%;
     background-color: transparent;
-    border: 1px solid var(--color-element);
-    transition: background-color 0.2s ease;
+    border: 1px solid $color-text-secondary;
+    border-radius: 50%;
+    color: $color-text-secondary;
+    transition:
+      border-color 0.2s ease,
+      color 0.2s ease;
 
     &Disabled {
       cursor: not-allowed;
     }
 
     &:not([disabled]):hover {
-      background-color: var(--color-icon);
+      border-color: $color-accent;
+      color: $color-accent;
     }
   }
 }
