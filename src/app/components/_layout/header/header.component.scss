@@ -24,7 +24,8 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
 
   @include on-desktop {
     gap: 24px;
@@ -51,6 +52,8 @@
   display: flex;
   height: 100%;
   align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 
   @include on-tablet {
     gap: 8px;
@@ -212,12 +215,12 @@
   font-weight: 700;
   display: flex;
   align-items: center;
+  justify-content: center;
 
   @include on-tablet {
     top: 2px;
     right: 2px;
   }
-  justify-content: center;
 }
 
 .icon-burger-menu {
@@ -249,14 +252,14 @@
   }
 }
 
+// Account button — hidden on mobile (navbar handles auth there)
 .icon-account {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   gap: 6px;
   height: 36px;
   padding-inline: 14px;
-  margin-right: 8px;
   text-decoration: none;
   border: 1.5px solid $color-accent;
   border-radius: 100px;
@@ -265,6 +268,16 @@
   transition:
     background-color 0.25s ease,
     color 0.25s ease;
+
+  @include on-tablet {
+    display: flex;
+    order: 3;
+    padding-inline: 14px;
+  }
+
+  @include on-desktop {
+    padding-inline: 16px;
+  }
 
   &:hover {
     background-color: $color-accent;
@@ -275,31 +288,105 @@
     background-color: $color-accent;
     color: $color-text-buttons;
   }
-
-  @include on-tablet {
-    order: 3;
-    margin-right: 0;
-    padding-inline: 14px;
-  }
-
-  @include on-desktop {
-    padding-inline: 16px;
-  }
 }
 
 .icon-account__label {
   display: block;
 }
 
+// ─── Search ────────────────────────────────────────────────────────────────
+
 .header-search {
-  display: none;
+  display: flex;
+  align-items: center;
+  height: 36px;
+  border: 1.5px solid $color-element;
+  border-radius: 100px;
+  overflow: hidden;
+  color: $color-text-secondary;
+  transition:
+    border-color 0.25s ease,
+    color 0.25s ease;
+
+  &:hover {
+    border-color: $color-accent;
+    color: $color-accent;
+
+    .header-search__icon {
+      background-color: $color-accent;
+    }
+  }
+
+  &--open {
+    border-color: $color-accent;
+    color: $color-accent;
+
+    .header-search__input-wrap {
+      width: 110px;
+
+      @include on-tablet {
+        width: 140px;
+      }
+
+      @include on-desktop {
+        width: 190px;
+      }
+    }
+
+    .header-search__icon {
+      transform: rotate(360deg);
+      background-color: $color-accent;
+    }
+  }
+}
+
+.header-search__input-wrap {
+  width: 0;
+  overflow: hidden;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-search__input {
+  display: block;
+  width: 110px;
+  padding-left: 8px;
 
   @include on-tablet {
-    display: flex;
-    width: 160px;
+    width: 140px;
   }
 
   @include on-desktop {
-    width: 220px;
+    width: 190px;
   }
+}
+
+// Same padding as .icon to make all icon buttons identical
+.header-search__btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding-inline: 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  @include on-desktop {
+    padding-inline: 16px;
+  }
+}
+
+.header-search__icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-color: $color-text-secondary;
+  mask-image: url('../../../../assets/icons/icon-search.svg');
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  transition:
+    transform 0.45s ease,
+    background-color 0.25s ease;
 }
