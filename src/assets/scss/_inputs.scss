@@ -1,0 +1,75 @@
+@use 'variables' as *;
+
+// Base input wrapper — pill-shaped field with border
+.input-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding-inline: 12px;
+  border: 1.5px solid $color-element;
+  border-radius: 100px;
+  background-color: transparent;
+  transition: border-color 0.25s ease;
+
+  &:focus-within {
+    border-color: $color-accent;
+  }
+
+  &--sm {
+    height: 32px;
+    padding-inline: 10px;
+  }
+
+  &--lg {
+    height: 44px;
+    padding-inline: 16px;
+  }
+}
+
+// Icon inside input-field
+.input-field__icon {
+  flex-shrink: 0;
+  display: block;
+  width: 14px;
+  height: 14px;
+  background-color: $color-text-secondary;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  pointer-events: none;
+  transition: background-color 0.25s ease;
+
+  .input-field:focus-within & {
+    background-color: $color-accent;
+  }
+
+  &--search {
+    mask-image: url('../icons/icon-search.svg');
+  }
+}
+
+// The actual <input> element
+.input-field__control {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: $color-text-main;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+
+  &::placeholder {
+    color: $color-text-secondary;
+    font-weight: 600;
+  }
+
+  // hide native clear/search decorations
+  &::-webkit-search-cancel-button,
+  &::-webkit-search-decoration {
+    display: none;
+  }
+}

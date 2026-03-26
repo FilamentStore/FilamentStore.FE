@@ -290,3 +290,16 @@
 .icon-account__label {
   display: block;
 }
+
+.header-search {
+  display: none;
+
+  @include on-tablet {
+    display: flex;
+    width: 160px;
+  }
+
+  @include on-desktop {
+    width: 220px;
+  }
+}

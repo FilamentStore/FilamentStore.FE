@@ -25,37 +25,27 @@
               class="nav-link"
               (click)="onClose()"
             >
-              home
+              Головна
             </a>
           </li>
           <li class="nav-item">
             <a
-              routerLink="/phones"
+              routerLink="/catalog"
               routerLinkActive="is-active"
               class="nav-link"
               (click)="onClose()"
             >
-              phones
+              Каталог
             </a>
           </li>
           <li class="nav-item">
             <a
-              routerLink="/tablets"
+              routerLink="/about"
               routerLinkActive="is-active"
               class="nav-link"
               (click)="onClose()"
             >
-              tablets
-            </a>
-          </li>
-          <li class="nav-item">
-            <a
-              routerLink="/accessories"
-              routerLinkActive="is-active"
-              class="nav-link"
-              (click)="onClose()"
-            >
-              accessories
+              Про нас
             </a>
           </li>
         </ul>
@@ -63,6 +53,15 @@
     </div>
 
     <div class="menu-icons">
+      <a
+        routerLink="/account"
+        routerLinkActive="is-active"
+        class="icon"
+        (click)="onClose()"
+        aria-label="Go to Account"
+      >
+        <span class="icon-img icon-img--account" aria-hidden="true"></span>
+      </a>
       <a
         routerLink="/favorites"
         routerLinkActive="is-active"
