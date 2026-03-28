@@ -1,51 +1,32 @@
 import { Routes } from '@angular/router';
+import { ROUTES } from '../../app.routes.const';
+import { CrmShellComponent } from './_layout/crm-shell/crm-shell.component';
+import { CrmLoginComponent } from './auth/crm-login/crm-login.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { ProductListComponent } from './products/product-list/product-list.component';
+import { ProductCreateComponent } from './products/product-create/product-create.component';
+
+const crm = ROUTES.crm;
 
 export const CRM_ROUTES: Routes = [
   {
-    path: 'auth',
+    path: crm.auth.root,
     children: [
-      {
-        path: 'login',
-        loadComponent: () =>
-          import('./auth/crm-login/crm-login.component').then(
-            m => m.CrmLoginComponent,
-          ),
-      },
-      { path: '', redirectTo: 'login', pathMatch: 'full' },
+      { path: crm.auth.login, component: CrmLoginComponent },
+      { path: '', redirectTo: crm.auth.login, pathMatch: 'full' },
     ],
   },
   {
     path: '',
-    loadComponent: () =>
-      import('./_layout/crm-shell/crm-shell.component').then(
-        m => m.CrmShellComponent,
-      ),
+    component: CrmShellComponent,
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: '', redirectTo: crm.dashboard, pathMatch: 'full' },
+      { path: crm.dashboard, component: DashboardComponent },
       {
-        path: 'dashboard',
-        loadComponent: () =>
-          import('./dashboard/dashboard.component').then(
-            m => m.DashboardComponent,
-          ),
-      },
-      {
-        path: 'products',
+        path: crm.products.root,
         children: [
-          {
-            path: '',
-            loadComponent: () =>
-              import('./products/product-list/product-list.component').then(
-                m => m.ProductListComponent,
-              ),
-          },
-          {
-            path: 'create',
-            loadComponent: () =>
-              import('./products/product-create/product-create.component').then(
-                m => m.ProductCreateComponent,
-              ),
-          },
+          { path: '', component: ProductListComponent },
+          { path: crm.products.create, component: ProductCreateComponent },
         ],
       },
     ],

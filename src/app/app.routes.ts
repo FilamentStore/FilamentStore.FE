@@ -1,11 +1,13 @@
 import { Routes, UrlSegment } from '@angular/router';
+import { ROUTES } from './app.routes.const';
 
 export const routes: Routes = [
   // Site — з header та footer (завжди перший, але не матчить /crm)
   {
-    path: '',
+    path: ROUTES.site.home,
     canMatch: [
-      (_route: unknown, segments: UrlSegment[]) => segments[0]?.path !== 'crm',
+      (_route: unknown, segments: UrlSegment[]) =>
+        segments[0]?.path !== ROUTES.crm.root,
     ],
     loadComponent: () =>
       import('./pages/site/_layout/site-shell/site-shell.component').then(
@@ -13,40 +15,40 @@ export const routes: Routes = [
       ),
     children: [
       {
-        path: '',
+        path: ROUTES.site.home,
         loadComponent: () =>
           import('./pages/site/home/home.component').then(m => m.HomeComponent),
       },
       {
-        path: 'catalog',
+        path: ROUTES.site.catalog,
         loadComponent: () =>
           import('./pages/site/catalog/catalog.component').then(
             m => m.CatalogComponent,
           ),
       },
       {
-        path: 'about',
+        path: ROUTES.site.about,
         loadComponent: () =>
           import('./pages/site/about/about.component').then(
             m => m.AboutComponent,
           ),
       },
       {
-        path: 'account',
+        path: ROUTES.site.account,
         loadComponent: () =>
           import('./pages/site/account/account.component').then(
             m => m.AccountComponent,
           ),
       },
       {
-        path: 'favorites',
+        path: ROUTES.site.favorites,
         loadComponent: () =>
           import('./pages/site/favorites/favorites.component').then(
             m => m.FavoritesComponent,
           ),
       },
       {
-        path: 'cart',
+        path: ROUTES.site.cart,
         loadComponent: () =>
           import('./pages/site/cart/cart.component').then(m => m.CartComponent),
       },
@@ -61,7 +63,7 @@ export const routes: Routes = [
   },
   // CRM — повністю ізольований, зі своїм sidenav
   {
-    path: 'crm',
+    path: ROUTES.crm.root,
     loadChildren: () =>
       import('./pages/crm/crm.routes').then(m => m.CRM_ROUTES),
   },
