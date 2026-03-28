@@ -43,8 +43,28 @@
   </div>
 
   <div class="header-icons">
+    <div class="header-search" [class.header-search--open]="isSearchOpen">
+      <div class="header-search__input-wrap">
+        <input
+          #searchInput
+          class="header-search__input input-field__control"
+          type="search"
+          placeholder="Пошук..."
+          aria-label="Глобальний пошук"
+          (blur)="onSearchBlur($event)"
+        />
+      </div>
+      <button
+        class="header-search__btn"
+        (click)="toggleSearch()"
+        [attr.aria-label]="isSearchOpen ? 'Закрити пошук' : 'Відкрити пошук'"
+      >
+        <span class="header-search__icon" aria-hidden="true"></span>
+      </button>
+    </div>
+
     <a
-      routerLink="/account"
+      routerLink="/crm/auth/login"
       routerLinkActive="icon-account--active"
       class="icon-account"
       aria-label="Go to Account"

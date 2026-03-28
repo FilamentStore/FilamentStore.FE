@@ -99,6 +99,10 @@
   mask-position: center;
   mask-size: contain;
 
+  &--account {
+    mask-image: url('../../../../assets/icons/user-account.svg');
+  }
+
   &--favorite {
     mask-image: url('../../../../assets/icons/icon-favorite.svg');
   }

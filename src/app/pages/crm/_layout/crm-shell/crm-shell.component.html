@@ -1,0 +1,49 @@
+<mat-sidenav-container class="crm-container">
+  <mat-sidenav class="crm-sidenav" [opened]="sidenavOpen()" mode="side">
+    <div class="sidenav-header">
+      <mat-icon class="sidenav-logo-icon">hexagon</mat-icon>
+      <span class="sidenav-title">FilamentCRM</span>
+    </div>
+
+    <mat-divider />
+
+    <mat-nav-list class="sidenav-nav">
+      @for (item of navItems; track item.route) {
+        <a
+          mat-list-item
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          class="nav-item"
+        >
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+
+    <div class="sidenav-footer">
+      <mat-divider />
+      <a mat-list-item routerLink="/" class="nav-item exit-link">
+        <mat-icon matListItemIcon>logout</mat-icon>
+        <span matListItemTitle>До магазину</span>
+      </a>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="crm-content">
+    <mat-toolbar class="crm-toolbar">
+      <button mat-icon-button (click)="toggleSidenav()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="toolbar-spacer"></span>
+      <span class="toolbar-user">
+        <mat-icon>account_circle</mat-icon>
+        Адміністратор
+      </span>
+    </mat-toolbar>
+
+    <div class="crm-page-content">
+      <router-outlet />
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
