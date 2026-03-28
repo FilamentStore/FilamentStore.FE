@@ -11,8 +11,10 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
+import { Store } from '@ngrx/store';
 import { AuthService } from '@app/services/auth/auth.service';
 import { ROUTES } from '@app/constants/app.routes.const';
+import { selectCurrentUser } from '@store/auth/auth.selectors';
 
 interface NavItem {
   label: string;
@@ -40,11 +42,12 @@ interface NavItem {
 export class CrmShellComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
+  private store = inject(Store);
 
-  sidenavOpen = signal(true);
-  currentUser = this.auth.currentUser;
+  public sidenavOpen = signal(true);
+  public currentUser = this.store.selectSignal(selectCurrentUser);
 
-  navItems: NavItem[] = [
+  public navItems: NavItem[] = [
     {
       label: 'Дашборд',
       icon: 'dashboard',
