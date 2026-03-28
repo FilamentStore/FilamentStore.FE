@@ -1,5 +1,5 @@
 import { Routes, UrlSegment } from '@angular/router';
-import { ROUTES } from './app.routes.const';
+import { ROUTES } from './constants/app.routes.const';
 
 export const routes: Routes = [
   // Site — з header та footer (завжди перший, але не матчить /crm)
@@ -64,7 +64,6 @@ export const routes: Routes = [
   // CRM — повністю ізольований, зі своїм sidenav
   {
     path: ROUTES.crm.root,
-    loadChildren: () =>
-      import('./pages/crm/crm.routes').then(m => m.CRM_ROUTES),
+    loadChildren: () => import('./crm/crm.routes').then(m => m.CRM_ROUTES),
   },
 ];

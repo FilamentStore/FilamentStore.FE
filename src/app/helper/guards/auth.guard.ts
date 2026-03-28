@@ -1,8 +1,8 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
-import { AuthService } from '../services/auth.service';
-import { ROUTES } from '../../../../app.routes.const';
+import { AuthService } from '@app/services/auth/auth.service';
+import { ROUTES } from '@app/constants/app.routes.const';
 
 const LOGIN_PATH = `/${ROUTES.crm.root}/${ROUTES.crm.auth.root}/${ROUTES.crm.auth.login}`;
 

@@ -6,8 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '../../core/services/auth.service';
-import { ROUTES } from '../../../../app.routes.const';
+import { AuthService } from '@app/services/auth/auth.service';
+import { ROUTES } from '@app/constants/app.routes.const';
 
 @Component({
   selector: 'app-crm-login',

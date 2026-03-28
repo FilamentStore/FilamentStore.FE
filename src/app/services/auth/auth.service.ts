@@ -1,14 +1,10 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { environment } from '../../../../../environments/environment';
-import { StorageService } from '../../../../core/services/storage.service';
-import { JwtService } from '../../../../core/services/jwt.service';
-import {
-  AuthResponse,
-  CrmUser,
-  WpUser,
-} from '../../../../core/models/auth.models';
+import { environment } from '@env/environment';
+import { StorageService } from '@app/services/storage.service';
+import { JwtService } from '@app/services/auth/jwt.service';
+import { AuthResponse, CrmUser, WpUser } from '@app/models/auth.models';
 
 const TOKEN_KEY = 'crm_token';
 const USER_KEY = 'crm_user';

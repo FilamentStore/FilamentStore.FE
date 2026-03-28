@@ -11,8 +11,8 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
-import { AuthService } from '../../core/services/auth.service';
-import { ROUTES } from '../../../../app.routes.const';
+import { AuthService } from '@app/services/auth/auth.service';
+import { ROUTES } from '@app/constants/app.routes.const';
 
 interface NavItem {
   label: string;
