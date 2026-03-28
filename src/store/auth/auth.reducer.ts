@@ -3,7 +3,7 @@ import { AuthActions } from './auth.actions';
 import { AuthState } from './auth.state';
 
 const initialState: AuthState = {
-  token: localStorage.getItem('crm_token'),
+  token: JSON.parse(localStorage.getItem('crm_token') ?? 'null'),
   user: JSON.parse(localStorage.getItem('crm_user') ?? 'null'),
 };
 
