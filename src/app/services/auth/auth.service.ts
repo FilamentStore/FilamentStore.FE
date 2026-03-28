@@ -1,10 +1,13 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { Store } from '@ngrx/store';
 import { environment } from '@env/environment';
 import { StorageService } from '@app/services/storage.service';
 import { JwtService } from '@app/services/auth/jwt.service';
 import { AuthResponse, CrmUser, WpUser } from '@app/models/auth.models';
+import { AuthActions } from '@store/auth/auth.actions';
+import { selectToken } from '@store/auth/auth.selectors';
 
 const TOKEN_KEY = 'crm_token';
 const USER_KEY = 'crm_user';
@@ -14,11 +17,9 @@ export class AuthService {
   private http = inject(HttpClient);
   private storage = inject(StorageService);
   private jwt = inject(JwtService);
+  private store = inject(Store);
 
-  private _currentUser = signal<CrmUser | null>(
-    this.storage.get<CrmUser>(USER_KEY),
-  );
-  readonly currentUser = this._currentUser.asReadonly();
+  readonly token = this.store.selectSignal(selectToken);
 
   login(username: string, password: string): Observable<AuthResponse> {
     return this.http
@@ -28,14 +29,16 @@ export class AuthService {
       })
       .pipe(
         tap(res => {
-          this.storage.set(TOKEN_KEY, res.token);
           const user: CrmUser = {
             email: res.user_email,
             name: res.user_display_name,
           };
 
+          this.storage.set(TOKEN_KEY, res.token);
           this.storage.set(USER_KEY, user);
-          this._currentUser.set(user);
+          this.store.dispatch(
+            AuthActions.loginSuccess({ token: res.token, user }),
+          );
         }),
       );
   }
@@ -54,15 +57,11 @@ export class AuthService {
   logout(): void {
     this.storage.remove(TOKEN_KEY);
     this.storage.remove(USER_KEY);
-    this._currentUser.set(null);
-  }
-
-  getToken(): string | null {
-    return this.storage.get<string>(TOKEN_KEY);
+    this.store.dispatch(AuthActions.logout());
   }
 
   isLoggedIn(): boolean {
-    const token = this.getToken();
+    const token = this.token();
 
     if (!token) return false;
 
