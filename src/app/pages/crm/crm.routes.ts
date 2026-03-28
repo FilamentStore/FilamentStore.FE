@@ -5,6 +5,7 @@ import { CrmLoginComponent } from './auth/crm-login/crm-login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ProductListComponent } from './products/product-list/product-list.component';
 import { ProductCreateComponent } from './products/product-create/product-create.component';
+import { authGuard } from './core/guards/auth.guard';
 
 const crm = ROUTES.crm;
 
@@ -19,6 +20,7 @@ export const CRM_ROUTES: Routes = [
   {
     path: '',
     component: CrmShellComponent,
+    canActivate: [authGuard],
     children: [
       { path: '', redirectTo: crm.dashboard, pathMatch: 'full' },
       { path: crm.dashboard, component: DashboardComponent },
