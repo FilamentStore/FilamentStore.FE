@@ -1,0 +1,132 @@
+:host {
+  display: block;
+  height: 100vh;
+}
+
+.crm-container {
+  height: 100%;
+}
+
+.crm-sidenav {
+  width: 240px;
+  background: #1a1f36;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+
+  .sidenav-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 16px;
+
+    .sidenav-logo-icon {
+      color: #22a794;
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+
+    .sidenav-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  mat-divider {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .sidenav-nav {
+    flex: 1;
+    padding-top: 8px;
+  }
+
+  .nav-item {
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    margin: 2px 8px;
+    transition:
+      background 0.2s,
+      color 0.2s;
+
+    mat-icon {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+
+      mat-icon {
+        color: #22a794;
+      }
+    }
+
+    &.active-link {
+      background: rgba(34, 167, 148, 0.2);
+      color: #22a794;
+
+      mat-icon {
+        color: #22a794;
+      }
+    }
+  }
+
+  .sidenav-footer {
+    .exit-link {
+      color: rgba(255, 255, 255, 0.5);
+      margin: 4px 8px 8px;
+      border-radius: 8px;
+
+      mat-icon {
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+      }
+    }
+  }
+}
+
+.crm-content {
+  display: flex;
+  flex-direction: column;
+  background: #f5f6fa;
+  min-height: 100vh;
+}
+
+.crm-toolbar {
+  background: #fff;
+  border-bottom: 1px solid #e8e9f0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  .toolbar-spacer {
+    flex: 1;
+  }
+
+  .toolbar-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #5e7470;
+    font-size: 14px;
+
+    mat-icon {
+      color: #22a794;
+    }
+  }
+}
+
+.crm-page-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}

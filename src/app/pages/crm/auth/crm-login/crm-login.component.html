@@ -1,0 +1,78 @@
+<div class="login-wrapper">
+  <mat-card class="login-card">
+    <mat-card-header class="login-header">
+      <div class="login-logo">
+        <mat-icon class="login-logo-icon">hexagon</mat-icon>
+        <span class="login-logo-text">FilamentCRM</span>
+      </div>
+      <mat-card-title>Вхід до панелі</mat-card-title>
+      <mat-card-subtitle>Введіть ваші облікові дані</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="admin@filamentstore.com"
+            autocomplete="email"
+          />
+          <mat-icon matSuffix>mail_outline</mat-icon>
+          @if (form.controls.email.hasError('required')) {
+            <mat-error>Email обов'язковий</mat-error>
+          } @else if (form.controls.email.hasError('email')) {
+            <mat-error>Введіть коректний email</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Пароль</mat-label>
+          <input
+            matInput
+            [type]="hidePassword() ? 'password' : 'text'"
+            formControlName="password"
+            autocomplete="current-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="togglePasswordVisibility($event)"
+          >
+            <mat-icon>{{
+              hidePassword() ? 'visibility_off' : 'visibility'
+            }}</mat-icon>
+          </button>
+          @if (form.controls.password.hasError('required')) {
+            <mat-error>Пароль обов'язковий</mat-error>
+          } @else if (form.controls.password.hasError('minlength')) {
+            <mat-error>Мінімум 6 символів</mat-error>
+          }
+        </mat-form-field>
+
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          class="login-btn"
+          [disabled]="form.invalid || loading()"
+        >
+          {{ loading() ? '' : 'Увійти' }}
+          @if (loading()) {
+            <mat-icon class="spin">autorenew</mat-icon>
+          }
+        </button>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions class="login-footer">
+      <a routerLink="/" mat-button>
+        <mat-icon>arrow_back</mat-icon>
+        До магазину
+      </a>
+    </mat-card-actions>
+  </mat-card>
+</div>
