@@ -19,6 +19,36 @@
           <span matListItemTitle>{{ item.label }}</span>
         </a>
       }
+
+      <button
+        mat-list-item
+        type="button"
+        class="nav-item nav-expand-trigger"
+        [class.active-link]="configOpen()"
+        (click)="toggleConfig()"
+      >
+        <mat-icon matListItemIcon>settings</mat-icon>
+        <span matListItemTitle>Конфігурація</span>
+        <mat-icon class="expand-icon">
+          {{ configOpen() ? 'expand_less' : 'expand_more' }}
+        </mat-icon>
+      </button>
+
+      @if (configOpen()) {
+        <div class="nav-submenu">
+          @for (item of configItems; track item.route) {
+            <a
+              mat-list-item
+              [routerLink]="item.route"
+              routerLinkActive="active-link"
+              class="nav-item nav-subitem"
+            >
+              <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+              <span matListItemTitle>{{ item.label }}</span>
+            </a>
+          }
+        </div>
+      }
     </mat-nav-list>
 
     <div class="sidenav-footer">

@@ -40,11 +40,12 @@ interface NavItem {
   styleUrl: './crm-shell.component.scss',
 })
 export class CrmShellComponent {
-  private auth = inject(AuthService);
-  private router = inject(Router);
-  private store = inject(Store);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly store = inject(Store);
 
   public sidenavOpen = signal(true);
+  public configOpen = signal(false);
   public currentUser = this.store.selectSignal(selectCurrentUser);
 
   public navItems: NavItem[] = [
@@ -58,15 +59,27 @@ export class CrmShellComponent {
       icon: 'inventory_2',
       route: `/${ROUTES.crm.root}/${ROUTES.crm.products.root}`,
     },
+  ];
+
+  public configItems: NavItem[] = [
     {
-      label: 'Конфігурація',
-      icon: 'settings',
-      route: `/${ROUTES.crm.root}/${ROUTES.crm.config}`,
+      label: 'Атрибути',
+      icon: 'tune',
+      route: `/${ROUTES.crm.root}/${ROUTES.crm.configuration.root}/${ROUTES.crm.configuration.attributes}`,
+    },
+    {
+      label: 'Категорії',
+      icon: 'category',
+      route: `/${ROUTES.crm.root}/${ROUTES.crm.configuration.root}/${ROUTES.crm.configuration.categories}`,
     },
   ];
 
   toggleSidenav(): void {
     this.sidenavOpen.update(v => !v);
+  }
+
+  toggleConfig(): void {
+    this.configOpen.update(v => !v);
   }
 
   logout(): void {

@@ -18,6 +18,10 @@ export const ROUTES = {
       root: 'products',
       create: 'create',
     },
-    config: 'config',
+    configuration: {
+      root: 'config',
+      attributes: 'attributes',
+      categories: 'categories',
+    },
   },
 } as const;

@@ -35,7 +35,7 @@ export const CRM_ROUTES: Routes = [
           ),
       },
       {
-        path: crm.config,
+        path: crm.configuration.root,
         loadChildren: () =>
           import('@app/helper/route/config.routes').then(m => m.CONFIG_ROUTES),
       },

@@ -135,3 +135,29 @@
   padding: 24px;
   overflow-y: auto;
 }
+
+.nav-expand-trigger {
+  width: calc(100% - 16px);
+  margin: 2px 8px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+
+  .expand-icon {
+    margin-left: auto;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.nav-submenu {
+  padding: 4px 0 8px;
+}
+
+.nav-subitem {
+  margin-left: 24px;
+  width: calc(100% - 40px);
+  font-size: 14px;
+}
