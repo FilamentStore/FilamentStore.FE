@@ -1,0 +1,137 @@
+<div class="attr-tab-content">
+  <div class="content-header">
+    <span class="total-label">
+      Всього: <strong>{{ values().length }}</strong>
+    </span>
+
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="openAdd()"
+      [disabled]="showAddRow()"
+    >
+      <mat-icon>add</mat-icon>
+      Додати діаметр
+    </button>
+  </div>
+
+  <div class="table-wrap">
+    <table mat-table [dataSource]="values()" class="values-table">
+      <ng-container matColumnDef="value">
+        <th mat-header-cell *matHeaderCellDef>Значення</th>
+        <td mat-cell *matCellDef="let value">
+          @if (isEditing(value)) {
+            <mat-form-field appearance="outline" class="edit-field">
+              <input
+                matInput
+                [formControl]="editing()!.ctrl"
+                (keyup.enter)="submitEdit()"
+                (keyup.escape)="cancelEdit()"
+                autofocus
+              />
+            </mat-form-field>
+          } @else {
+            <span class="value-label">{{ value }}</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let value" class="actions-cell">
+          @if (isEditing(value)) {
+            <button
+              mat-icon-button
+              color="primary"
+              (click)="submitEdit()"
+              [disabled]="editing()!.ctrl.invalid"
+              matTooltip="Зберегти"
+            >
+              <mat-icon>check</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              (click)="cancelEdit()"
+              matTooltip="Скасувати"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          } @else if (isConfirmingDelete(value)) {
+            <span class="confirm-text">Видалити?</span>
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="confirmDeleteAction()"
+              matTooltip="Так"
+            >
+              <mat-icon>check</mat-icon>
+            </button>
+            <button mat-icon-button (click)="cancelDelete()" matTooltip="Ні">
+              <mat-icon>close</mat-icon>
+            </button>
+          } @else {
+            <button
+              mat-icon-button
+              (click)="startEdit(value)"
+              matTooltip="Редагувати"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="askDelete(value)"
+              matTooltip="Видалити"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns" class="table-row"></tr>
+
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell empty-state" colspan="2">
+          <mat-icon>straighten</mat-icon>
+          <p>Немає значень. Натисніть "Додати діаметр".</p>
+        </td>
+      </tr>
+    </table>
+
+    @if (showAddRow()) {
+      <div class="add-row">
+        <mat-form-field appearance="outline" class="add-field">
+          <mat-label>Нове значення</mat-label>
+          <input
+            matInput
+            [formControl]="addControl"
+            placeholder="Наприклад: 1.75мм"
+            (keyup.enter)="submitAdd()"
+            (keyup.escape)="cancelAdd()"
+            autofocus
+          />
+        </mat-form-field>
+
+        <div class="add-row-actions">
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="submitAdd()"
+            [disabled]="addControl.invalid || saving()"
+          >
+            @if (saving()) {
+              <mat-spinner diameter="18" />
+            } @else {
+              <mat-icon>add</mat-icon>
+            }
+            Додати
+          </button>
+
+          <button mat-stroked-button (click)="cancelAdd()">Скасувати</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
