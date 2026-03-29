@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { environment } from '@env/environment';
 import {
   ColorValue,
@@ -8,9 +8,7 @@ import {
   WcCategory,
 } from '@models/config.models';
 
-const STORAGE_KEY = 'fs_config_v2';
-
-interface StoredConfig {
+export interface StoredConfig {
   colors: ColorValue[];
   simpleAttributes: Record<string, SimpleAttributeOption[]>;
 }
@@ -20,24 +18,16 @@ export class ConfigService {
   private http = inject(HttpClient);
   private base = environment.apiUrl;
 
-  // ─── Config (localStorage until API is ready) ─────────────────────
+  // ─── Attributes config ────────────────────────────────────────────
   loadConfig(): Observable<StoredConfig> {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-
-      if (raw) return of(JSON.parse(raw) as StoredConfig);
-    } catch {
-      /* empty */
-    }
-
-    return of({ colors: [], simpleAttributes: {} });
+    return this.http.get<StoredConfig>(`${this.base}/config/attributes`);
   }
 
-  // Called by effects after every mutation — persists current store state
-  // When API is ready, replace with real HTTP calls
-  saveConfig(): Observable<void> {
-    // TODO: POST /config/save
-    return of(undefined);
+  saveConfig(config: StoredConfig): Observable<StoredConfig> {
+    return this.http.post<StoredConfig>(
+      `${this.base}/config/attributes`,
+      config,
+    );
   }
 
   // ─── Categories ───────────────────────────────────────────────────

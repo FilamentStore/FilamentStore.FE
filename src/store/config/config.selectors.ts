@@ -1,3 +1,4 @@
+import { createSelector } from '@ngrx/store';
 import { configFeature } from './config.reducer';
 
 export const {
@@ -10,3 +11,9 @@ export const {
   selectSavingCategory,
   selectError,
 } = configFeature;
+
+export const selectConfigForSave = createSelector(
+  selectColors,
+  selectSimpleAttributes,
+  (colors, simpleAttributes) => ({ colors, simpleAttributes }),
+);

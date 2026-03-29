@@ -1,13 +1,17 @@
 import { Injectable, inject } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { ConfigActions } from './config.actions';
 import { ConfigService } from '@app/services/tempService/config.service';
+import { selectConfigForSave } from './config.selectors';
+import { ColorValue, SimpleAttributeOption } from '@app/models/config.models';
 
 @Injectable()
 export class ConfigEffects {
   private actions$ = inject(Actions);
+  private store = inject(Store);
   private svc = inject(ConfigService);
 
   loadConfig$ = createEffect(() =>
@@ -24,16 +28,21 @@ export class ConfigEffects {
     ),
   );
 
+  // ─── Colors ────────────────────────────────────────────────────────
+
   addColor$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ConfigActions.addColor),
-      switchMap(({ color }) =>
-        this.svc.saveConfig().pipe(
-          map(() => ConfigActions.addColorSuccess({ color })),
-          catchError((err: { message: string }) =>
-            of(ConfigActions.addColorFailure({ error: err.message })),
+      withLatestFrom(this.store.select(selectConfigForSave)),
+      switchMap(([{ color }, config]) =>
+        this.svc
+          .saveConfig({ ...config, colors: [...config.colors, color] })
+          .pipe(
+            map(() => ConfigActions.addColorSuccess({ color })),
+            catchError((err: { message: string }) =>
+              of(ConfigActions.addColorFailure({ error: err.message })),
+            ),
           ),
-        ),
       ),
     ),
   );
@@ -41,13 +50,21 @@ export class ConfigEffects {
   updateColor$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ConfigActions.updateColor),
-      switchMap(({ oldSlug, color }) =>
-        this.svc.saveConfig().pipe(
-          map(() => ConfigActions.updateColorSuccess({ oldSlug, color })),
-          catchError((err: { message: string }) =>
-            of(ConfigActions.updateColorFailure({ error: err.message })),
+      withLatestFrom(this.store.select(selectConfigForSave)),
+      switchMap(([{ oldSlug, color }, config]) =>
+        this.svc
+          .saveConfig({
+            ...config,
+            colors: config.colors.map((c: ColorValue) =>
+              c.slug === oldSlug ? color : c,
+            ),
+          })
+          .pipe(
+            map(() => ConfigActions.updateColorSuccess({ oldSlug, color })),
+            catchError((err: { message: string }) =>
+              of(ConfigActions.updateColorFailure({ error: err.message })),
+            ),
           ),
-        ),
       ),
     ),
   );
@@ -55,27 +72,44 @@ export class ConfigEffects {
   removeColor$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ConfigActions.removeColor),
-      switchMap(({ slug }) =>
-        this.svc.saveConfig().pipe(
-          map(() => ConfigActions.removeColorSuccess({ slug })),
-          catchError((err: { message: string }) =>
-            of(ConfigActions.removeColorFailure({ error: err.message })),
+      withLatestFrom(this.store.select(selectConfigForSave)),
+      switchMap(([{ slug }, config]) =>
+        this.svc
+          .saveConfig({
+            ...config,
+            colors: config.colors.filter((c: ColorValue) => c.slug !== slug),
+          })
+          .pipe(
+            map(() => ConfigActions.removeColorSuccess({ slug })),
+            catchError((err: { message: string }) =>
+              of(ConfigActions.removeColorFailure({ error: err.message })),
+            ),
           ),
-        ),
       ),
     ),
   );
 
+  // ─── Simple values ─────────────────────────────────────────────────
+
   addValue$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ConfigActions.addValue),
-      switchMap(({ key, option }) =>
-        this.svc.saveConfig().pipe(
-          map(() => ConfigActions.addValueSuccess({ key, option })),
-          catchError((err: { message: string }) =>
-            of(ConfigActions.addValueFailure({ error: err.message })),
+      withLatestFrom(this.store.select(selectConfigForSave)),
+      switchMap(([{ key, option }, config]) =>
+        this.svc
+          .saveConfig({
+            ...config,
+            simpleAttributes: {
+              ...config.simpleAttributes,
+              [key]: [...(config.simpleAttributes[key] ?? []), option],
+            },
+          })
+          .pipe(
+            map(() => ConfigActions.addValueSuccess({ key, option })),
+            catchError((err: { message: string }) =>
+              of(ConfigActions.addValueFailure({ error: err.message })),
+            ),
           ),
-        ),
       ),
     ),
   );
@@ -83,13 +117,26 @@ export class ConfigEffects {
   updateValue$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ConfigActions.updateValue),
-      switchMap(({ key, oldSlug, option }) =>
-        this.svc.saveConfig().pipe(
-          map(() => ConfigActions.updateValueSuccess({ key, oldSlug, option })),
-          catchError((err: { message: string }) =>
-            of(ConfigActions.updateValueFailure({ error: err.message })),
+      withLatestFrom(this.store.select(selectConfigForSave)),
+      switchMap(([{ key, oldSlug, option }, config]) =>
+        this.svc
+          .saveConfig({
+            ...config,
+            simpleAttributes: {
+              ...config.simpleAttributes,
+              [key]: (config.simpleAttributes[key] ?? []).map(
+                (o: SimpleAttributeOption) => (o.slug === oldSlug ? option : o),
+              ),
+            },
+          })
+          .pipe(
+            map(() =>
+              ConfigActions.updateValueSuccess({ key, oldSlug, option }),
+            ),
+            catchError((err: { message: string }) =>
+              of(ConfigActions.updateValueFailure({ error: err.message })),
+            ),
           ),
-        ),
       ),
     ),
   );
@@ -97,16 +144,29 @@ export class ConfigEffects {
   removeValue$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ConfigActions.removeValue),
-      switchMap(({ key, slug }) =>
-        this.svc.saveConfig().pipe(
-          map(() => ConfigActions.removeValueSuccess({ key, slug })),
-          catchError((err: { message: string }) =>
-            of(ConfigActions.removeValueFailure({ error: err.message })),
+      withLatestFrom(this.store.select(selectConfigForSave)),
+      switchMap(([{ key, slug }, config]) =>
+        this.svc
+          .saveConfig({
+            ...config,
+            simpleAttributes: {
+              ...config.simpleAttributes,
+              [key]: (config.simpleAttributes[key] ?? []).filter(
+                (o: SimpleAttributeOption) => o.slug !== slug,
+              ),
+            },
+          })
+          .pipe(
+            map(() => ConfigActions.removeValueSuccess({ key, slug })),
+            catchError((err: { message: string }) =>
+              of(ConfigActions.removeValueFailure({ error: err.message })),
+            ),
           ),
-        ),
       ),
     ),
   );
+
+  // ─── Categories ────────────────────────────────────────────────────
 
   loadCategories$ = createEffect(() =>
     this.actions$.pipe(
