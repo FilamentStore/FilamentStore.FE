@@ -1,0 +1,180 @@
+<div class="categories-tab">
+  <div class="tab-header">
+    <div class="tab-header-info">
+      <h3>Категорії продуктів</h3>
+      <p>
+        Категорії використовуються для фільтрації та групування продуктів (PLA,
+        ABS, PETG…)
+      </p>
+    </div>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="openAdd()"
+      [disabled]="showAddRow()"
+    >
+      <mat-icon>add</mat-icon>
+      Нова категорія
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-row">
+      <mat-spinner diameter="36" />
+      <span>Завантаження...</span>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table mat-table [dataSource]="categories()" class="config-table">
+        <!-- Name column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Назва</th>
+          <td mat-cell *matCellDef="let cat">
+            @if (editingId() === cat.id) {
+              <mat-form-field appearance="outline" class="inline-edit-field">
+                <input
+                  matInput
+                  [formControl]="editControl"
+                  (keyup.enter)="submitEdit(cat.id)"
+                  (keyup.escape)="cancelEdit()"
+                  autofocus
+                />
+              </mat-form-field>
+            } @else {
+              <span class="category-name">{{ cat.name }}</span>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Slug column -->
+        <ng-container matColumnDef="slug">
+          <th mat-header-cell *matHeaderCellDef>Slug</th>
+          <td mat-cell *matCellDef="let cat">
+            <code class="slug-badge">{{ cat.slug }}</code>
+          </td>
+        </ng-container>
+
+        <!-- Count column -->
+        <ng-container matColumnDef="count">
+          <th mat-header-cell *matHeaderCellDef>Товарів</th>
+          <td mat-cell *matCellDef="let cat">
+            <mat-chip>{{ cat.count ?? 0 }}</mat-chip>
+          </td>
+        </ng-container>
+
+        <!-- Actions column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let cat">
+            @if (editingId() === cat.id) {
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="submitEdit(cat.id)"
+                [disabled]="editControl.invalid || saving()"
+                matTooltip="Зберегти"
+              >
+                <mat-icon>check</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                (click)="cancelEdit()"
+                matTooltip="Скасувати"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            } @else if (confirmDeleteId() === cat.id) {
+              <span class="confirm-delete">
+                <span class="confirm-text">Видалити?</span>
+                <button
+                  mat-icon-button
+                  color="warn"
+                  (click)="confirmDelete(cat.id)"
+                  matTooltip="Так"
+                >
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  (click)="cancelDelete()"
+                  matTooltip="Ні"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </span>
+            } @else {
+              <button
+                mat-icon-button
+                (click)="startEdit(cat)"
+                matTooltip="Редагувати"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="onDeleteClick(cat.id)"
+                matTooltip="Видалити"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          class="table-row"
+        ></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td
+            class="mat-cell empty-state"
+            [attr.colspan]="displayedColumns.length"
+          >
+            <mat-icon>category</mat-icon>
+            <p>Категорій ще немає. Натисніть "Нова категорія".</p>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Add row -->
+      @if (showAddRow()) {
+        <div class="add-row">
+          <mat-form-field appearance="outline" class="add-field">
+            <mat-label>Назва нової категорії</mat-label>
+            <input
+              matInput
+              [formControl]="addControl"
+              placeholder="Наприклад: PLA+"
+              (keyup.enter)="submitAdd()"
+              (keyup.escape)="cancelAdd()"
+              autofocus
+            />
+            @if (addControl.hasError('minlength')) {
+              <mat-error>Мінімум 2 символи</mat-error>
+            }
+          </mat-form-field>
+          <div class="add-row-actions">
+            <button
+              mat-flat-button
+              color="primary"
+              (click)="submitAdd()"
+              [disabled]="addControl.invalid || saving()"
+            >
+              @if (saving()) {
+                <mat-spinner diameter="18" />
+              } @else {
+                <mat-icon>add</mat-icon>
+              }
+              Додати
+            </button>
+            <button mat-stroked-button (click)="cancelAdd()">Скасувати</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

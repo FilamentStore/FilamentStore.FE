@@ -3,8 +3,6 @@ import { ROUTES } from '@app/constants/app.routes.const';
 import { CrmShellComponent } from '@pages/crm/_layout/crm-shell/crm-shell.component';
 import { CrmLoginComponent } from '@pages/crm/auth/crm-login/crm-login.component';
 import { DashboardComponent } from '@pages/crm/dashboard/dashboard.component';
-import { ProductListComponent } from '@pages/crm/products/product-list/product-list.component';
-import { ProductCreateComponent } from '@pages/crm/products/product-create/product-create.component';
 import { authGuard } from '@helper/guards/auth.guard';
 import { loginGuard } from '@helper/guards/login.guard';
 
@@ -31,10 +29,17 @@ export const CRM_ROUTES: Routes = [
       { path: crm.dashboard, component: DashboardComponent },
       {
         path: crm.products.root,
-        children: [
-          { path: '', component: ProductListComponent },
-          { path: crm.products.create, component: ProductCreateComponent },
-        ],
+        loadChildren: () =>
+          import('@app/features/products/products.routes').then(
+            m => m.PRODUCTS_ROUTES,
+          ),
+      },
+      {
+        path: crm.config,
+        loadChildren: () =>
+          import('@app/features/config/config.routes').then(
+            m => m.CONFIG_ROUTES,
+          ),
       },
     ],
   },

@@ -5,6 +5,7 @@ import {
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideStore } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
 import { authInterceptor } from './helper/interceptors/auth.interceptor';
 import { authReducer } from '@store/auth/auth.reducer';
 
@@ -16,5 +17,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideStore({ auth: authReducer }),
+    provideEffects(),
   ],
 };

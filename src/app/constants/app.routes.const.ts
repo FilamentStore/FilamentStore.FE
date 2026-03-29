@@ -18,5 +18,6 @@ export const ROUTES = {
       root: 'products',
       create: 'create',
     },
+    config: 'config',
   },
 } as const;

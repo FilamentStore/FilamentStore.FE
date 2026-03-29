@@ -58,6 +58,11 @@ export class CrmShellComponent {
       icon: 'inventory_2',
       route: `/${ROUTES.crm.root}/${ROUTES.crm.products.root}`,
     },
+    {
+      label: 'Конфігурація',
+      icon: 'settings',
+      route: `/${ROUTES.crm.root}/${ROUTES.crm.config}`,
+    },
   ];
 
   toggleSidenav(): void {
