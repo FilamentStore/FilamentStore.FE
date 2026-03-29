@@ -9,8 +9,10 @@ import { AuthResponse, CrmUser, WpUser } from '@app/models/auth.models';
 import { AuthActions } from '@store/auth/auth.actions';
 import { selectToken } from '@store/auth/auth.selectors';
 
-const TOKEN_KEY = 'crm_token';
-const USER_KEY = 'crm_user';
+import { STORAGE_KEYS } from '@constants/storage-keys.const';
+
+const TOKEN_KEY = STORAGE_KEYS.crm.token;
+const USER_KEY = STORAGE_KEYS.crm.user;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
