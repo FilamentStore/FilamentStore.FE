@@ -81,6 +81,23 @@
   }
 }
 
+.login-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(235, 87, 87, 0.1);
+  border-radius: 8px;
+  color: #eb5757;
+  font-size: 13px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
 .login-footer {
   display: flex;
   justify-content: center;

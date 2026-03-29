@@ -6,6 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { AuthService } from '@app/services/auth/auth.service';
+import { ROUTES } from '@app/constants/app.routes.const';
 
 @Component({
   selector: 'app-crm-login',
@@ -25,13 +27,15 @@ import { MatIconModule } from '@angular/material/icon';
 export class CrmLoginComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private auth = inject(AuthService);
 
   hidePassword = signal(true);
   loading = signal(false);
+  error = signal<string | null>(null);
 
   form = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    username: ['', [Validators.required]],
+    password: ['', [Validators.required]],
   });
 
   togglePasswordVisibility(event: MouseEvent): void {
@@ -42,10 +46,18 @@ export class CrmLoginComponent {
   onSubmit(): void {
     if (this.form.invalid) return;
     this.loading.set(true);
-    // TODO: підключити API авторизації
-    setTimeout(() => {
-      this.loading.set(false);
-      this.router.navigate(['/crm/dashboard']);
-    }, 800);
+    this.error.set(null);
+
+    const { username, password } = this.form.getRawValue();
+
+    this.auth.login(username, password).subscribe({
+      next: () => {
+        this.router.navigate([`/${ROUTES.crm.root}/${ROUTES.crm.dashboard}`]);
+      },
+      error: () => {
+        this.error.set('Невірний логін або пароль');
+        this.loading.set(false);
+      },
+    });
   }
 }

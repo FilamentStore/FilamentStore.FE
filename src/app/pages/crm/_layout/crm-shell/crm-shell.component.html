@@ -24,7 +24,7 @@
     <div class="sidenav-footer">
       <mat-divider />
       <a mat-list-item routerLink="/" class="nav-item exit-link">
-        <mat-icon matListItemIcon>logout</mat-icon>
+        <mat-icon matListItemIcon>storefront</mat-icon>
         <span matListItemTitle>До магазину</span>
       </a>
     </div>
@@ -38,8 +38,11 @@
       <span class="toolbar-spacer"></span>
       <span class="toolbar-user">
         <mat-icon>account_circle</mat-icon>
-        Адміністратор
+        {{ currentUser()?.name ?? 'Адміністратор' }}
       </span>
+      <button mat-icon-button (click)="logout()" title="Вийти">
+        <mat-icon>logout</mat-icon>
+      </button>
     </mat-toolbar>
 
     <div class="crm-page-content">
