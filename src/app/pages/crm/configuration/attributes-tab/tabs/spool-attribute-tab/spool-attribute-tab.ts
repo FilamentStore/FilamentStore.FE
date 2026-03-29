@@ -1,6 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,12 +14,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
 import {
   selectSaving,
   selectSimpleAttributes,
 } from '@store/config/config.selectors';
 import { ConfigActions } from '@store/config/config.actions';
+import { SimpleAttributeOption } from '@app/models/config.models';
 
 @Component({
   selector: 'app-spool-attribute-tab',
@@ -40,51 +45,72 @@ export class SpoolAttributeTabComponent {
   readonly simpleAttributes = this.store.selectSignal(selectSimpleAttributes);
   readonly saving = this.store.selectSignal(selectSaving);
 
-  readonly columns = ['value', 'actions'];
+  readonly columns = ['name', 'slug', 'actions'];
 
   readonly showAddRow = signal(false);
-  readonly addControl = new FormControl('', [Validators.required]);
-  readonly editing = signal<{ oldValue: string; ctrl: FormControl } | null>(
-    null,
-  );
+  readonly addForm = new FormGroup({
+    name: new FormControl('', [Validators.required]),
+    slug: new FormControl('', [Validators.required]),
+  });
+  readonly editing = signal<{ oldSlug: string; form: FormGroup } | null>(null);
   readonly confirmDelete = signal<string | null>(null);
 
-  values(): string[] {
+  values(): SimpleAttributeOption[] {
     return this.simpleAttributes()[this.key] ?? [];
+  }
+
+  toSlug(value: string): string {
+    return value
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
+  }
+
+  onAddNameInput(value: string): void {
+    this.addForm.controls.slug.setValue(this.toSlug(value), {
+      emitEvent: false,
+    });
+  }
+
+  onEditNameInput(value: string, form: FormGroup): void {
+    form.controls['slug'].setValue(this.toSlug(value), { emitEvent: false });
   }
 
   openAdd(): void {
     this.showAddRow.set(true);
-    this.addControl.reset();
+    this.addForm.reset({ name: '', slug: '' });
     this.editing.set(null);
     this.confirmDelete.set(null);
   }
 
   cancelAdd(): void {
     this.showAddRow.set(false);
-    this.addControl.reset();
+    this.addForm.reset();
   }
 
   submitAdd(): void {
-    if (this.addControl.invalid) return;
+    if (this.addForm.invalid) return;
+    const { name, slug } = this.addForm.getRawValue();
 
-    const value = this.addControl.value?.trim();
-
-    if (!value) return;
-
-    if (!this.values().includes(value)) {
-      this.store.dispatch(ConfigActions.addValue({ key: this.key, value }));
+    if (!name || !slug) return;
+    if (!this.values().some(v => v.slug === slug)) {
+      this.store.dispatch(
+        ConfigActions.addValue({ key: this.key, option: { name, slug } }),
+      );
     }
 
     this.showAddRow.set(false);
-    this.addControl.reset();
+    this.addForm.reset();
   }
 
-  startEdit(value: string): void {
-    this.editing.set({
-      oldValue: value,
-      ctrl: new FormControl(value, [Validators.required]),
+  startEdit(opt: SimpleAttributeOption): void {
+    const form = new FormGroup({
+      name: new FormControl(opt.name, [Validators.required]),
+      slug: new FormControl(opt.slug, [Validators.required]),
     });
+
+    this.editing.set({ oldSlug: opt.slug, form });
     this.showAddRow.set(false);
     this.confirmDelete.set(null);
   }
@@ -96,46 +122,34 @@ export class SpoolAttributeTabComponent {
   submitEdit(): void {
     const editing = this.editing();
 
-    if (!editing || editing.ctrl.invalid) return;
+    if (!editing || editing.form.invalid) return;
+    const { name, slug } = editing.form.getRawValue();
 
-    const newValue = editing.ctrl.value?.trim();
-
-    if (!newValue) return;
-
-    if (newValue !== editing.oldValue) {
-      this.store.dispatch(
-        ConfigActions.updateValue({
-          key: this.key,
-          oldValue: editing.oldValue,
-          newValue,
-        }),
-      );
-    }
-
+    if (!name || !slug) return;
+    this.store.dispatch(
+      ConfigActions.updateValue({
+        key: this.key,
+        oldSlug: editing.oldSlug,
+        option: { name, slug },
+      }),
+    );
     this.editing.set(null);
   }
 
-  isEditing(value: string): boolean {
-    return this.editing()?.oldValue === value;
+  isEditing(slug: string): boolean {
+    return this.editing()?.oldSlug === slug;
   }
 
-  askDelete(value: string): void {
-    this.confirmDelete.set(value);
+  askDelete(slug: string): void {
+    this.confirmDelete.set(slug);
     this.editing.set(null);
   }
 
   confirmDeleteAction(): void {
-    const value = this.confirmDelete();
+    const slug = this.confirmDelete();
 
-    if (!value) return;
-
-    this.store.dispatch(
-      ConfigActions.removeValue({
-        key: this.key,
-        value,
-      }),
-    );
-
+    if (!slug) return;
+    this.store.dispatch(ConfigActions.removeValue({ key: this.key, slug }));
     this.confirmDelete.set(null);
   }
 
@@ -143,7 +157,7 @@ export class SpoolAttributeTabComponent {
     this.confirmDelete.set(null);
   }
 
-  isConfirmingDelete(value: string): boolean {
-    return this.confirmDelete() === value;
+  isConfirmingDelete(slug: string): boolean {
+    return this.confirmDelete() === slug;
   }
 }

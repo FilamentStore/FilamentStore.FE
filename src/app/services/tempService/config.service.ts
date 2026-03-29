@@ -2,13 +2,17 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { environment } from '@env/environment';
-import { ColorValue, WcCategory } from '@models/config.models';
+import {
+  ColorValue,
+  SimpleAttributeOption,
+  WcCategory,
+} from '@models/config.models';
 
 const STORAGE_KEY = 'fs_config_v2';
 
 interface StoredConfig {
   colors: ColorValue[];
-  simpleAttributes: Record<string, string[]>;
+  simpleAttributes: Record<string, SimpleAttributeOption[]>;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -41,15 +45,21 @@ export class ConfigService {
     return this.http.get<WcCategory[]>(`${this.base}/config/categories`);
   }
 
-  createCategory(name: string): Observable<WcCategory> {
+  createCategory(name: string, slug: string): Observable<WcCategory> {
     return this.http.post<WcCategory>(`${this.base}/config/categories`, {
       name,
+      slug,
     });
   }
 
-  updateCategory(id: number, name: string): Observable<WcCategory> {
+  updateCategory(
+    id: number,
+    name: string,
+    slug: string,
+  ): Observable<WcCategory> {
     return this.http.put<WcCategory>(`${this.base}/config/categories/${id}`, {
       name,
+      slug,
     });
   }
 

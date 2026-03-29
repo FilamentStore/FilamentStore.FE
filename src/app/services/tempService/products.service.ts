@@ -47,6 +47,8 @@ export class ProductsService {
   }
 
   getCategories(): Observable<WcCategory[]> {
-    return this.http.get<WcCategory[]>(`${environment.apiUrl}/categories`);
+    return this.http.get<WcCategory[]>(
+      `${environment.apiUrl}/config/categories`,
+    );
   }
 }

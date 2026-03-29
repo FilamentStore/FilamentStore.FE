@@ -104,6 +104,30 @@
   color: var(--text-secondary, #888);
 }
 
+// Add-row color picker — large prominent swatch
+.add-row .color-picker-wrap {
+  gap: 6px;
+}
+
+.add-row .color-picker {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  border: 2px solid var(--border-color, #ccc);
+  padding: 3px;
+  cursor: pointer;
+  background: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+
+  &:hover {
+    border-color: var(--accent-color, #22a794);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  }
+}
+
 .hex-badge {
   background: var(--surface-color, #f5f5f5);
   border: 1px solid var(--border-color, #e0e0e0);

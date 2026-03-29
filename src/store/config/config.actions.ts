@@ -1,4 +1,8 @@
-import { ColorValue, WcCategory } from '@app/models/config.models';
+import {
+  ColorValue,
+  SimpleAttributeOption,
+  WcCategory,
+} from '@app/models/config.models';
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
 
 export const ConfigActions = createActionGroup({
@@ -8,7 +12,7 @@ export const ConfigActions = createActionGroup({
     'Load Config': emptyProps(),
     'Load Config Success': props<{
       colors: ColorValue[];
-      simpleAttributes: Record<string, string[]>;
+      simpleAttributes: Record<string, SimpleAttributeOption[]>;
     }>(),
     'Load Config Failure': props<{ error: string }>(),
 
@@ -26,24 +30,27 @@ export const ConfigActions = createActionGroup({
     'Remove Color Failure': props<{ error: string }>(),
 
     // ─── Simple attribute values ───────────────────────────────────
-    'Add Value': props<{ key: string; value: string }>(),
-    'Add Value Success': props<{ key: string; value: string }>(),
+    'Add Value': props<{ key: string; option: SimpleAttributeOption }>(),
+    'Add Value Success': props<{
+      key: string;
+      option: SimpleAttributeOption;
+    }>(),
     'Add Value Failure': props<{ error: string }>(),
 
     'Update Value': props<{
       key: string;
-      oldValue: string;
-      newValue: string;
+      oldSlug: string;
+      option: SimpleAttributeOption;
     }>(),
     'Update Value Success': props<{
       key: string;
-      oldValue: string;
-      newValue: string;
+      oldSlug: string;
+      option: SimpleAttributeOption;
     }>(),
     'Update Value Failure': props<{ error: string }>(),
 
-    'Remove Value': props<{ key: string; value: string }>(),
-    'Remove Value Success': props<{ key: string; value: string }>(),
+    'Remove Value': props<{ key: string; slug: string }>(),
+    'Remove Value Success': props<{ key: string; slug: string }>(),
     'Remove Value Failure': props<{ error: string }>(),
 
     // ─── Categories ───────────────────────────────────────────────
@@ -51,11 +58,11 @@ export const ConfigActions = createActionGroup({
     'Load Categories Success': props<{ categories: WcCategory[] }>(),
     'Load Categories Failure': props<{ error: string }>(),
 
-    'Create Category': props<{ name: string }>(),
+    'Create Category': props<{ name: string; slug: string }>(),
     'Create Category Success': props<{ category: WcCategory }>(),
     'Create Category Failure': props<{ error: string }>(),
 
-    'Update Category': props<{ id: number; name: string }>(),
+    'Update Category': props<{ id: number; name: string; slug: string }>(),
     'Update Category Success': props<{ category: WcCategory }>(),
     'Update Category Failure': props<{ error: string }>(),
 

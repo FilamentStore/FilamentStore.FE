@@ -1,12 +1,13 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import { ConfigActions } from './config.actions';
+import { SimpleAttributeOption } from '@app/models/config.models';
 import { WcCategory } from '@app/models/product.models';
 
 const STORAGE_KEY = 'fs_config_v2';
 
 interface FullState {
   colors: { name: string; hex: string; slug: string }[];
-  simpleAttributes: Record<string, string[]>;
+  simpleAttributes: Record<string, SimpleAttributeOption[]>;
   categories: WcCategory[];
   loading: boolean;
   saving: boolean;
@@ -15,11 +16,47 @@ interface FullState {
   error: string | null;
 }
 
+function migrateSimpleAttributes(
+  raw: Record<string, unknown>,
+): Record<string, SimpleAttributeOption[]> {
+  const result: Record<string, SimpleAttributeOption[]> = {};
+
+  for (const [key, values] of Object.entries(raw)) {
+    if (Array.isArray(values)) {
+      result[key] = values.map(v => {
+        if (typeof v === 'string') {
+          return {
+            name: v,
+            slug: v
+              .toLowerCase()
+              .trim()
+              .replace(/\s+/g, '-')
+              .replace(/[^a-z0-9-]/g, ''),
+          };
+        }
+
+        return v as SimpleAttributeOption;
+      });
+    }
+  }
+
+  return result;
+}
+
 function loadFromStorage(): Pick<FullState, 'colors' | 'simpleAttributes'> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
 
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+
+      return {
+        colors: parsed.colors ?? [],
+        simpleAttributes: migrateSimpleAttributes(
+          parsed.simpleAttributes ?? {},
+        ),
+      };
+    }
   } catch {
     /* empty */
   }
@@ -123,13 +160,13 @@ export const configFeature = createFeature({
 
     // ─── Simple values ────────────────────────────────────────────────
     on(ConfigActions.addValue, state => ({ ...state, saving: true })),
-    on(ConfigActions.addValueSuccess, (state, { key, value }) => {
+    on(ConfigActions.addValueSuccess, (state, { key, option }) => {
       const next = {
         ...state,
         saving: false,
         simpleAttributes: {
           ...state.simpleAttributes,
-          [key]: [...(state.simpleAttributes[key] ?? []), value],
+          [key]: [...(state.simpleAttributes[key] ?? []), option],
         },
       };
 
@@ -143,31 +180,30 @@ export const configFeature = createFeature({
       error,
     })),
 
-    on(
-      ConfigActions.updateValueSuccess,
-      (state, { key, oldValue, newValue }) => {
-        const next = {
-          ...state,
-          simpleAttributes: {
-            ...state.simpleAttributes,
-            [key]: (state.simpleAttributes[key] ?? []).map(v =>
-              v === oldValue ? newValue : v,
-            ),
-          },
-        };
-
-        persist(next);
-
-        return next;
-      },
-    ),
-
-    on(ConfigActions.removeValueSuccess, (state, { key, value }) => {
+    on(ConfigActions.updateValueSuccess, (state, { key, oldSlug, option }) => {
       const next = {
         ...state,
         simpleAttributes: {
           ...state.simpleAttributes,
-          [key]: (state.simpleAttributes[key] ?? []).filter(v => v !== value),
+          [key]: (state.simpleAttributes[key] ?? []).map(o =>
+            o.slug === oldSlug ? option : o,
+          ),
+        },
+      };
+
+      persist(next);
+
+      return next;
+    }),
+
+    on(ConfigActions.removeValueSuccess, (state, { key, slug }) => {
+      const next = {
+        ...state,
+        simpleAttributes: {
+          ...state.simpleAttributes,
+          [key]: (state.simpleAttributes[key] ?? []).filter(
+            o => o.slug !== slug,
+          ),
         },
       };
 

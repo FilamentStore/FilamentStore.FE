@@ -1,5 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { MatTableModule } from '@angular/material/table';
@@ -44,18 +49,18 @@ export class CategoriesTabComponent implements OnInit {
   saving = this.store.selectSignal(selectSavingCategory);
 
   // inline add
-  addControl = new FormControl('', [
-    Validators.required,
-    Validators.minLength(2),
-  ]);
+  addForm = new FormGroup({
+    name: new FormControl('', [Validators.required, Validators.minLength(2)]),
+    slug: new FormControl('', [Validators.required]),
+  });
   showAddRow = signal(false);
 
   // inline edit
   editingId = signal<number | null>(null);
-  editControl = new FormControl('', [
-    Validators.required,
-    Validators.minLength(2),
-  ]);
+  editForm = new FormGroup({
+    name: new FormControl('', [Validators.required, Validators.minLength(2)]),
+    slug: new FormControl('', [Validators.required]),
+  });
 
   // delete confirm
   confirmDeleteId = signal<number | null>(null);
@@ -66,37 +71,61 @@ export class CategoriesTabComponent implements OnInit {
     this.store.dispatch(ConfigActions.loadCategories());
   }
 
+  toSlug(value: string): string {
+    return value
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
+  }
+
+  onAddNameInput(value: string): void {
+    this.addForm.controls.slug.setValue(this.toSlug(value), {
+      emitEvent: false,
+    });
+  }
+
+  onEditNameInput(value: string): void {
+    this.editForm.controls.slug.setValue(this.toSlug(value), {
+      emitEvent: false,
+    });
+  }
+
   // ─── Add ──────────────────────────────────────────────────────────
   openAdd(): void {
     this.showAddRow.set(true);
-    this.addControl.reset();
+    this.addForm.reset({ name: '', slug: '' });
   }
 
   submitAdd(): void {
-    if (this.addControl.invalid) return;
+    if (this.addForm.invalid) return;
+    const { name, slug } = this.addForm.getRawValue();
+
     this.store.dispatch(
-      ConfigActions.createCategory({ name: this.addControl.value! }),
+      ConfigActions.createCategory({ name: name!, slug: slug! }),
     );
     this.showAddRow.set(false);
-    this.addControl.reset();
+    this.addForm.reset();
   }
 
   cancelAdd(): void {
     this.showAddRow.set(false);
-    this.addControl.reset();
+    this.addForm.reset();
   }
 
   // ─── Edit ─────────────────────────────────────────────────────────
   startEdit(cat: WcCategory): void {
     this.editingId.set(cat.id);
-    this.editControl.setValue(cat.name);
+    this.editForm.setValue({ name: cat.name, slug: cat.slug });
     this.confirmDeleteId.set(null);
   }
 
   submitEdit(id: number): void {
-    if (this.editControl.invalid) return;
+    if (this.editForm.invalid) return;
+    const { name, slug } = this.editForm.getRawValue();
+
     this.store.dispatch(
-      ConfigActions.updateCategory({ id, name: this.editControl.value! }),
+      ConfigActions.updateCategory({ id, name: name!, slug: slug! }),
     );
     this.editingId.set(null);
   }

@@ -4,6 +4,11 @@ export interface ColorValue {
   slug: string; // black
 }
 
+export interface SimpleAttributeOption {
+  name: string; // PLA
+  slug: string; // pla
+}
+
 export interface AttributeConfig {
   key: string;
   label: string;
@@ -14,7 +19,7 @@ export interface AttributeConfig {
 
 export interface ConfigState {
   colors: ColorValue[];
-  simpleAttributes: Record<string, string[]>;
+  simpleAttributes: Record<string, SimpleAttributeOption[]>;
   loading: boolean;
   saving: boolean;
   error: string | null;

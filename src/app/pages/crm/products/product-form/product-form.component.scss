@@ -38,17 +38,32 @@
   }
 }
 
-.loading-state {
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 64px 0;
+  justify-content: center;
   gap: 16px;
+  background: rgba(255, 255, 255, 0.85);
   color: var(--text-secondary, #888);
+  border-radius: inherit;
+}
+
+.tabs-hidden {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .form-card {
   flex: 1;
+  position: relative;
+
+  ::ng-deep .mat-mdc-card-content {
+    position: relative;
+  }
 }
 
 .tab-content {

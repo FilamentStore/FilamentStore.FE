@@ -69,9 +69,9 @@ export class ConfigEffects {
   addValue$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ConfigActions.addValue),
-      switchMap(({ key, value }) =>
+      switchMap(({ key, option }) =>
         this.svc.saveConfig().pipe(
-          map(() => ConfigActions.addValueSuccess({ key, value })),
+          map(() => ConfigActions.addValueSuccess({ key, option })),
           catchError((err: { message: string }) =>
             of(ConfigActions.addValueFailure({ error: err.message })),
           ),
@@ -83,11 +83,9 @@ export class ConfigEffects {
   updateValue$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ConfigActions.updateValue),
-      switchMap(({ key, oldValue, newValue }) =>
+      switchMap(({ key, oldSlug, option }) =>
         this.svc.saveConfig().pipe(
-          map(() =>
-            ConfigActions.updateValueSuccess({ key, oldValue, newValue }),
-          ),
+          map(() => ConfigActions.updateValueSuccess({ key, oldSlug, option })),
           catchError((err: { message: string }) =>
             of(ConfigActions.updateValueFailure({ error: err.message })),
           ),
@@ -99,9 +97,9 @@ export class ConfigEffects {
   removeValue$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ConfigActions.removeValue),
-      switchMap(({ key, value }) =>
+      switchMap(({ key, slug }) =>
         this.svc.saveConfig().pipe(
-          map(() => ConfigActions.removeValueSuccess({ key, value })),
+          map(() => ConfigActions.removeValueSuccess({ key, slug })),
           catchError((err: { message: string }) =>
             of(ConfigActions.removeValueFailure({ error: err.message })),
           ),
@@ -129,8 +127,8 @@ export class ConfigEffects {
   createCategory$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ConfigActions.createCategory),
-      switchMap(({ name }) =>
-        this.svc.createCategory(name).pipe(
+      switchMap(({ name, slug }) =>
+        this.svc.createCategory(name, slug).pipe(
           map(category => ConfigActions.createCategorySuccess({ category })),
           catchError((err: { message: string }) =>
             of(ConfigActions.createCategoryFailure({ error: err.message })),
@@ -143,8 +141,8 @@ export class ConfigEffects {
   updateCategory$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ConfigActions.updateCategory),
-      switchMap(({ id, name }) =>
-        this.svc.updateCategory(id, name).pipe(
+      switchMap(({ id, name, slug }) =>
+        this.svc.updateCategory(id, name, slug).pipe(
           map(category => ConfigActions.updateCategorySuccess({ category })),
           catchError((err: { message: string }) =>
             of(ConfigActions.updateCategoryFailure({ error: err.message })),

@@ -54,7 +54,7 @@ export class TabAttributesComponent implements OnInit {
       return this.colors().map(c => c.name);
     }
 
-    return this.simpleAttributes()[config.key] ?? [];
+    return (this.simpleAttributes()[config.key] ?? []).map(o => o.name);
   }
 
   getSelectedOptions(attrName: string): string[] {
