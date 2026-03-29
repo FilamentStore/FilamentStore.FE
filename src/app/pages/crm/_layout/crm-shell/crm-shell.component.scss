@@ -48,6 +48,7 @@
     color: rgba(255, 255, 255, 0.7);
     border-radius: 8px;
     margin: 2px 8px;
+    width: calc(100% - 16px);
     transition:
       background 0.2s,
       color 0.2s;
@@ -67,11 +68,15 @@
 
     &.active-link {
       background: rgba(34, 167, 148, 0.2);
-      color: #22a794;
+      color: #22a794 !important;
 
       mat-icon {
         color: #22a794;
       }
+    }
+
+    .mdc-list-item__primary-text {
+      color: inherit;
     }
   }
 
