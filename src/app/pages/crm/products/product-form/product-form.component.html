@@ -87,9 +87,10 @@
             @if (isEditMode()) {
               <app-tab-variations
                 [productId]="productId()!"
-                [attributes]="attributes()"
+                [attributes]="selectedAttributes()"
                 [colorsList]="colors()"
                 [simpleAttributes]="simpleAttributes()"
+                [skuPrefix]="skuPrefix()"
               />
             }
           </div>

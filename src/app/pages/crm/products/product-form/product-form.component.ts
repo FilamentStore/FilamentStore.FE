@@ -7,6 +7,7 @@
   inject,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTabGroup } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -43,7 +44,7 @@ import { BrandsService } from '@app/services/tempService/brands.service';
 import { AttributesService } from '@app/services/tempService/attributes.service';
 
 const DEFAULT_ATTRIBUTES: AttributeValue[] = [
-  { name: 'Матеріал', options: [] },
+  { name: 'Тип кольору', options: [] },
   { name: 'Колір', options: [] },
   { name: 'Вага', options: [] },
   { name: 'Діаметр', options: [] },
@@ -88,7 +89,7 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
   readonly brands = signal<Brand[]>([]);
   readonly colors = signal<ColorValue[]>([]);
   readonly simpleAttributes = signal<Record<string, SimpleAttributeOption[]>>({
-    material: [],
+    color_type: [],
     weight: [],
     diameter: [],
     spool: [],
@@ -98,6 +99,9 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
   readonly attributes = signal<AttributeValue[]>(
     structuredClone(DEFAULT_ATTRIBUTES),
   );
+  readonly selectedAttributes = computed(() =>
+    this.attributes().filter(attribute => attribute.options.length > 0),
+  );
 
   readonly form = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(2)]),
@@ -106,6 +110,18 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
     short_description: new FormControl(''),
     description: new FormControl(''),
     status: new FormControl<'publish' | 'draft' | 'private'>('draft'),
+  });
+
+  private readonly _formValues = toSignal(this.form.valueChanges, {
+    initialValue: this.form.getRawValue(),
+  });
+
+  readonly skuPrefix = computed(() => {
+    const brand = this._formValues()?.brand ?? '';
+    const catId = this._formValues()?.category_id;
+    const category = this.categories().find(c => c.id === catId)?.slug ?? '';
+
+    return [brand, category].filter(Boolean).join('-');
   });
 
   ngOnInit(): void {
@@ -136,6 +152,19 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    const emptyAttributeNames = this.getEmptyAttributeNames();
+
+    if (emptyAttributeNames.length > 0) {
+      this.tabGroup.selectedIndex = 1;
+      this.snackBar.open(
+        `Оберіть хоча б одне значення для кожного атрибуту: ${emptyAttributeNames.join(', ')}`,
+        'Закрити',
+        { duration: 4500 },
+      );
+
+      return;
+    }
+
     const value = this.form.getRawValue();
     const productData: Partial<Product> = {
       name: value.name!,
@@ -146,15 +175,13 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
       status: value.status ?? 'draft',
       images: this.dedupeImages(this.images()),
       type: 'variable',
-      attributes: this.attributes()
-        .filter(attribute => attribute.options.length > 0)
-        .map(attribute => ({
-          id: 0,
-          name: attribute.name,
-          options: attribute.options,
-          variation: true as const,
-          visible: true as const,
-        })),
+      attributes: this.selectedAttributes().map(attribute => ({
+        id: 0,
+        name: attribute.name,
+        options: attribute.options,
+        variation: true as const,
+        visible: true as const,
+      })),
     };
 
     this.saving.set(true);
@@ -214,7 +241,10 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
       next: config => {
         this.colors.set(config.colors ?? []);
         this.simpleAttributes.set({
-          material: config.simpleAttributes['material'] ?? [],
+          color_type:
+            config.simpleAttributes['color_type'] ??
+            config.simpleAttributes['material'] ??
+            [],
           weight: config.simpleAttributes['weight'] ?? [],
           diameter: config.simpleAttributes['diameter'] ?? [],
           spool: config.simpleAttributes['spool'] ?? [],
@@ -223,7 +253,7 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
       error: () => {
         this.colors.set([]);
         this.simpleAttributes.set({
-          material: [],
+          color_type: [],
           weight: [],
           diameter: [],
           spool: [],
@@ -263,7 +293,10 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
     if (product.attributes?.length) {
       const merged = DEFAULT_ATTRIBUTES.map(defaultAttribute => {
         const existing = product.attributes.find(
-          attribute => attribute.name === defaultAttribute.name,
+          attribute =>
+            attribute.name === defaultAttribute.name ||
+            (defaultAttribute.name === 'Тип кольору' &&
+              attribute.name === 'Матеріал'),
         );
 
         return existing
@@ -289,5 +322,11 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
     });
 
     return Array.from(unique.values());
+  }
+
+  private getEmptyAttributeNames(): string[] {
+    return this.attributes()
+      .filter(attribute => attribute.options.length === 0)
+      .map(attribute => attribute.name);
   }
 }

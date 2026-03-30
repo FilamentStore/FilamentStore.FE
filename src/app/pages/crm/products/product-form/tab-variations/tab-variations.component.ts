@@ -57,6 +57,7 @@ function cartesianProduct(arrays: string[][]): string[][] {
 })
 export class TabVariationsComponent implements OnChanges {
   @Input({ required: true }) productId!: number;
+  @Input() skuPrefix = '';
   @Input() attributes: AttributeValue[] = [];
   @Input() colorsList: ColorValue[] = [];
   @Input() simpleAttributes: Record<string, SimpleAttributeOption[]> = {
@@ -191,6 +192,14 @@ export class TabVariationsComponent implements OnChanges {
       label: option.name,
       value: option.slug,
     }));
+  }
+
+  getManualOptions(attribute: AttributeValue): AttributeOption[] {
+    const selectedValues = new Set(attribute.options);
+
+    return this.getConfiguredOptions(attribute.name).filter(option =>
+      selectedValues.has(option.value),
+    );
   }
 
   addEmptyVariation(): void {
@@ -422,12 +431,15 @@ export class TabVariationsComponent implements OnChanges {
   private createVariationSku(
     attrs: { name: string; option: string }[],
   ): string {
+    const attrPart = attrs
+      .map(attribute => attribute.option.trim())
+      .filter(Boolean)
+      .join('-');
+
     const base =
-      attrs
-        .map(attribute => attribute.option.trim())
+      [this.skuPrefix, attrPart]
         .filter(Boolean)
         .join('-')
-        .trim()
         .toLowerCase()
         .replace(/\s+/g, '-')
         .replace(/[^\u0000-\u007F\p{L}\p{N}-]+/gu, '') || 'variation';

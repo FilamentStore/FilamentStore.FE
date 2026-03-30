@@ -10,7 +10,7 @@
       mat-flat-button
       color="accent"
       type="button"
-      [disabled]="!hasAnySelected()"
+      [disabled]="!hasAllSelected()"
       (click)="generateVariations.emit()"
       matTooltip="Створіть усі комбінації обраних значень"
     >

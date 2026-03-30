@@ -117,6 +117,10 @@ export class TabAttributesComponent {
     return this.attributes.some(attribute => attribute.options.length > 0);
   }
 
+  hasAllSelected(): boolean {
+    return this.configs.every(config => this.getSelectedCount(config) > 0);
+  }
+
   getSelectedCount(config: AttributeConfig): number {
     return this.getSelectedOptions(config.label).length;
   }

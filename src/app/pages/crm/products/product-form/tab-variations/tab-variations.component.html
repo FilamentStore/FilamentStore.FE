@@ -64,10 +64,7 @@
               [value]="selectedOptions()[attr.name]"
               (selectionChange)="updateSelectedOption(attr.name, $event.value)"
             >
-              @for (
-                option of getConfiguredOptions(attr.name);
-                track option.value
-              ) {
+              @for (option of getManualOptions(attr); track option.value) {
                 <mat-option [value]="option.value">{{
                   option.label
                 }}</mat-option>
