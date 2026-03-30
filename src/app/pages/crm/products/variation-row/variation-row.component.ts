@@ -54,6 +54,7 @@ import { MediaService } from '@app/services/tempService/media.service';
 })
 export class VariationRowComponent implements OnInit {
   @Input({ required: true }) variation!: ProductVariation;
+  @Input() skuPrefix = '';
   @Input() colorsList: ColorValue[] = [];
   @Input() simpleAttributes: Record<string, SimpleAttributeOption[]> = {
     color_type: [],
@@ -176,11 +177,13 @@ export class VariationRowComponent implements OnInit {
   }
 
   private generateSku(): string {
+    const attrPart = this.variation.attributes
+      .map(attribute => attribute.option.trim())
+      .filter(Boolean)
+      .join('-');
+
     return this.slugify(
-      this.variation.attributes
-        .map(attribute => attribute.option.trim())
-        .filter(Boolean)
-        .join('-') || 'variation',
+      [this.skuPrefix, attrPart].filter(Boolean).join('-') || 'variation',
     );
   }
 

@@ -33,15 +33,11 @@ import {
   ProductImage,
   WcCategory,
 } from '@models/product.models';
-import {
-  Brand,
-  ColorValue,
-  SimpleAttributeOption,
-} from '@models/config.models';
+import { Brand } from '@models/config.models';
 import { ROUTES } from '@constants/app.routes.const';
 import { ProductsService } from '@app/services/tempService/products.service';
 import { BrandsService } from '@app/services/tempService/brands.service';
-import { AttributesService } from '@app/services/tempService/attributes.service';
+import { AttributesStore } from '@store/attributes/attributes.store';
 
 const DEFAULT_ATTRIBUTES: AttributeValue[] = [
   { name: 'Тип кольору', options: [] },
@@ -78,7 +74,7 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
   private snackBar = inject(MatSnackBar);
   private productsService = inject(ProductsService);
   private brandsService = inject(BrandsService);
-  private attributesService = inject(AttributesService);
+  private attributesStore = inject(AttributesStore);
 
   readonly productId = signal<number | null>(null);
   readonly isEditMode = computed(() => this.productId() !== null);
@@ -87,12 +83,16 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
   readonly saving = signal(false);
   readonly categories = signal<WcCategory[]>([]);
   readonly brands = signal<Brand[]>([]);
-  readonly colors = signal<ColorValue[]>([]);
-  readonly simpleAttributes = signal<Record<string, SimpleAttributeOption[]>>({
-    color_type: [],
-    weight: [],
-    diameter: [],
-    spool: [],
+  readonly colors = this.attributesStore.colors;
+  readonly simpleAttributes = computed(() => {
+    const attrs = this.attributesStore.simpleAttributes();
+
+    return {
+      color_type: attrs['color_type'] ?? attrs['material'] ?? [],
+      weight: attrs['weight'] ?? [],
+      diameter: attrs['diameter'] ?? [],
+      spool: attrs['spool'] ?? [],
+    };
   });
 
   readonly images = signal<ProductImage[]>([]);
@@ -235,30 +235,6 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
     this.brandsService.getBrands().subscribe({
       next: brands => this.brands.set(brands),
       error: () => this.brands.set([]),
-    });
-
-    this.attributesService.loadConfig().subscribe({
-      next: config => {
-        this.colors.set(config.colors ?? []);
-        this.simpleAttributes.set({
-          color_type:
-            config.simpleAttributes['color_type'] ??
-            config.simpleAttributes['material'] ??
-            [],
-          weight: config.simpleAttributes['weight'] ?? [],
-          diameter: config.simpleAttributes['diameter'] ?? [],
-          spool: config.simpleAttributes['spool'] ?? [],
-        });
-      },
-      error: () => {
-        this.colors.set([]);
-        this.simpleAttributes.set({
-          color_type: [],
-          weight: [],
-          diameter: [],
-          spool: [],
-        });
-      },
     });
   }
 
