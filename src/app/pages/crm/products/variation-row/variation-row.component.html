@@ -1,12 +1,10 @@
-<!-- Select -->
-<td class="col-select">
+﻿<td class="col-select">
   <mat-checkbox
     [checked]="isSelected"
     (change)="selectionChange.emit($event.checked)"
   />
 </td>
 
-<!-- Image -->
 <td class="col-image">
   <div
     class="variation-image"
@@ -23,12 +21,10 @@
   </div>
 </td>
 
-<!-- Combination -->
 <td class="col-combo">
   <span class="combo-label">{{ combinationLabel }}</span>
 </td>
 
-<!-- Regular price -->
 <td class="col-price">
   <mat-form-field appearance="outline" class="inline-field">
     <input
@@ -42,7 +38,6 @@
   </mat-form-field>
 </td>
 
-<!-- Sale price -->
 <td class="col-price">
   <mat-form-field appearance="outline" class="inline-field">
     <input
@@ -56,7 +51,6 @@
   </mat-form-field>
 </td>
 
-<!-- Stock -->
 <td class="col-stock">
   <mat-form-field appearance="outline" class="inline-field inline-field--sm">
     <input
@@ -73,14 +67,12 @@
   }
 </td>
 
-<!-- SKU -->
 <td class="col-sku">
   <mat-form-field appearance="outline" class="inline-field">
     <input matInput [formControl]="form.controls.sku" placeholder="SKU-..." />
   </mat-form-field>
 </td>
 
-<!-- Status -->
 <td class="col-status">
   <mat-slide-toggle
     [checked]="form.controls.status.value === 'publish'"
@@ -92,7 +84,6 @@
   />
 </td>
 
-<!-- Actions -->
 <td class="col-actions">
   <div class="actions-group">
     <button
@@ -127,7 +118,7 @@
           mat-mini-button
           color="warn"
           type="button"
-          (click)="deleteVariation()"
+          (click)="confirmDeleteAction()"
         >
           Так
         </button>

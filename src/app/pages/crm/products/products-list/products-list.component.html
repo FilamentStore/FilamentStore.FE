@@ -1,5 +1,4 @@
-<div class="products-page">
-  <!-- Header -->
+﻿<div class="products-page">
   <div class="page-header">
     <div class="page-title">
       <mat-icon>inventory_2</mat-icon>
@@ -11,7 +10,6 @@
     </button>
   </div>
 
-  <!-- Filters -->
   <mat-card class="filters-card">
     <mat-card-content>
       <form
@@ -62,7 +60,6 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Table -->
   <mat-card class="table-card">
     <mat-card-content>
       @if (loading()) {
@@ -72,7 +69,6 @@
         </div>
       } @else {
         <table mat-table [dataSource]="products()" class="products-table">
-          <!-- Image column -->
           <ng-container matColumnDef="image">
             <th mat-header-cell *matHeaderCellDef>Фото</th>
             <td mat-cell *matCellDef="let product">
@@ -90,7 +86,6 @@
             </td>
           </ng-container>
 
-          <!-- Name column -->
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>Назва</th>
             <td mat-cell *matCellDef="let product">
@@ -106,13 +101,11 @@
             </td>
           </ng-container>
 
-          <!-- Brand column -->
           <ng-container matColumnDef="brand">
             <th mat-header-cell *matHeaderCellDef>Бренд</th>
             <td mat-cell *matCellDef="let product">{{ product.brand }}</td>
           </ng-container>
 
-          <!-- Variations column -->
           <ng-container matColumnDef="variations">
             <th mat-header-cell *matHeaderCellDef>Варіацій</th>
             <td mat-cell *matCellDef="let product">
@@ -120,7 +113,6 @@
             </td>
           </ng-container>
 
-          <!-- Status column -->
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef>Статус</th>
             <td mat-cell *matCellDef="let product">
@@ -130,7 +122,6 @@
             </td>
           </ng-container>
 
-          <!-- Actions column -->
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Дії</th>
             <td mat-cell *matCellDef="let product">
@@ -177,7 +168,6 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 
-          <!-- Empty state -->
           <tr class="mat-row" *matNoDataRow>
             <td
               class="mat-cell empty-state"

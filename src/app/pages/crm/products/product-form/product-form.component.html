@@ -1,5 +1,4 @@
-<div class="product-form-page">
-  <!-- Header -->
+﻿<div class="product-form-page">
   <div class="page-header">
     <div class="page-title">
       <button mat-icon-button (click)="cancel()" matTooltip="Назад до списку">
@@ -44,7 +43,6 @@
         style="width: 100%"
         [class.tabs-hidden]="loading() && isEditMode()"
       >
-        <!-- Tab 1: Basic info -->
         <mat-tab>
           <ng-template mat-tab-label>
             <mat-icon class="tab-icon">info</mat-icon>
@@ -61,7 +59,6 @@
           </div>
         </mat-tab>
 
-        <!-- Tab 2: Attributes -->
         <mat-tab>
           <ng-template mat-tab-label>
             <mat-icon class="tab-icon">tune</mat-icon>
@@ -70,19 +67,20 @@
           <div class="tab-content">
             <app-tab-attributes
               [attributes]="attributes()"
+              [colorsList]="colors()"
+              [simpleAttributes]="simpleAttributes()"
               (attributesChange)="setAttributes($event)"
               (generateVariations)="save()"
             />
           </div>
         </mat-tab>
 
-        <!-- Tab 3: Variations (edit mode only) -->
         <mat-tab [disabled]="!isEditMode()">
           <ng-template mat-tab-label>
             <mat-icon class="tab-icon">view_list</mat-icon>
             Варіації
             @if (!isEditMode()) {
-              <span class="tab-hint"> (Спочатку збережіть)</span>
+              <span class="tab-hint"> (спочатку збережіть)</span>
             }
           </ng-template>
           <div class="tab-content">
@@ -90,6 +88,8 @@
               <app-tab-variations
                 [productId]="productId()!"
                 [attributes]="attributes()"
+                [colorsList]="colors()"
+                [simpleAttributes]="simpleAttributes()"
               />
             }
           </div>

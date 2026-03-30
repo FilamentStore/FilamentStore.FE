@@ -1,14 +1,13 @@
-<div class="tab-variations">
-  <!-- Toolbar -->
+﻿<div class="tab-variations">
   <div class="variations-toolbar">
     <div class="toolbar-left">
       <button
         mat-flat-button
         color="accent"
         type="button"
-        [disabled]="activeAttributes.length === 0"
+        [disabled]="activeAttributes.length === 0 || saving()"
         (click)="generateVariations()"
-        matTooltip="Створить всі комбінації атрибутів"
+        matTooltip="Створити всі комбінації атрибутів"
       >
         <mat-icon>auto_awesome</mat-icon>
         Згенерувати варіації
@@ -85,7 +84,7 @@
           mat-flat-button
           color="primary"
           type="button"
-          [disabled]="!canCreateManualVariation()"
+          [disabled]="!canCreateManualVariation() || saving()"
           (click)="createManualVariation()"
         >
           Створити варіацію
@@ -101,14 +100,13 @@
     </div>
   }
 
-  @if (loading()) {
+  @if (loading() || saving()) {
     <div class="loading-overlay">
       <mat-spinner diameter="36" />
-      <span>Завантаження...</span>
+      <span>{{ loading() ? 'Завантаження...' : 'Збереження...' }}</span>
     </div>
   }
 
-  <!-- Table -->
   @if (variations().length > 0) {
     <div class="variations-table-wrap">
       <table class="variations-table">
@@ -135,9 +133,12 @@
             <tr
               app-variation-row
               [variation]="variation"
-              [productId]="productId"
+              [colorsList]="colorsList"
+              [simpleAttributes]="simpleAttributes"
               [isSelected]="selectedIds.has(variation.id)"
               (selectionChange)="toggleSelect(variation.id, $event)"
+              (saveVariation)="onVariationSave($event)"
+              (deleteVariation)="onVariationDelete($event)"
             ></tr>
           }
         </tbody>
@@ -148,8 +149,8 @@
       <mat-icon>tune</mat-icon>
       <p>Варіацій ще немає.</p>
       <p class="hint">
-        Заповніть атрибути на вкладці "Атрибути" і натисніть "Згенерувати
-        варіації".
+        Заповніть атрибути на вкладці «Атрибути» і натисніть «Згенерувати
+        варіації».
       </p>
     </div>
   }

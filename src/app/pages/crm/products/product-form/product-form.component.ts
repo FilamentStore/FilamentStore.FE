@@ -1,8 +1,6 @@
-import {
+﻿import {
   AfterViewInit,
   Component,
-  DestroyRef,
-  OnDestroy,
   OnInit,
   ViewChild,
   computed,
@@ -18,30 +16,31 @@ import {
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Store } from '@ngrx/store';
-import { filter, take } from 'rxjs/operators';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs/operators';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ProductsActions } from '@store/products/products.actions';
-import {
-  selectSelectedProduct,
-  selectCategories,
-  selectLoading,
-  selectSaving,
-  selectError,
-} from '@store/products/products.selectors';
-import { ConfigActions } from '@store/config/config.actions';
-import { selectBrands } from '@store/config/config.selectors';
 import { TabBasicComponent } from './tab-basic/tab-basic.component';
 import { TabAttributesComponent } from './tab-attributes/tab-attributes.component';
 import { TabVariationsComponent } from './tab-variations/tab-variations.component';
-import { AttributeValue, Product, ProductImage } from '@models/product.models';
+import {
+  AttributeValue,
+  Product,
+  ProductImage,
+  WcCategory,
+} from '@models/product.models';
+import {
+  Brand,
+  ColorValue,
+  SimpleAttributeOption,
+} from '@models/config.models';
 import { ROUTES } from '@constants/app.routes.const';
+import { ProductsService } from '@app/services/tempService/products.service';
+import { BrandsService } from '@app/services/tempService/brands.service';
+import { AttributesService } from '@app/services/tempService/attributes.service';
 
 const DEFAULT_ATTRIBUTES: AttributeValue[] = [
   { name: 'Матеріал', options: [] },
@@ -70,28 +69,37 @@ const DEFAULT_ATTRIBUTES: AttributeValue[] = [
   templateUrl: './product-form.component.html',
   styleUrl: './product-form.component.scss',
 })
-export class ProductFormComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ProductFormComponent implements OnInit, AfterViewInit {
   @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
 
-  private store = inject(Store);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
-  private destroyRef = inject(DestroyRef);
+  private productsService = inject(ProductsService);
+  private brandsService = inject(BrandsService);
+  private attributesService = inject(AttributesService);
 
-  productId = signal<number | null>(null);
-  isEditMode = computed(() => this.productId() !== null);
+  readonly productId = signal<number | null>(null);
+  readonly isEditMode = computed(() => this.productId() !== null);
 
-  loading = this.store.selectSignal(selectLoading);
-  saving = this.store.selectSignal(selectSaving);
-  categories = this.store.selectSignal(selectCategories);
-  brands = this.store.selectSignal(selectBrands);
-  error = this.store.selectSignal(selectError);
+  readonly loading = signal(false);
+  readonly saving = signal(false);
+  readonly categories = signal<WcCategory[]>([]);
+  readonly brands = signal<Brand[]>([]);
+  readonly colors = signal<ColorValue[]>([]);
+  readonly simpleAttributes = signal<Record<string, SimpleAttributeOption[]>>({
+    material: [],
+    weight: [],
+    diameter: [],
+    spool: [],
+  });
 
-  images = signal<ProductImage[]>([]);
-  attributes = signal<AttributeValue[]>(structuredClone(DEFAULT_ATTRIBUTES));
+  readonly images = signal<ProductImage[]>([]);
+  readonly attributes = signal<AttributeValue[]>(
+    structuredClone(DEFAULT_ATTRIBUTES),
+  );
 
-  form = new FormGroup({
+  readonly form = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(2)]),
     brand: new FormControl('', [Validators.required]),
     category_id: new FormControl<number | null>(null, [Validators.required]),
@@ -103,35 +111,12 @@ export class ProductFormComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
 
-    this.store.dispatch(ProductsActions.loadCategories());
-    this.store.dispatch(ConfigActions.loadBrands());
+    this.loadReferenceData();
 
     if (id && !isNaN(Number(id))) {
-      const numId = Number(id);
-
-      this.productId.set(numId);
-      this.store.dispatch(ProductsActions.loadProduct({ id: numId }));
-      this.store.dispatch(ProductsActions.loadVariations({ productId: numId }));
-
-      this.store
-        .select(selectSelectedProduct)
-        .pipe(
-          filter((p): p is Product => p !== null && p.id === numId),
-          take(1),
-          takeUntilDestroyed(this.destroyRef),
-        )
-        .subscribe(product => this.patchForm(product));
+      this.productId.set(Number(id));
+      this.loadProduct(this.productId()!);
     }
-
-    this.store
-      .select(selectError)
-      .pipe(
-        filter((e): e is string => e !== null),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(err => {
-        this.snackBar.open(`Помилка: ${err}`, 'Закрити', { duration: 5000 });
-      });
   }
 
   ngAfterViewInit(): void {
@@ -139,8 +124,129 @@ export class ProductFormComponent implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => this.tabGroup?.realignInkBar(), 300);
   }
 
-  ngOnDestroy(): void {
-    this.store.dispatch(ProductsActions.clearSelectedProduct());
+  save(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.snackBar.open(
+        'Будь ласка, заповніть усі обовʼязкові поля',
+        'Закрити',
+        { duration: 3000 },
+      );
+
+      return;
+    }
+
+    const value = this.form.getRawValue();
+    const productData: Partial<Product> = {
+      name: value.name!,
+      brand: value.brand!,
+      category_id: value.category_id!,
+      short_description: value.short_description ?? '',
+      description: value.description ?? '',
+      status: value.status ?? 'draft',
+      images: this.dedupeImages(this.images()),
+      type: 'variable',
+      attributes: this.attributes()
+        .filter(attribute => attribute.options.length > 0)
+        .map(attribute => ({
+          id: 0,
+          name: attribute.name,
+          options: attribute.options,
+          variation: true as const,
+          visible: true as const,
+        })),
+    };
+
+    this.saving.set(true);
+
+    const request$ = this.isEditMode()
+      ? this.productsService.updateProduct(this.productId()!, productData)
+      : this.productsService.createProduct(productData);
+
+    request$.pipe(finalize(() => this.saving.set(false))).subscribe({
+      next: product => {
+        if (this.isEditMode()) {
+          this.patchForm(product);
+          this.snackBar.open('Продукт збережено', '', { duration: 2500 });
+
+          return;
+        }
+
+        this.snackBar.open('Продукт створено', '', { duration: 2500 });
+        this.router.navigate([
+          `/${ROUTES.crm.root}/${ROUTES.crm.products.root}/${product.id}`,
+        ]);
+      },
+      error: error => {
+        this.snackBar.open(
+          `Помилка: ${error?.error?.message ?? 'не вдалося зберегти продукт'}`,
+          'Закрити',
+          { duration: 5000 },
+        );
+      },
+    });
+  }
+
+  cancel(): void {
+    this.router.navigate([`/${ROUTES.crm.root}/${ROUTES.crm.products.root}`]);
+  }
+
+  readonly setImages = (imgs: ProductImage[]): void => {
+    this.images.set(imgs);
+  };
+
+  readonly setAttributes = (attrs: AttributeValue[]): void => {
+    this.attributes.set(attrs);
+  };
+
+  private loadReferenceData(): void {
+    this.productsService.getCategories().subscribe({
+      next: categories => this.categories.set(categories),
+      error: () => this.categories.set([]),
+    });
+
+    this.brandsService.getBrands().subscribe({
+      next: brands => this.brands.set(brands),
+      error: () => this.brands.set([]),
+    });
+
+    this.attributesService.loadConfig().subscribe({
+      next: config => {
+        this.colors.set(config.colors ?? []);
+        this.simpleAttributes.set({
+          material: config.simpleAttributes['material'] ?? [],
+          weight: config.simpleAttributes['weight'] ?? [],
+          diameter: config.simpleAttributes['diameter'] ?? [],
+          spool: config.simpleAttributes['spool'] ?? [],
+        });
+      },
+      error: () => {
+        this.colors.set([]);
+        this.simpleAttributes.set({
+          material: [],
+          weight: [],
+          diameter: [],
+          spool: [],
+        });
+      },
+    });
+  }
+
+  private loadProduct(id: number): void {
+    this.loading.set(true);
+    this.productsService
+      .getProduct(id)
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: product => this.patchForm(product),
+        error: error => {
+          this.snackBar.open(
+            `Помилка: ${error?.error?.message ?? 'не вдалося завантажити продукт'}`,
+            'Закрити',
+            { duration: 5000 },
+          );
+        },
+      });
   }
 
   private patchForm(product: Product): void {
@@ -155,71 +261,23 @@ export class ProductFormComponent implements OnInit, AfterViewInit, OnDestroy {
     this.images.set(product.images ?? []);
 
     if (product.attributes?.length) {
-      const merged = DEFAULT_ATTRIBUTES.map(def => {
-        const existing = product.attributes.find(a => a.name === def.name);
+      const merged = DEFAULT_ATTRIBUTES.map(defaultAttribute => {
+        const existing = product.attributes.find(
+          attribute => attribute.name === defaultAttribute.name,
+        );
 
-        return existing ? { name: def.name, options: existing.options } : def;
+        return existing
+          ? { name: defaultAttribute.name, options: existing.options }
+          : defaultAttribute;
       });
 
       this.attributes.set(merged);
-    }
-  }
-
-  save(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      this.snackBar.open(
-        "Будь ласка, заповніть всі обов'язкові поля",
-        'Закрити',
-        { duration: 3000 },
-      );
 
       return;
     }
 
-    const v = this.form.value;
-    const productData: Partial<Product> = {
-      name: v.name!,
-      brand: v.brand!,
-      category_id: v.category_id!,
-      short_description: v.short_description ?? '',
-      description: v.description ?? '',
-      status: v.status ?? 'draft',
-      images: this.dedupeImages(this.images()),
-      type: 'variable',
-      attributes: this.attributes()
-        .filter(a => a.options.length > 0)
-        .map(a => ({
-          id: 0,
-          name: a.name,
-          options: a.options,
-          variation: true as const,
-          visible: true as const,
-        })),
-    };
-
-    if (this.isEditMode()) {
-      this.store.dispatch(
-        ProductsActions.updateProduct({
-          id: this.productId()!,
-          product: productData,
-        }),
-      );
-      this.snackBar.open('Продукт збережено', '', { duration: 2500 });
-    } else {
-      this.store.dispatch(
-        ProductsActions.createProduct({ product: productData }),
-      );
-    }
+    this.attributes.set(structuredClone(DEFAULT_ATTRIBUTES));
   }
-
-  cancel(): void {
-    this.router.navigate([`/${ROUTES.crm.root}/${ROUTES.crm.products.root}`]);
-  }
-
-  setImages = (imgs: ProductImage[]): void => {
-    this.images.set(imgs);
-  };
 
   private dedupeImages(images: ProductImage[]): ProductImage[] {
     const unique = new Map<number, ProductImage>();
@@ -232,8 +290,4 @@ export class ProductFormComponent implements OnInit, AfterViewInit, OnDestroy {
 
     return Array.from(unique.values());
   }
-
-  setAttributes = (attrs: AttributeValue[]): void => {
-    this.attributes.set(attrs);
-  };
 }

@@ -1,4 +1,4 @@
-import { AttributeConfig } from '@app/models/config.models';
+﻿import { AttributeConfig } from '@app/models/config.models';
 
 export const ATTRIBUTE_CONFIGS: AttributeConfig[] = [
   {
@@ -19,14 +19,14 @@ export const ATTRIBUTE_CONFIGS: AttributeConfig[] = [
     key: 'weight',
     label: 'Вага',
     icon: 'scale',
-    placeholder: 'Наприклад: 1кг',
+    placeholder: 'Наприклад: 1 кг',
     type: 'simple',
   },
   {
     key: 'diameter',
     label: 'Діаметр',
     icon: 'straighten',
-    placeholder: 'Наприклад: 1.75мм',
+    placeholder: 'Наприклад: 1.75 мм',
     type: 'simple',
   },
   {

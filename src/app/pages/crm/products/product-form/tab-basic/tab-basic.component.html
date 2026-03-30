@@ -1,4 +1,4 @@
-<div class="tab-basic" [formGroup]="form">
+﻿<div class="tab-basic" [formGroup]="form">
   <div class="form-row">
     <mat-form-field appearance="outline" class="field-lg">
       <mat-label>Назва <span class="required">*</span></mat-label>
@@ -76,7 +76,6 @@
     <mat-hint>Підтримується HTML розмітка</mat-hint>
   </mat-form-field>
 
-  <!-- Gallery -->
   <div class="gallery-section">
     <div class="gallery-header">
       <h3 class="section-title">
@@ -148,7 +147,7 @@
       @if (images.length === 0 && uploadingIndex() === null) {
         <div class="gallery-empty">
           <mat-icon>add_photo_alternate</mat-icon>
-          <p>Немає фото. Натисніть "Додати фото"</p>
+          <p>Немає фото. Натисніть «Додати фото»</p>
         </div>
       }
     </div>
