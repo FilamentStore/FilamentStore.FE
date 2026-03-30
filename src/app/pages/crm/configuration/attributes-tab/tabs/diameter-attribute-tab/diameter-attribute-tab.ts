@@ -14,6 +14,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SimpleAttributeOption } from '@app/models/config.models';
+import { createAttributeSlug } from '@app/utils/slug.util';
 
 @Component({
   selector: 'app-diameter-attribute-tab',
@@ -33,6 +34,8 @@ import { SimpleAttributeOption } from '@app/models/config.models';
   styleUrl: './diameter-attribute-tab.scss',
 })
 export class DiameterAttributeTabComponent {
+  private readonly slugKind = 'diameter' as const;
+
   @Input() items: SimpleAttributeOption[] = [];
   @Input() saving = false;
   @Output() addValue = new EventEmitter<SimpleAttributeOption>();
@@ -56,11 +59,11 @@ export class DiameterAttributeTabComponent {
   }
 
   toSlug(value: string): string {
-    return value
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '');
+    return createAttributeSlug(
+      value,
+      this.slugKind,
+      this.items.map(item => item.slug),
+    );
   }
 
   onAddNameInput(value: string): void {
@@ -70,7 +73,15 @@ export class DiameterAttributeTabComponent {
   }
 
   onEditNameInput(value: string, form: FormGroup): void {
-    form.controls['slug'].setValue(this.toSlug(value), { emitEvent: false });
+    form.controls['slug'].setValue(
+      createAttributeSlug(
+        value,
+        this.slugKind,
+        this.items.map(item => item.slug),
+        this.editing()?.oldSlug ?? null,
+      ),
+      { emitEvent: false },
+    );
   }
 
   openAdd(): void {

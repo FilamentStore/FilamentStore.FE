@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColorValue } from '@app/models/config.models';
+import { createSlug } from '@app/utils/slug.util';
 
 @Component({
   selector: 'app-color-attribute-tab',
@@ -61,23 +62,22 @@ export class ColorAttributeTabComponent {
   }
 
   onNameInput(value: string): void {
-    const slug = value
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '');
-
-    this.addForm.controls.slug.setValue(slug, { emitEvent: false });
+    this.addForm.controls.slug.setValue(
+      createSlug(value, {
+        existing: this.colorsList.map(color => color.slug),
+      }),
+      { emitEvent: false },
+    );
   }
 
   onEditNameInput(value: string, form: FormGroup): void {
-    const slug = value
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '');
-
-    form.controls['slug'].setValue(slug, { emitEvent: false });
+    form.controls['slug'].setValue(
+      createSlug(value, {
+        existing: this.colorsList.map(color => color.slug),
+        exclude: this.editingColor()?.oldSlug ?? null,
+      }),
+      { emitEvent: false },
+    );
   }
 
   openAdd(): void {

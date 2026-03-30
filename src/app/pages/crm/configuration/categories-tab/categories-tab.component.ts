@@ -17,6 +17,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { finalize } from 'rxjs/operators';
 import { WcCategory } from '@app/models/product.models';
 import { CategoriesService } from '@app/services/tempService/categories.service';
+import { createSlug } from '@app/utils/slug.util';
 
 @Component({
   selector: 'app-categories-tab',
@@ -64,11 +65,15 @@ export class CategoriesTabComponent implements OnInit {
   }
 
   toSlug(value: string): string {
-    return value
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '');
+    return createSlug(value, {
+      existing: this.categories().map(category => category.slug),
+      exclude:
+        this.editingId() === null
+          ? null
+          : (this.categories().find(
+              category => category.id === this.editingId(),
+            )?.slug ?? null),
+    });
   }
 
   onAddNameInput(value: string): void {

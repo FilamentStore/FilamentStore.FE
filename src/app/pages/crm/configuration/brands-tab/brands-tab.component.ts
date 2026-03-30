@@ -16,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { finalize } from 'rxjs/operators';
 import { Brand } from '@app/models/config.models';
 import { BrandsService } from '@app/services/tempService/brands.service';
+import { createSlug } from '@app/utils/slug.util';
 
 @Component({
   selector: 'app-brands-tab',
@@ -62,11 +63,14 @@ export class BrandsTabComponent implements OnInit {
   }
 
   toSlug(value: string): string {
-    return value
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '');
+    return createSlug(value, {
+      existing: this.brands().map(brand => brand.slug),
+      exclude:
+        this.editingId() === null
+          ? null
+          : (this.brands().find(brand => brand.id === this.editingId())?.slug ??
+            null),
+    });
   }
 
   onAddNameInput(value: string): void {
