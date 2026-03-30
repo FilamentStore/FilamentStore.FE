@@ -1,8 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+﻿import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Store } from '@ngrx/store';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,16 +14,15 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBadgeModule } from '@angular/material/badge';
+import { finalize } from 'rxjs/operators';
 import { ROUTES } from '@constants/app.routes.const';
 import {
-  selectCategories,
-  selectFilters,
-  selectLoading,
-  selectPagination,
-  selectProducts,
-} from '@store/products/products.selectors';
-import { ProductsActions } from '@store/products/products.actions';
-import { Product, WcCategory } from '@app/models/product.models';
+  Product,
+  ProductFilters,
+  ProductsPagination,
+  WcCategory,
+} from '@app/models/product.models';
+import { ProductsService } from '@app/services/tempService/products.service';
 
 @Component({
   selector: 'app-products-list',
@@ -49,18 +47,26 @@ import { Product, WcCategory } from '@app/models/product.models';
   styleUrl: './products-list.component.scss',
 })
 export class ProductsListComponent implements OnInit {
-  private store = inject(Store);
   private router = inject(Router);
+  private productsService = inject(ProductsService);
 
-  products = this.store.selectSignal(selectProducts);
-  loading = this.store.selectSignal(selectLoading);
-  pagination = this.store.selectSignal(selectPagination);
-  filters = this.store.selectSignal(selectFilters);
-  categories = this.store.selectSignal(selectCategories);
+  readonly products = signal<Product[]>([]);
+  readonly loading = signal(false);
+  readonly categories = signal<WcCategory[]>([]);
+  readonly pagination = signal<ProductsPagination>({
+    total: 0,
+    totalPages: 0,
+  });
+  readonly filters = signal<ProductFilters>({
+    search: '',
+    status: '',
+    category_id: null,
+    page: 1,
+  });
 
-  confirmDeleteId = signal<number | null>(null);
+  readonly confirmDeleteId = signal<number | null>(null);
 
-  displayedColumns = [
+  readonly displayedColumns = [
     'image',
     'name',
     'brand',
@@ -69,13 +75,13 @@ export class ProductsListComponent implements OnInit {
     'actions',
   ];
 
-  filterForm = new FormGroup({
+  readonly filterForm = new FormGroup({
     search: new FormControl(''),
     status: new FormControl(''),
     category_id: new FormControl<number | null>(null),
   });
 
-  statusOptions = [
+  readonly statusOptions = [
     { value: '', label: 'Всі статуси' },
     { value: 'publish', label: 'Активні' },
     { value: 'draft', label: 'Чернетки' },
@@ -83,28 +89,22 @@ export class ProductsListComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    const f = this.filters();
-
-    this.store.dispatch(ProductsActions.loadCategories());
-    this.store.dispatch(ProductsActions.loadProducts(f));
-    this.filterForm.patchValue({
-      search: f.search,
-      status: f.status,
-      category_id: f.category_id,
-    });
+    this.loadCategories();
+    this.syncFormWithFilters();
+    this.loadProducts();
   }
 
   applyFilters(): void {
-    const { search, status, category_id } = this.filterForm.value;
-    const f = {
+    const { search, status, category_id } = this.filterForm.getRawValue();
+
+    this.filters.set({
       search: search ?? '',
       status: status ?? '',
       category_id: category_id ?? null,
       page: 1,
-    };
+    });
 
-    this.store.dispatch(ProductsActions.setFilters(f));
-    this.store.dispatch(ProductsActions.loadProducts(f));
+    this.loadProducts();
   }
 
   resetFilters(): void {
@@ -113,10 +113,12 @@ export class ProductsListComponent implements OnInit {
   }
 
   onPageChange(event: PageEvent): void {
-    const f = { ...this.filters(), page: event.pageIndex + 1 };
+    this.filters.update(filters => ({
+      ...filters,
+      page: event.pageIndex + 1,
+    }));
 
-    this.store.dispatch(ProductsActions.setFilters(f));
-    this.store.dispatch(ProductsActions.loadProducts(f));
+    this.loadProducts();
   }
 
   editProduct(id: number): void {
@@ -138,10 +140,31 @@ export class ProductsListComponent implements OnInit {
   confirmDelete(): void {
     const id = this.confirmDeleteId();
 
-    if (id !== null) {
-      this.store.dispatch(ProductsActions.deleteProduct({ id }));
-      this.confirmDeleteId.set(null);
+    if (id === null) {
+      return;
     }
+
+    this.loading.set(true);
+    this.productsService
+      .deleteProduct(id)
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: () => {
+          this.confirmDeleteId.set(null);
+
+          const currentFilters = this.filters();
+          const currentProducts = this.products();
+
+          if (currentProducts.length === 1 && currentFilters.page > 1) {
+            this.filters.update(filters => ({
+              ...filters,
+              page: filters.page - 1,
+            }));
+          }
+
+          this.loadProducts();
+        },
+      });
   }
 
   cancelDelete(): void {
@@ -164,5 +187,46 @@ export class ProductsListComponent implements OnInit {
 
   hasLowStock(product: Product): boolean {
     return (product.low_stock_count ?? 0) > 0;
+  }
+
+  private syncFormWithFilters(): void {
+    const filters = this.filters();
+
+    this.filterForm.patchValue(
+      {
+        search: filters.search,
+        status: filters.status,
+        category_id: filters.category_id,
+      },
+      { emitEvent: false },
+    );
+  }
+
+  private loadProducts(): void {
+    this.loading.set(true);
+
+    this.productsService
+      .getProducts(this.filters())
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: response => {
+          this.products.set(response.products);
+          this.pagination.set({
+            total: response.total,
+            totalPages: response.total_pages,
+          });
+        },
+        error: () => {
+          this.products.set([]);
+          this.pagination.set({ total: 0, totalPages: 0 });
+        },
+      });
+  }
+
+  private loadCategories(): void {
+    this.productsService.getCategories().subscribe({
+      next: categories => this.categories.set(categories),
+      error: () => this.categories.set([]),
+    });
   }
 }
