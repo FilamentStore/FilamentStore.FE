@@ -156,6 +156,19 @@ export class AttributesTabComponent implements OnInit {
 
   private applyConfig(config: AttributesConfig): void {
     this.colors.set(config.colors);
-    this.simpleAttributes.set(config.simpleAttributes);
+    const rest = { ...config.simpleAttributes };
+
+    delete rest['material'];
+
+    this.simpleAttributes.set({
+      ...rest,
+      color_type:
+        config.simpleAttributes['color_type'] ??
+        config.simpleAttributes['material'] ??
+        [],
+      weight: config.simpleAttributes['weight'] ?? [],
+      diameter: config.simpleAttributes['diameter'] ?? [],
+      spool: config.simpleAttributes['spool'] ?? [],
+    });
   }
 }

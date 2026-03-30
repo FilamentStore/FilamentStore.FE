@@ -28,7 +28,10 @@
         <div class="card-header">
           <div class="card-title">
             <mat-icon>{{ config.icon }}</mat-icon>
-            <span>{{ config.label }}</span>
+            <div class="title-copy">
+              <span>{{ config.label }}</span>
+              <small class="title-hint">{{ config.placeholder }}</small>
+            </div>
           </div>
 
           <div class="card-actions">

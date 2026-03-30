@@ -34,7 +34,7 @@ export class TabAttributesComponent {
   @Input() attributes: AttributeValue[] = [];
   @Input() colorsList: ColorValue[] = [];
   @Input() simpleAttributes: Record<string, SimpleAttributeOption[]> = {
-    material: [],
+    color_type: [],
     weight: [],
     diameter: [],
     spool: [],

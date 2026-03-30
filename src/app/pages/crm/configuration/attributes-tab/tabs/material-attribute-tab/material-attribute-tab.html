@@ -1,8 +1,11 @@
 ﻿<div class="attr-tab-content">
   <div class="content-header">
-    <span class="total-label">
-      Усього: <strong>{{ values().length }}</strong>
-    </span>
+    <div class="content-copy">
+      <span class="example-label">Приклад атрибуту: Матовий</span>
+      <span class="total-label">
+        Усього: <strong>{{ values().length }}</strong>
+      </span>
+    </div>
     <button
       mat-flat-button
       color="primary"
@@ -10,7 +13,7 @@
       [disabled]="showAddRow()"
     >
       <mat-icon>add</mat-icon>
-      Додати матеріал
+      Додати тип кольору
     </button>
   </div>
 
@@ -135,8 +138,8 @@
 
       <tr class="mat-row" *matNoDataRow>
         <td class="mat-cell empty-state" colspan="4">
-          <mat-icon>science</mat-icon>
-          <p>Значень ще немає. Натисніть «Додати матеріал».</p>
+          <mat-icon>palette</mat-icon>
+          <p>Значень ще немає. Натисніть «Додати тип кольору».</p>
         </td>
       </tr>
     </table>
@@ -148,7 +151,7 @@
           <input
             matInput
             formControlName="name"
-            placeholder="Наприклад: PLA"
+            placeholder="Наприклад: Матовий"
             (input)="onAddNameInput($any($event.target).value)"
             (keyup.enter)="submitAdd()"
             (keyup.escape)="cancelAdd()"

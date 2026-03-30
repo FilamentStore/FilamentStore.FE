@@ -40,6 +40,17 @@
   gap: 12px;
 }
 
+.content-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.example-label {
+  font-size: 13px;
+  color: var(--text-secondary, #888);
+}
+
 .total-label {
   font-size: 13px;
   color: var(--text-secondary, #888);

@@ -9,10 +9,10 @@ export const ATTRIBUTE_CONFIGS: AttributeConfig[] = [
     type: 'color',
   },
   {
-    key: 'material',
-    label: 'Матеріал',
-    icon: 'science',
-    placeholder: 'Наприклад: PLA',
+    key: 'color_type',
+    label: 'Тип кольору',
+    icon: 'palette',
+    placeholder: 'Наприклад: Матовий',
     type: 'simple',
   },
   {

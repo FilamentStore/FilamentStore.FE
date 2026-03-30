@@ -28,6 +28,8 @@ import { ATTRIBUTE_CONFIGS } from '@app/constants/attribute-configs';
 import { MediaService } from '@app/services/tempService/media.service';
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
+  selector: '[appVariationRow]',
   standalone: true,
   host: {
     '[class.low-stock]':
@@ -54,7 +56,7 @@ export class VariationRowComponent implements OnInit {
   @Input({ required: true }) variation!: ProductVariation;
   @Input() colorsList: ColorValue[] = [];
   @Input() simpleAttributes: Record<string, SimpleAttributeOption[]> = {
-    material: [],
+    color_type: [],
     weight: [],
     diameter: [],
     spool: [],

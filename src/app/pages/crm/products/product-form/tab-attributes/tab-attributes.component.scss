@@ -63,17 +63,30 @@
 
 .card-title {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
-  font-weight: 600;
-  font-size: 14px;
 
   mat-icon {
     color: var(--accent-color, #22a794);
     font-size: 18px;
     width: 18px;
     height: 18px;
+    margin-top: 1px;
   }
+}
+
+.title-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.title-hint {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary, #8c8c8c);
 }
 
 .card-actions {

@@ -15,8 +15,8 @@
         <strong class="stat-line__value">{{ countFor('color') }}</strong>
       </div>
       <div class="stat-line">
-        <span class="stat-line__label">Матеріалів:</span>
-        <strong class="stat-line__value">{{ countFor('material') }}</strong>
+        <span class="stat-line__label">Типів кольору:</span>
+        <strong class="stat-line__value">{{ countFor('color_type') }}</strong>
       </div>
       <div class="stat-line">
         <span class="stat-line__label">Ваг:</span>
@@ -74,22 +74,22 @@
 
     <mat-tab>
       <ng-template mat-tab-label>
-        <mat-icon class="tab-icon">science</mat-icon>
-        Матеріал
+        <mat-icon class="tab-icon">palette</mat-icon>
+        Тип кольору
       </ng-template>
 
       <app-material-attribute-tab
-        [items]="simpleAttributes()['material']"
+        [items]="simpleAttributes()['color_type']"
         [saving]="saving()"
-        (addValue)="addValue({ key: 'material', option: $event })"
+        (addValue)="addValue({ key: 'color_type', option: $event })"
         (updateValue)="
           updateValue({
-            key: 'material',
+            key: 'color_type',
             oldSlug: $event.oldSlug,
             option: $event.option,
           })
         "
-        (removeValue)="removeValue({ key: 'material', slug: $event })"
+        (removeValue)="removeValue({ key: 'color_type', slug: $event })"
       />
     </mat-tab>
 
