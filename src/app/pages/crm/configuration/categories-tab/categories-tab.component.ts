@@ -15,8 +15,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
-import { selectCategories } from '@store/products/products.selectors';
 import {
+  selectCategories,
   selectLoadingCategories,
   selectSavingCategory,
 } from '@store/config/config.selectors';
@@ -48,21 +48,18 @@ export class CategoriesTabComponent implements OnInit {
   loading = this.store.selectSignal(selectLoadingCategories);
   saving = this.store.selectSignal(selectSavingCategory);
 
-  // inline add
   addForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(2)]),
     slug: new FormControl('', [Validators.required]),
   });
   showAddRow = signal(false);
 
-  // inline edit
   editingId = signal<number | null>(null);
   editForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(2)]),
     slug: new FormControl('', [Validators.required]),
   });
 
-  // delete confirm
   confirmDeleteId = signal<number | null>(null);
 
   displayedColumns = ['name', 'slug', 'count', 'actions'];
