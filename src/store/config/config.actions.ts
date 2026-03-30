@@ -1,4 +1,5 @@
 import {
+  Brand,
   ColorValue,
   SimpleAttributeOption,
   WcCategory,
@@ -69,5 +70,22 @@ export const ConfigActions = createActionGroup({
     'Delete Category': props<{ id: number }>(),
     'Delete Category Success': props<{ id: number }>(),
     'Delete Category Failure': props<{ error: string }>(),
+
+    // ─── Brands ───────────────────────────────────────────────────
+    'Load Brands': emptyProps(),
+    'Load Brands Success': props<{ brands: Brand[] }>(),
+    'Load Brands Failure': props<{ error: string }>(),
+
+    'Create Brand': props<{ name: string; slug: string }>(),
+    'Create Brand Success': props<{ brand: Brand }>(),
+    'Create Brand Failure': props<{ error: string }>(),
+
+    'Update Brand': props<{ id: number; name: string; slug: string }>(),
+    'Update Brand Success': props<{ brand: Brand }>(),
+    'Update Brand Failure': props<{ error: string }>(),
+
+    'Delete Brand': props<{ id: number }>(),
+    'Delete Brand Success': props<{ id: number }>(),
+    'Delete Brand Failure': props<{ error: string }>(),
   },
 });

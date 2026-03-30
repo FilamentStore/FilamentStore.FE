@@ -16,7 +16,11 @@
 
     <mat-form-field appearance="outline" class="field-md">
       <mat-label>Бренд <span class="required">*</span></mat-label>
-      <input matInput formControlName="brand" placeholder="Наприклад: eSUN" />
+      <mat-select formControlName="brand">
+        @for (brand of brands; track brand.id) {
+          <mat-option [value]="brand.slug">{{ brand.name }}</mat-option>
+        }
+      </mat-select>
       @if (
         form.get('brand')?.hasError('required') && form.get('brand')?.touched
       ) {

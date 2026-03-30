@@ -15,6 +15,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { MediaService } from '@services/tempService/media.service';
 import { ProductImage, WcCategory } from '@models/product.models';
+import { Brand } from '@models/config.models';
 
 @Component({
   selector: 'app-tab-basic',
@@ -37,6 +38,7 @@ import { ProductImage, WcCategory } from '@models/product.models';
 export class TabBasicComponent implements OnInit {
   @Input({ required: true }) form!: FormGroup;
   @Input() categories: WcCategory[] = [];
+  @Input() brands: Brand[] = [];
   @Input() images: ProductImage[] = [];
   @Input() onImagesChange!: (images: ProductImage[]) => void;
 

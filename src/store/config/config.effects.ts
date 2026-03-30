@@ -225,4 +225,62 @@ export class ConfigEffects {
       ),
     ),
   );
+
+  // ─── Brands ────────────────────────────────────────────────────────
+
+  loadBrands$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ConfigActions.loadBrands),
+      switchMap(() =>
+        this.svc.getBrands().pipe(
+          map(brands => ConfigActions.loadBrandsSuccess({ brands })),
+          catchError((err: { message: string }) =>
+            of(ConfigActions.loadBrandsFailure({ error: err.message })),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  createBrand$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ConfigActions.createBrand),
+      switchMap(({ name, slug }) =>
+        this.svc.createBrand(name, slug).pipe(
+          map(brand => ConfigActions.createBrandSuccess({ brand })),
+          catchError((err: { message: string }) =>
+            of(ConfigActions.createBrandFailure({ error: err.message })),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  updateBrand$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ConfigActions.updateBrand),
+      switchMap(({ id, name, slug }) =>
+        this.svc.updateBrand(id, name, slug).pipe(
+          map(brand => ConfigActions.updateBrandSuccess({ brand })),
+          catchError((err: { message: string }) =>
+            of(ConfigActions.updateBrandFailure({ error: err.message })),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  deleteBrand$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ConfigActions.deleteBrand),
+      switchMap(({ id }) =>
+        this.svc.deleteBrand(id).pipe(
+          map(() => ConfigActions.deleteBrandSuccess({ id })),
+          catchError((err: { message: string }) =>
+            of(ConfigActions.deleteBrandFailure({ error: err.message })),
+          ),
+        ),
+      ),
+    ),
+  );
 }

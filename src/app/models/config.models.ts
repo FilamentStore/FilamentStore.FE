@@ -32,3 +32,9 @@ export interface WcCategory {
   slug: string;
   count?: number;
 }
+
+export interface Brand {
+  id: number;
+  name: string;
+  slug: string;
+}

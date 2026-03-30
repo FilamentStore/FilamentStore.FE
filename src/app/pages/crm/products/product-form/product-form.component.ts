@@ -35,6 +35,8 @@ import {
   selectSaving,
   selectError,
 } from '@store/products/products.selectors';
+import { ConfigActions } from '@store/config/config.actions';
+import { selectBrands } from '@store/config/config.selectors';
 import { TabBasicComponent } from './tab-basic/tab-basic.component';
 import { TabAttributesComponent } from './tab-attributes/tab-attributes.component';
 import { TabVariationsComponent } from './tab-variations/tab-variations.component';
@@ -83,6 +85,7 @@ export class ProductFormComponent implements OnInit, AfterViewInit, OnDestroy {
   loading = this.store.selectSignal(selectLoading);
   saving = this.store.selectSignal(selectSaving);
   categories = this.store.selectSignal(selectCategories);
+  brands = this.store.selectSignal(selectBrands);
   error = this.store.selectSignal(selectError);
 
   images = signal<ProductImage[]>([]);
@@ -101,6 +104,7 @@ export class ProductFormComponent implements OnInit, AfterViewInit, OnDestroy {
     const id = this.route.snapshot.paramMap.get('id');
 
     this.store.dispatch(ProductsActions.loadCategories());
+    this.store.dispatch(ConfigActions.loadBrands());
 
     if (id && !isNaN(Number(id))) {
       const numId = Number(id);

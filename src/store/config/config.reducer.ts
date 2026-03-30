@@ -1,16 +1,19 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import { ConfigActions } from './config.actions';
-import { SimpleAttributeOption } from '@app/models/config.models';
+import { Brand, SimpleAttributeOption } from '@app/models/config.models';
 import { WcCategory } from '@app/models/product.models';
 
 interface FullState {
   colors: { name: string; hex: string; slug: string }[];
   simpleAttributes: Record<string, SimpleAttributeOption[]>;
   categories: WcCategory[];
+  brands: Brand[];
   loading: boolean;
   saving: boolean;
   loadingCategories: boolean;
   savingCategory: boolean;
+  loadingBrands: boolean;
+  savingBrand: boolean;
   error: string | null;
 }
 
@@ -18,10 +21,13 @@ const initialState: FullState = {
   colors: [],
   simpleAttributes: {},
   categories: [],
+  brands: [],
   loading: false,
   saving: false,
   loadingCategories: false,
   savingCategory: false,
+  loadingBrands: false,
+  savingBrand: false,
   error: null,
 };
 
@@ -163,6 +169,52 @@ export const configFeature = createFeature({
     on(ConfigActions.deleteCategorySuccess, (state, { id }) => ({
       ...state,
       categories: state.categories.filter(c => c.id !== id),
+    })),
+
+    // ─── Brands ──────────────────────────────────────────────────────
+    on(ConfigActions.loadBrands, state => ({
+      ...state,
+      loadingBrands: true,
+      error: null,
+    })),
+    on(ConfigActions.loadBrandsSuccess, (state, { brands }) => ({
+      ...state,
+      loadingBrands: false,
+      brands,
+    })),
+    on(ConfigActions.loadBrandsFailure, (state, { error }) => ({
+      ...state,
+      loadingBrands: false,
+      error,
+    })),
+
+    on(ConfigActions.createBrand, state => ({ ...state, savingBrand: true })),
+    on(ConfigActions.createBrandSuccess, (state, { brand }) => ({
+      ...state,
+      savingBrand: false,
+      brands: [...state.brands, brand],
+    })),
+    on(ConfigActions.createBrandFailure, (state, { error }) => ({
+      ...state,
+      savingBrand: false,
+      error,
+    })),
+
+    on(ConfigActions.updateBrand, state => ({ ...state, savingBrand: true })),
+    on(ConfigActions.updateBrandSuccess, (state, { brand }) => ({
+      ...state,
+      savingBrand: false,
+      brands: state.brands.map(b => (b.id === brand.id ? brand : b)),
+    })),
+    on(ConfigActions.updateBrandFailure, (state, { error }) => ({
+      ...state,
+      savingBrand: false,
+      error,
+    })),
+
+    on(ConfigActions.deleteBrandSuccess, (state, { id }) => ({
+      ...state,
+      brands: state.brands.filter(b => b.id !== id),
     })),
   ),
 });

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment';
 import {
+  Brand,
   ColorValue,
   SimpleAttributeOption,
   WcCategory,
@@ -55,5 +56,25 @@ export class ConfigService {
 
   deleteCategory(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/config/categories/${id}`);
+  }
+
+  // ─── Brands ───────────────────────────────────────────────────────
+  getBrands(): Observable<Brand[]> {
+    return this.http.get<Brand[]>(`${this.base}/config/brands`);
+  }
+
+  createBrand(name: string, slug: string): Observable<Brand> {
+    return this.http.post<Brand>(`${this.base}/config/brands`, { name, slug });
+  }
+
+  updateBrand(id: number, name: string, slug: string): Observable<Brand> {
+    return this.http.put<Brand>(`${this.base}/config/brands/${id}`, {
+      name,
+      slug,
+    });
+  }
+
+  deleteBrand(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/config/brands/${id}`);
   }
 }

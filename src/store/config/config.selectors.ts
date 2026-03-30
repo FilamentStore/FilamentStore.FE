@@ -5,10 +5,13 @@ export const {
   selectColors,
   selectSimpleAttributes,
   selectCategories,
+  selectBrands,
   selectLoading,
   selectSaving,
   selectLoadingCategories,
   selectSavingCategory,
+  selectLoadingBrands,
+  selectSavingBrand,
   selectError,
 } = configFeature;
 
