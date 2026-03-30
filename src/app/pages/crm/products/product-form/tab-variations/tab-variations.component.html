@@ -76,6 +76,12 @@
       <div class="manual-variation-sku">
         SKU: <strong>{{ manualSku() }}</strong>
       </div>
+      @if (duplicateError()) {
+        <div class="duplicate-error">
+          <mat-icon>warning</mat-icon>
+          Така комбінація вже існує
+        </div>
+      }
       <div class="manual-variation-actions">
         <button
           mat-flat-button

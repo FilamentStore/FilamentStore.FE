@@ -131,28 +131,3 @@
   align-items: center;
   gap: 4px;
 }
-
-.delete-popup {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 10;
-  width: 220px;
-  margin-top: 6px;
-  padding: 10px;
-  border-radius: 8px;
-  background: var(--surface-color, #ffffff);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.delete-popup-text {
-  font-size: 13px;
-  margin-bottom: 8px;
-}
-
-.delete-popup-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-}

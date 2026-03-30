@@ -7,6 +7,8 @@
   inject,
   signal,
 } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '@app/components/confirm-dialog/confirm-dialog.component';
 import {
   FormControl,
   FormGroup,
@@ -71,10 +73,10 @@ export class VariationRowComponent implements OnInit {
   @Output() deleteVariation = new EventEmitter<number>();
 
   private mediaService = inject(MediaService);
+  private dialog = inject(MatDialog);
 
   uploadingImage = signal(false);
   saving = signal(false);
-  confirmDelete = signal(false);
 
   form = new FormGroup({
     regular_price: new FormControl('', [Validators.required]),
@@ -143,9 +145,21 @@ export class VariationRowComponent implements OnInit {
     setTimeout(() => this.saving.set(false), 300);
   }
 
-  confirmDeleteAction(): void {
-    this.confirmDelete.set(false);
-    this.deleteVariation.emit(this.variation.id);
+  openDeleteDialog(): void {
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: 'Видалити варіацію?',
+          message: `Комбінацію "${this.combinationLabel}" буде видалено назавжди.`,
+          confirmLabel: 'Видалити',
+          cancelLabel: 'Скасувати',
+        },
+        width: '380px',
+      })
+      .afterClosed()
+      .subscribe(confirmed => {
+        if (confirmed) this.deleteVariation.emit(this.variation.id);
+      });
   }
 
   private getOptionLabel(attrName: string, option: string): string {

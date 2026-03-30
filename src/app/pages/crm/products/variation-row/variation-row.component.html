@@ -107,32 +107,10 @@
       mat-icon-button
       color="warn"
       type="button"
-      (click)="confirmDelete.set(true)"
+      (click)="openDeleteDialog()"
       matTooltip="Видалити"
     >
       <mat-icon>delete</mat-icon>
     </button>
   </div>
-  @if (confirmDelete()) {
-    <div class="delete-popup">
-      <div class="delete-popup-text">Видалити цю варіацію?</div>
-      <div class="delete-popup-actions">
-        <button
-          mat-mini-button
-          color="warn"
-          type="button"
-          (click)="confirmDeleteAction()"
-        >
-          Так
-        </button>
-        <button
-          mat-mini-button
-          type="button"
-          (click)="confirmDelete.set(false)"
-        >
-          Ні
-        </button>
-      </div>
-    </div>
-  }
 </td>

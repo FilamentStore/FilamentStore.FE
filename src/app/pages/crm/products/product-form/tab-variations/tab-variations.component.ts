@@ -25,6 +25,13 @@ import { ColorValue, SimpleAttributeOption } from '@app/models/config.models';
 import { ATTRIBUTE_CONFIGS } from '@app/constants/attribute-configs';
 import { VariationsService } from '@app/services/tempService/variations.service';
 
+function optionKey(attrs: { option: string }[]): string {
+  return attrs
+    .map(a => a.option)
+    .sort()
+    .join('|');
+}
+
 interface AttributeOption {
   label: string;
   value: string;
@@ -96,6 +103,7 @@ export class TabVariationsComponent implements OnChanges {
       active.map(attribute => attribute.options),
     );
     const existing = this.variations();
+    const existingKeys = new Set(existing.map(v => optionKey(v.attributes)));
     const requests = combinations
       .map(combo => {
         const attrs = combo.map((option, index) => ({
@@ -103,19 +111,7 @@ export class TabVariationsComponent implements OnChanges {
           option,
         }));
 
-        const alreadyExists = existing.some(
-          variation =>
-            variation.attributes.length === attrs.length &&
-            variation.attributes.every(attribute =>
-              attrs.some(
-                nextAttribute =>
-                  nextAttribute.name === attribute.name &&
-                  nextAttribute.option === attribute.option,
-              ),
-            ),
-        );
-
-        if (alreadyExists) {
+        if (existingKeys.has(optionKey(attrs))) {
           return null;
         }
 
@@ -255,6 +251,8 @@ export class TabVariationsComponent implements OnChanges {
     );
   }
 
+  readonly duplicateError = signal(false);
+
   createManualVariation(): void {
     if (!this.canCreateManualVariation()) {
       return;
@@ -264,6 +262,17 @@ export class TabVariationsComponent implements OnChanges {
       name: attribute.name,
       option: this.selectedOptions()[attribute.name],
     }));
+
+    const existingKeys = new Set(
+      this.variations().map(v => optionKey(v.attributes)),
+    );
+
+    if (existingKeys.has(optionKey(attrs))) {
+      this.duplicateError.set(true);
+      setTimeout(() => this.duplicateError.set(false), 3000);
+
+      return;
+    }
 
     this.saving.set(true);
     this.variationsService
