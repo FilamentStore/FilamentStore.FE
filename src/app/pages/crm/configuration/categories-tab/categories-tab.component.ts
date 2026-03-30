@@ -6,7 +6,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Store } from '@ngrx/store';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,13 +14,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
-import {
-  selectCategories,
-  selectLoadingCategories,
-  selectSavingCategory,
-} from '@store/config/config.selectors';
-import { ConfigActions } from '@store/config/config.actions';
+import { finalize } from 'rxjs/operators';
 import { WcCategory } from '@app/models/product.models';
+import { CategoriesService } from '@app/services/tempService/categories.service';
 
 @Component({
   selector: 'app-categories-tab',
@@ -42,11 +37,11 @@ import { WcCategory } from '@app/models/product.models';
   styleUrl: './categories-tab.component.scss',
 })
 export class CategoriesTabComponent implements OnInit {
-  private store = inject(Store);
+  private categoriesService = inject(CategoriesService);
 
-  categories = this.store.selectSignal(selectCategories);
-  loading = this.store.selectSignal(selectLoadingCategories);
-  saving = this.store.selectSignal(selectSavingCategory);
+  categories = signal<WcCategory[]>([]);
+  loading = signal(false);
+  saving = signal(false);
 
   addForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(2)]),
@@ -65,7 +60,7 @@ export class CategoriesTabComponent implements OnInit {
   displayedColumns = ['name', 'slug', 'count', 'actions'];
 
   ngOnInit(): void {
-    this.store.dispatch(ConfigActions.loadCategories());
+    this.loadCategories();
   }
 
   toSlug(value: string): string {
@@ -98,11 +93,17 @@ export class CategoriesTabComponent implements OnInit {
     if (this.addForm.invalid) return;
     const { name, slug } = this.addForm.getRawValue();
 
-    this.store.dispatch(
-      ConfigActions.createCategory({ name: name!, slug: slug! }),
-    );
-    this.showAddRow.set(false);
-    this.addForm.reset();
+    this.saving.set(true);
+    this.categoriesService
+      .createCategory(name!, slug!)
+      .pipe(finalize(() => this.saving.set(false)))
+      .subscribe({
+        next: category => {
+          this.categories.update(categories => [...categories, category]);
+          this.showAddRow.set(false);
+          this.addForm.reset();
+        },
+      });
   }
 
   cancelAdd(): void {
@@ -121,10 +122,18 @@ export class CategoriesTabComponent implements OnInit {
     if (this.editForm.invalid) return;
     const { name, slug } = this.editForm.getRawValue();
 
-    this.store.dispatch(
-      ConfigActions.updateCategory({ id, name: name!, slug: slug! }),
-    );
-    this.editingId.set(null);
+    this.saving.set(true);
+    this.categoriesService
+      .updateCategory(id, name!, slug!)
+      .pipe(finalize(() => this.saving.set(false)))
+      .subscribe({
+        next: category => {
+          this.categories.update(categories =>
+            categories.map(item => (item.id === category.id ? category : item)),
+          );
+          this.editingId.set(null);
+        },
+      });
   }
 
   cancelEdit(): void {
@@ -138,11 +147,32 @@ export class CategoriesTabComponent implements OnInit {
   }
 
   confirmDelete(id: number): void {
-    this.store.dispatch(ConfigActions.deleteCategory({ id }));
-    this.confirmDeleteId.set(null);
+    this.saving.set(true);
+    this.categoriesService
+      .deleteCategory(id)
+      .pipe(finalize(() => this.saving.set(false)))
+      .subscribe({
+        next: () => {
+          this.categories.update(categories =>
+            categories.filter(category => category.id !== id),
+          );
+          this.confirmDeleteId.set(null);
+        },
+      });
   }
 
   cancelDelete(): void {
     this.confirmDeleteId.set(null);
+  }
+
+  private loadCategories(): void {
+    this.loading.set(true);
+    this.categoriesService
+      .getCategories()
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: categories => this.categories.set(categories),
+        error: () => this.categories.set([]),
+      });
   }
 }

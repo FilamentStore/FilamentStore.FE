@@ -6,7 +6,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Store } from '@ngrx/store';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,13 +13,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-  selectBrands,
-  selectLoadingBrands,
-  selectSavingBrand,
-} from '@store/config/config.selectors';
-import { ConfigActions } from '@store/config/config.actions';
+import { finalize } from 'rxjs/operators';
 import { Brand } from '@app/models/config.models';
+import { BrandsService } from '@app/services/tempService/brands.service';
 
 @Component({
   selector: 'app-brands-tab',
@@ -40,11 +35,11 @@ import { Brand } from '@app/models/config.models';
   styleUrl: './brands-tab.component.scss',
 })
 export class BrandsTabComponent implements OnInit {
-  private store = inject(Store);
+  private brandsService = inject(BrandsService);
 
-  brands = this.store.selectSignal(selectBrands);
-  loading = this.store.selectSignal(selectLoadingBrands);
-  saving = this.store.selectSignal(selectSavingBrand);
+  brands = signal<Brand[]>([]);
+  loading = signal(false);
+  saving = signal(false);
 
   addForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(2)]),
@@ -63,7 +58,7 @@ export class BrandsTabComponent implements OnInit {
   displayedColumns = ['name', 'slug', 'actions'];
 
   ngOnInit(): void {
-    this.store.dispatch(ConfigActions.loadBrands());
+    this.loadBrands();
   }
 
   toSlug(value: string): string {
@@ -95,11 +90,17 @@ export class BrandsTabComponent implements OnInit {
     if (this.addForm.invalid) return;
     const { name, slug } = this.addForm.getRawValue();
 
-    this.store.dispatch(
-      ConfigActions.createBrand({ name: name!, slug: slug! }),
-    );
-    this.showAddRow.set(false);
-    this.addForm.reset();
+    this.saving.set(true);
+    this.brandsService
+      .createBrand(name!, slug!)
+      .pipe(finalize(() => this.saving.set(false)))
+      .subscribe({
+        next: brand => {
+          this.brands.update(brands => [...brands, brand]);
+          this.showAddRow.set(false);
+          this.addForm.reset();
+        },
+      });
   }
 
   cancelAdd(): void {
@@ -117,10 +118,18 @@ export class BrandsTabComponent implements OnInit {
     if (this.editForm.invalid) return;
     const { name, slug } = this.editForm.getRawValue();
 
-    this.store.dispatch(
-      ConfigActions.updateBrand({ id, name: name!, slug: slug! }),
-    );
-    this.editingId.set(null);
+    this.saving.set(true);
+    this.brandsService
+      .updateBrand(id, name!, slug!)
+      .pipe(finalize(() => this.saving.set(false)))
+      .subscribe({
+        next: brand => {
+          this.brands.update(brands =>
+            brands.map(item => (item.id === brand.id ? brand : item)),
+          );
+          this.editingId.set(null);
+        },
+      });
   }
 
   cancelEdit(): void {
@@ -133,11 +142,30 @@ export class BrandsTabComponent implements OnInit {
   }
 
   confirmDelete(id: number): void {
-    this.store.dispatch(ConfigActions.deleteBrand({ id }));
-    this.confirmDeleteId.set(null);
+    this.saving.set(true);
+    this.brandsService
+      .deleteBrand(id)
+      .pipe(finalize(() => this.saving.set(false)))
+      .subscribe({
+        next: () => {
+          this.brands.update(brands => brands.filter(brand => brand.id !== id));
+          this.confirmDeleteId.set(null);
+        },
+      });
   }
 
   cancelDelete(): void {
     this.confirmDeleteId.set(null);
+  }
+
+  private loadBrands(): void {
+    this.loading.set(true);
+    this.brandsService
+      .getBrands()
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: brands => this.brands.set(brands),
+        error: () => this.brands.set([]),
+      });
   }
 }
