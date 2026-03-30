@@ -1,7 +1,59 @@
-<div class="attributes-tab">
+﻿<div class="attributes-tab">
+  <div class="hero-card">
+    <div class="hero-copy">
+      <div class="hero-kicker">Налаштування</div>
+      <h3>Атрибути варіацій</h3>
+      <p>
+        Керуйте кольорами та технічними характеристиками, які потім
+        використовуються у варіаціях продуктів.
+      </p>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-line">
+        <span class="stat-line__label">Кольорів:</span>
+        <strong class="stat-line__value">{{ countFor('color') }}</strong>
+      </div>
+      <div class="stat-line">
+        <span class="stat-line__label">Матеріалів:</span>
+        <strong class="stat-line__value">{{ countFor('material') }}</strong>
+      </div>
+      <div class="stat-line">
+        <span class="stat-line__label">Ваг:</span>
+        <strong class="stat-line__value">{{ countFor('weight') }}</strong>
+      </div>
+      <div class="stat-line">
+        <span class="stat-line__label">Діаметрів:</span>
+        <strong class="stat-line__value">{{ countFor('diameter') }}</strong>
+      </div>
+      <div class="stat-line">
+        <span class="stat-line__label">Розмірів котушки:</span>
+        <strong class="stat-line__value">{{ countFor('spool') }}</strong>
+      </div>
+    </div>
+  </div>
+
   <div class="section-header">
-    <h3>Атрибути варіацій</h3>
-    <p>Значення атрибутів використовуються при створенні варіацій продукту.</p>
+    <div>
+      <h3>Набори значень</h3>
+      <p>
+        Кожна вкладка відповідає за окремий тип атрибуту. Дані зберігаються
+        локально для цієї сторінки без глобального store.
+      </p>
+    </div>
+
+    <div class="header-status" [class.is-saving]="saving()">
+      @if (loading()) {
+        <mat-icon>hourglass_top</mat-icon>
+        <span>Завантаження...</span>
+      } @else if (saving()) {
+        <mat-icon>sync</mat-icon>
+        <span>Збереження...</span>
+      } @else {
+        <mat-icon>check_circle</mat-icon>
+        <span>Готово до змін</span>
+      }
+    </div>
   </div>
 
   <mat-tab-group animationDuration="150ms" color="primary" class="attr-tabs">
@@ -11,7 +63,13 @@
         Колір
       </ng-template>
 
-      <app-color-attribute-tab />
+      <app-color-attribute-tab
+        [colorsList]="colors()"
+        [saving]="saving()"
+        (addColor)="addColor($event)"
+        (updateColor)="updateColor($event)"
+        (removeColor)="removeColor($event)"
+      />
     </mat-tab>
 
     <mat-tab>
@@ -20,7 +78,19 @@
         Матеріал
       </ng-template>
 
-      <app-material-attribute-tab />
+      <app-material-attribute-tab
+        [items]="simpleAttributes()['material'] ?? []"
+        [saving]="saving()"
+        (addValue)="addValue({ key: 'material', option: $event })"
+        (updateValue)="
+          updateValue({
+            key: 'material',
+            oldSlug: $event.oldSlug,
+            option: $event.option,
+          })
+        "
+        (removeValue)="removeValue({ key: 'material', slug: $event })"
+      />
     </mat-tab>
 
     <mat-tab>
@@ -29,7 +99,19 @@
         Вага
       </ng-template>
 
-      <app-weight-attribute-tab />
+      <app-weight-attribute-tab
+        [items]="simpleAttributes()['weight'] ?? []"
+        [saving]="saving()"
+        (addValue)="addValue({ key: 'weight', option: $event })"
+        (updateValue)="
+          updateValue({
+            key: 'weight',
+            oldSlug: $event.oldSlug,
+            option: $event.option,
+          })
+        "
+        (removeValue)="removeValue({ key: 'weight', slug: $event })"
+      />
     </mat-tab>
 
     <mat-tab>
@@ -38,7 +120,19 @@
         Діаметр
       </ng-template>
 
-      <app-diameter-attribute-tab />
+      <app-diameter-attribute-tab
+        [items]="simpleAttributes()['diameter'] ?? []"
+        [saving]="saving()"
+        (addValue)="addValue({ key: 'diameter', option: $event })"
+        (updateValue)="
+          updateValue({
+            key: 'diameter',
+            oldSlug: $event.oldSlug,
+            option: $event.option,
+          })
+        "
+        (removeValue)="removeValue({ key: 'diameter', slug: $event })"
+      />
     </mat-tab>
 
     <mat-tab>
@@ -47,7 +141,19 @@
         Розмір котушки
       </ng-template>
 
-      <app-spool-attribute-tab />
+      <app-spool-attribute-tab
+        [items]="simpleAttributes()['spool'] ?? []"
+        [saving]="saving()"
+        (addValue)="addValue({ key: 'spool', option: $event })"
+        (updateValue)="
+          updateValue({
+            key: 'spool',
+            oldSlug: $event.oldSlug,
+            option: $event.option,
+          })
+        "
+        (removeValue)="removeValue({ key: 'spool', slug: $event })"
+      />
     </mat-tab>
   </mat-tab-group>
 </div>

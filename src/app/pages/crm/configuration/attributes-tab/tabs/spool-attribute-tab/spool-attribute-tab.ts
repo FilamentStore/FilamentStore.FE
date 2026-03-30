@@ -1,12 +1,11 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Store } from '@ngrx/store';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,11 +13,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import {
-  selectSaving,
-  selectSimpleAttributes,
-} from '@store/config/config.selectors';
-import { ConfigActions } from '@store/config/config.actions';
 import { SimpleAttributeOption } from '@app/models/config.models';
 
 @Component({
@@ -39,14 +33,16 @@ import { SimpleAttributeOption } from '@app/models/config.models';
   styleUrl: './spool-attribute-tab.scss',
 })
 export class SpoolAttributeTabComponent {
-  private readonly store = inject(Store);
-  private readonly key = 'spool';
-
-  readonly simpleAttributes = this.store.selectSignal(selectSimpleAttributes);
-  readonly saving = this.store.selectSignal(selectSaving);
+  @Input() items: SimpleAttributeOption[] = [];
+  @Input() saving = false;
+  @Output() addValue = new EventEmitter<SimpleAttributeOption>();
+  @Output() updateValue = new EventEmitter<{
+    oldSlug: string;
+    option: SimpleAttributeOption;
+  }>();
+  @Output() removeValue = new EventEmitter<string>();
 
   readonly columns = ['name', 'slug', 'actions'];
-
   readonly showAddRow = signal(false);
   readonly addForm = new FormGroup({
     name: new FormControl('', [Validators.required]),
@@ -56,7 +52,7 @@ export class SpoolAttributeTabComponent {
   readonly confirmDelete = signal<string | null>(null);
 
   values(): SimpleAttributeOption[] {
-    return this.simpleAttributes()[this.key] ?? [];
+    return this.items;
   }
 
   toSlug(value: string): string {
@@ -94,12 +90,8 @@ export class SpoolAttributeTabComponent {
     const { name, slug } = this.addForm.getRawValue();
 
     if (!name || !slug) return;
-    if (!this.values().some(v => v.slug === slug)) {
-      this.store.dispatch(
-        ConfigActions.addValue({ key: this.key, option: { name, slug } }),
-      );
-    }
 
+    this.addValue.emit({ name, slug });
     this.showAddRow.set(false);
     this.addForm.reset();
   }
@@ -126,13 +118,11 @@ export class SpoolAttributeTabComponent {
     const { name, slug } = editing.form.getRawValue();
 
     if (!name || !slug) return;
-    this.store.dispatch(
-      ConfigActions.updateValue({
-        key: this.key,
-        oldSlug: editing.oldSlug,
-        option: { name, slug },
-      }),
-    );
+
+    this.updateValue.emit({
+      oldSlug: editing.oldSlug,
+      option: { name, slug },
+    });
     this.editing.set(null);
   }
 
@@ -149,7 +139,7 @@ export class SpoolAttributeTabComponent {
     const slug = this.confirmDelete();
 
     if (!slug) return;
-    this.store.dispatch(ConfigActions.removeValue({ key: this.key, slug }));
+    this.removeValue.emit(slug);
     this.confirmDelete.set(null);
   }
 

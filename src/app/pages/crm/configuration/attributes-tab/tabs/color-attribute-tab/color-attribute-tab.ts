@@ -1,21 +1,17 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Store } from '@ngrx/store';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
-import { selectColors, selectSaving } from '@store/config/config.selectors';
-import { ConfigActions } from '@store/config/config.actions';
 import { ColorValue } from '@app/models/config.models';
 
 @Component({
@@ -35,13 +31,16 @@ import { ColorValue } from '@app/models/config.models';
   styleUrl: './color-attribute-tab.scss',
 })
 export class ColorAttributeTabComponent {
-  private readonly store = inject(Store);
-
-  readonly colors = this.store.selectSignal(selectColors);
-  readonly saving = this.store.selectSignal(selectSaving);
+  @Input() colorsList: ColorValue[] = [];
+  @Input() saving = false;
+  @Output() addColor = new EventEmitter<ColorValue>();
+  @Output() updateColor = new EventEmitter<{
+    oldSlug: string;
+    color: ColorValue;
+  }>();
+  @Output() removeColor = new EventEmitter<string>();
 
   readonly colorColumns = ['preview', 'name', 'hex', 'slug', 'actions'];
-
   readonly showAddRow = signal(false);
   readonly editingColor = signal<{ oldSlug: string; form: FormGroup } | null>(
     null,
@@ -56,6 +55,10 @@ export class ColorAttributeTabComponent {
     ]),
     slug: new FormControl('', [Validators.required]),
   });
+
+  colors(): ColorValue[] {
+    return this.colorsList;
+  }
 
   onNameInput(value: string): void {
     const slug = value
@@ -97,15 +100,11 @@ export class ColorAttributeTabComponent {
 
     const { name, hex, slug } = this.addForm.getRawValue();
 
-    this.store.dispatch(
-      ConfigActions.addColor({
-        color: {
-          name: name!,
-          hex: hex!,
-          slug: slug!,
-        },
-      }),
-    );
+    this.addColor.emit({
+      name: name!,
+      hex: hex!,
+      slug: slug!,
+    });
 
     this.showAddRow.set(false);
     this.addForm.reset({
@@ -145,16 +144,14 @@ export class ColorAttributeTabComponent {
 
     const { name, hex, slug } = editing.form.getRawValue();
 
-    this.store.dispatch(
-      ConfigActions.updateColor({
-        oldSlug: editing.oldSlug,
-        color: {
-          name: name!,
-          hex: hex!,
-          slug: slug!,
-        },
-      }),
-    );
+    this.updateColor.emit({
+      oldSlug: editing.oldSlug,
+      color: {
+        name: name!,
+        hex: hex!,
+        slug: slug!,
+      },
+    });
 
     this.editingColor.set(null);
   }
@@ -173,7 +170,7 @@ export class ColorAttributeTabComponent {
 
     if (!slug) return;
 
-    this.store.dispatch(ConfigActions.removeColor({ slug }));
+    this.removeColor.emit(slug);
     this.confirmDeleteColor.set(null);
   }
 
