@@ -94,18 +94,51 @@
 
 <!-- Actions -->
 <td class="col-actions">
-  <button
-    mat-icon-button
-    color="primary"
-    type="button"
-    (click)="save()"
-    [disabled]="form.invalid || saving()"
-    matTooltip="Зберегти"
-  >
-    @if (saving()) {
-      <mat-spinner diameter="20" />
-    } @else {
-      <mat-icon>save</mat-icon>
-    }
-  </button>
+  <div class="actions-group">
+    <button
+      mat-icon-button
+      color="primary"
+      type="button"
+      (click)="save()"
+      [disabled]="form.invalid || saving()"
+      matTooltip="Зберегти"
+    >
+      @if (saving()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        <mat-icon>save</mat-icon>
+      }
+    </button>
+    <button
+      mat-icon-button
+      color="warn"
+      type="button"
+      (click)="confirmDelete.set(true)"
+      matTooltip="Видалити"
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
+  @if (confirmDelete()) {
+    <div class="delete-popup">
+      <div class="delete-popup-text">Видалити цю варіацію?</div>
+      <div class="delete-popup-actions">
+        <button
+          mat-mini-button
+          color="warn"
+          type="button"
+          (click)="deleteVariation()"
+        >
+          Так
+        </button>
+        <button
+          mat-mini-button
+          type="button"
+          (click)="confirmDelete.set(false)"
+        >
+          Ні
+        </button>
+      </div>
+    </div>
+  }
 </td>

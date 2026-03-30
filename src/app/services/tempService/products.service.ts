@@ -22,7 +22,9 @@ export class ProductsService {
     let params = new HttpParams().set('per_page', '20');
 
     if (filters.search) params = params.set('search', filters.search);
-    if (filters.status) params = params.set('status', filters.status);
+    const status = filters.status?.trim() === '' ? 'any' : filters.status;
+
+    if (status) params = params.set('status', status);
     if (filters.category_id != null)
       params = params.set('category_id', String(filters.category_id));
     if (filters.page) params = params.set('page', String(filters.page));

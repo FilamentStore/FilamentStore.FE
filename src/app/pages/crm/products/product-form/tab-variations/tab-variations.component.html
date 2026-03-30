@@ -13,7 +13,7 @@
         <mat-icon>auto_awesome</mat-icon>
         Згенерувати варіації
       </button>
-      <button mat-stroked-button type="button" (click)="addEmptyVariation()">
+      <button mat-stroked-button type="button" (click)="openAddVariation()">
         <mat-icon>add</mat-icon>
         Додати варіацію
       </button>
@@ -53,6 +53,53 @@
       </button>
     </div>
   </div>
+
+  @if (showManualVariation()) {
+    <div class="manual-variation-panel">
+      <h3>Ручне додавання варіації</h3>
+      <div class="manual-variation-fields">
+        @for (attr of activeAttributes; track attr.name) {
+          <mat-form-field appearance="outline">
+            <mat-label>{{ attr.name }}</mat-label>
+            <mat-select
+              [value]="selectedOptions()[attr.name]"
+              (selectionChange)="updateSelectedOption(attr.name, $event.value)"
+            >
+              @for (
+                option of getConfiguredOptions(attr.name);
+                track option.value
+              ) {
+                <mat-option [value]="option.value">{{
+                  option.label
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+      </div>
+      <div class="manual-variation-sku">
+        SKU: <strong>{{ manualSku() }}</strong>
+      </div>
+      <div class="manual-variation-actions">
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          [disabled]="!canCreateManualVariation()"
+          (click)="createManualVariation()"
+        >
+          Створити варіацію
+        </button>
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="cancelManualVariation()"
+        >
+          Скасувати
+        </button>
+      </div>
+    </div>
+  }
 
   @if (loading()) {
     <div class="loading-overlay">

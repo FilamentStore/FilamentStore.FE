@@ -35,4 +35,10 @@ export class VariationsService {
       variation,
     );
   }
+
+  deleteVariation(productId: number, variationId: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.baseUrl}/products/${productId}/variations/${variationId}`,
+    );
+  }
 }

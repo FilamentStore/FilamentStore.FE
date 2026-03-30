@@ -21,6 +21,11 @@ import { ConfigActions } from '@store/config/config.actions';
 import { ATTRIBUTE_CONFIGS } from '@app/constants/attribute-configs';
 import { AttributeConfig } from '@app/models/config.models';
 
+interface AttributeOption {
+  label: string;
+  value: string;
+}
+
 @Component({
   selector: 'app-tab-attributes',
   standalone: true,
@@ -49,12 +54,15 @@ export class TabAttributesComponent implements OnInit {
     this.store.dispatch(ConfigActions.loadConfig());
   }
 
-  getConfiguredValues(config: AttributeConfig): string[] {
+  getConfiguredValues(config: AttributeConfig): AttributeOption[] {
     if (config.type === 'color') {
-      return this.colors().map(c => c.name);
+      return this.colors().map(c => ({ label: c.name, value: c.slug }));
     }
 
-    return (this.simpleAttributes()[config.key] ?? []).map(o => o.name);
+    return (this.simpleAttributes()[config.key] ?? []).map(o => ({
+      label: o.name,
+      value: o.slug,
+    }));
   }
 
   getSelectedOptions(attrName: string): string[] {
@@ -81,7 +89,7 @@ export class TabAttributesComponent implements OnInit {
   }
 
   selectAll(config: AttributeConfig): void {
-    const all = this.getConfiguredValues(config);
+    const all = this.getConfiguredValues(config).map(option => option.value);
     const newAttrs = this.attributes.some(a => a.name === config.label)
       ? this.attributes.map(a =>
           a.name === config.label ? { ...a, options: [...all] } : a,

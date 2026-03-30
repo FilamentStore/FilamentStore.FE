@@ -66,14 +66,14 @@
           </p>
         } @else {
           <div class="checkboxes-wrap">
-            @for (value of getConfiguredValues(config); track value) {
+            @for (option of getConfiguredValues(config); track option.value) {
               <mat-checkbox
-                [checked]="isChecked(config.label, value)"
-                (change)="toggle(config, value)"
+                [checked]="isChecked(config.label, option.value)"
+                (change)="toggle(config, option.value)"
                 color="primary"
                 class="value-checkbox"
               >
-                {{ value }}
+                {{ option.label }}
               </mat-checkbox>
             }
           </div>

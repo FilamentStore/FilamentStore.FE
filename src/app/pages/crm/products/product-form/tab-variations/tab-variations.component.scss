@@ -26,6 +26,28 @@
   color: var(--text-secondary, #888);
 }
 
+.manual-variation-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  background: var(--surface-color, #fff);
+}
+
+.manual-variation-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.manual-variation-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .loading-overlay {
   display: flex;
   align-items: center;
@@ -83,6 +105,9 @@
   }
   .col-combo {
     min-width: 140px;
+  }
+  .col-slug {
+    min-width: 170px;
   }
   .col-price {
     width: 110px;

@@ -59,6 +59,10 @@ export const ProductsActions = createActionGroup({
     'Update Variation Success': props<{ variation: ProductVariation }>(),
     'Update Variation Failure': props<{ error: string }>(),
 
+    'Delete Variation': props<{ productId: number; variationId: number }>(),
+    'Delete Variation Success': props<{ variationId: number }>(),
+    'Delete Variation Failure': props<{ error: string }>(),
+
     // ─── Categories ──────────────────────────────────────────────────
     'Load Categories': emptyProps(),
     'Load Categories Success': props<{ categories: WcCategory[] }>(),

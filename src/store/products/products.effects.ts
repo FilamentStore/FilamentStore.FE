@@ -183,6 +183,20 @@ export class ProductsEffects {
     ),
   );
 
+  deleteVariation$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ProductsActions.deleteVariation),
+      switchMap(({ productId, variationId }) =>
+        this.variationsService.deleteVariation(productId, variationId).pipe(
+          map(() => ProductsActions.deleteVariationSuccess({ variationId })),
+          catchError((err: { message: string }) =>
+            of(ProductsActions.deleteVariationFailure({ error: err.message })),
+          ),
+        ),
+      ),
+    ),
+  );
+
   loadCategories$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductsActions.loadCategories),

@@ -133,6 +133,10 @@ export const productsFeature = createFeature({
         v.id === variation.id ? variation : v,
       ),
     })),
+    on(ProductsActions.deleteVariationSuccess, (state, { variationId }) => ({
+      ...state,
+      variations: state.variations.filter(v => v.id !== variationId),
+    })),
 
     // ─── Categories ──────────────────────────────────────────────────
     on(ProductsActions.loadCategoriesSuccess, (state, { categories }) => ({

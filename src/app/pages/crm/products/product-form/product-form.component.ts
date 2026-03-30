@@ -185,7 +185,7 @@ export class ProductFormComponent implements OnInit, AfterViewInit, OnDestroy {
       short_description: v.short_description ?? '',
       description: v.description ?? '',
       status: v.status ?? 'draft',
-      images: this.images(),
+      images: this.dedupeImages(this.images()),
       type: 'variable',
       attributes: this.attributes()
         .filter(a => a.options.length > 0)
@@ -220,6 +220,18 @@ export class ProductFormComponent implements OnInit, AfterViewInit, OnDestroy {
   setImages = (imgs: ProductImage[]): void => {
     this.images.set(imgs);
   };
+
+  private dedupeImages(images: ProductImage[]): ProductImage[] {
+    const unique = new Map<number, ProductImage>();
+
+    images.forEach(image => {
+      if (!unique.has(image.id)) {
+        unique.set(image.id, image);
+      }
+    });
+
+    return Array.from(unique.values());
+  }
 
   setAttributes = (attrs: AttributeValue[]): void => {
     this.attributes.set(attrs);

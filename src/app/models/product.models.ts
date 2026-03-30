@@ -31,6 +31,7 @@ export interface Product {
 export interface ProductVariation {
   id: number;
   attributes: { name: string; option: string }[];
+  slug?: string;
   image?: ProductImage;
   regular_price: string;
   sale_price: string;
