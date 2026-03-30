@@ -169,9 +169,20 @@ export class TabVariationsComponent implements OnChanges {
   }
 
   getOptionLabel(attrName: string, option: string): string {
-    const options = this.getConfiguredOptions(attrName);
+    const byName = this.getConfiguredOptions(attrName);
+    const exact = byName.find(item => item.value === option);
 
-    return options.find(item => item.value === option)?.label ?? option;
+    if (exact) return exact.label;
+
+    for (const config of ATTRIBUTE_CONFIGS) {
+      const match = this.getConfiguredOptions(config.label).find(
+        item => item.value === option,
+      );
+
+      if (match) return match.label;
+    }
+
+    return option;
   }
 
   getConfiguredOptions(attrName: string): AttributeOption[] {
