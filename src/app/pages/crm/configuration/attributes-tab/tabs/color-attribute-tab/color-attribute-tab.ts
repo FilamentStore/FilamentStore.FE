@@ -14,6 +14,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColorValue } from '@app/models/config.models';
 import { createSlug } from '@app/utils/slug.util';
+import { getUsageLabel, isValueUsed } from '../attribute-usage.util';
 
 @Component({
   selector: 'app-color-attribute-tab',
@@ -41,7 +42,14 @@ export class ColorAttributeTabComponent {
   }>();
   @Output() removeColor = new EventEmitter<string>();
 
-  readonly colorColumns = ['preview', 'name', 'hex', 'slug', 'actions'];
+  readonly colorColumns = [
+    'preview',
+    'name',
+    'hex',
+    'slug',
+    'usage',
+    'actions',
+  ];
   readonly showAddRow = signal(false);
   readonly editingColor = signal<{ oldSlug: string; form: FormGroup } | null>(
     null,
@@ -71,6 +79,10 @@ export class ColorAttributeTabComponent {
   }
 
   onEditNameInput(value: string, form: FormGroup): void {
+    if (this.isUsedBySlug(this.editingColor()?.oldSlug ?? null)) {
+      return;
+    }
+
     form.controls['slug'].setValue(
       createSlug(value, {
         existing: this.colorsList.map(color => color.slug),
@@ -124,6 +136,10 @@ export class ColorAttributeTabComponent {
       slug: new FormControl(color.slug, [Validators.required]),
     });
 
+    if (this.isUsed(color)) {
+      form.controls.slug.disable({ emitEvent: false });
+    }
+
     this.editingColor.set({
       oldSlug: color.slug,
       form,
@@ -143,6 +159,9 @@ export class ColorAttributeTabComponent {
     if (!editing || editing.form.invalid) return;
 
     const { name, hex, slug } = editing.form.getRawValue();
+    const currentColor = this.colorsList.find(
+      color => color.slug === editing.oldSlug,
+    );
 
     this.updateColor.emit({
       oldSlug: editing.oldSlug,
@@ -150,6 +169,7 @@ export class ColorAttributeTabComponent {
         name: name!,
         hex: hex!,
         slug: slug!,
+        usageCount: currentColor?.usageCount,
       },
     });
 
@@ -161,6 +181,10 @@ export class ColorAttributeTabComponent {
   }
 
   askDelete(slug: string): void {
+    if (this.isUsedBySlug(slug)) {
+      return;
+    }
+
     this.confirmDeleteColor.set(slug);
     this.editingColor.set(null);
   }
@@ -176,5 +200,35 @@ export class ColorAttributeTabComponent {
 
   cancelDelete(): void {
     this.confirmDeleteColor.set(null);
+  }
+
+  isUsed(color: ColorValue): boolean {
+    return isValueUsed(color);
+  }
+
+  isUsedBySlug(slug: string | null): boolean {
+    if (!slug) {
+      return false;
+    }
+
+    return this.colorsList.some(
+      color => color.slug === slug && this.isUsed(color),
+    );
+  }
+
+  usageLabel(usageCount?: number): string {
+    return getUsageLabel(usageCount ?? 0);
+  }
+
+  deleteTooltip(color: ColorValue): string {
+    return this.isUsed(color)
+      ? `Значення використовується: ${this.usageLabel(color.usageCount)}`
+      : 'Видалити';
+  }
+
+  slugEditHint(color: ColorValue): string {
+    return this.isUsed(color)
+      ? `Слаг заблоковано: ${this.usageLabel(color.usageCount)}`
+      : 'Системна назва';
   }
 }

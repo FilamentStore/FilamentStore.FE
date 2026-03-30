@@ -79,7 +79,7 @@
       </ng-template>
 
       <app-material-attribute-tab
-        [items]="simpleAttributes()['material'] ?? []"
+        [items]="simpleAttributes()['material']"
         [saving]="saving()"
         (addValue)="addValue({ key: 'material', option: $event })"
         (updateValue)="
@@ -100,7 +100,7 @@
       </ng-template>
 
       <app-weight-attribute-tab
-        [items]="simpleAttributes()['weight'] ?? []"
+        [items]="simpleAttributes()['weight']"
         [saving]="saving()"
         (addValue)="addValue({ key: 'weight', option: $event })"
         (updateValue)="
@@ -121,7 +121,7 @@
       </ng-template>
 
       <app-diameter-attribute-tab
-        [items]="simpleAttributes()['diameter'] ?? []"
+        [items]="simpleAttributes()['diameter']"
         [saving]="saving()"
         (addValue)="addValue({ key: 'diameter', option: $event })"
         (updateValue)="
@@ -142,7 +142,7 @@
       </ng-template>
 
       <app-spool-attribute-tab
-        [items]="simpleAttributes()['spool'] ?? []"
+        [items]="simpleAttributes()['spool']"
         [saving]="saving()"
         (addValue)="addValue({ key: 'spool', option: $event })"
         (updateValue)="

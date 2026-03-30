@@ -1,12 +1,14 @@
-export interface ColorValue {
-  name: string; // Чорний
-  hex: string; // #1a1a1a
-  slug: string; // black
+﻿export interface ColorValue {
+  name: string;
+  hex: string;
+  slug: string;
+  usageCount?: number;
 }
 
 export interface SimpleAttributeOption {
-  name: string; // PLA
-  slug: string; // pla
+  name: string;
+  slug: string;
+  usageCount?: number;
 }
 
 export interface AttributeConfig {
@@ -25,7 +27,6 @@ export interface ConfigState {
   error: string | null;
 }
 
-// WcCategory — використовується у products
 export interface WcCategory {
   id: number;
   name: string;

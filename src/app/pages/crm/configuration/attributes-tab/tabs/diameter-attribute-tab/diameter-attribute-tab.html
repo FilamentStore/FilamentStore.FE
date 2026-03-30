@@ -41,19 +41,37 @@
         <th mat-header-cell *matHeaderCellDef>Системна назва</th>
         <td mat-cell *matCellDef="let opt">
           @if (isEditing(opt.slug)) {
-            <mat-form-field
-              appearance="outline"
-              class="edit-field edit-field--sm"
-            >
-              <input
-                matInput
-                [formControl]="$any(editing()!.form.controls['slug'])"
-                (keyup.escape)="cancelEdit()"
-              />
-            </mat-form-field>
+            @if (isUsed(opt)) {
+              <div class="locked-cell">
+                <code class="slug-badge">{{ opt.slug }}</code>
+                <span class="lock-note" [matTooltip]="slugEditHint(opt)">
+                  Слаг зайнятий у варіаціях
+                </span>
+              </div>
+            } @else {
+              <mat-form-field
+                appearance="outline"
+                class="edit-field edit-field--sm"
+              >
+                <input
+                  matInput
+                  [formControl]="$any(editing()!.form.controls['slug'])"
+                  (keyup.escape)="cancelEdit()"
+                />
+              </mat-form-field>
+            }
           } @else {
             <code class="slug-badge">{{ opt.slug }}</code>
           }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="usage">
+        <th mat-header-cell *matHeaderCellDef>Використання</th>
+        <td mat-cell *matCellDef="let opt">
+          <span class="usage-badge" [class.usage-badge--active]="isUsed(opt)">
+            {{ opt.usageCount ?? 0 }}
+          </span>
         </td>
       </ng-container>
 
@@ -98,14 +116,16 @@
             >
               <mat-icon>edit</mat-icon>
             </button>
-            <button
-              mat-icon-button
-              color="warn"
-              (click)="askDelete(opt.slug)"
-              matTooltip="Видалити"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
+            <span [matTooltip]="deleteTooltip(opt)">
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="askDelete(opt.slug)"
+                [disabled]="isUsed(opt)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </span>
           }
         </td>
       </ng-container>
@@ -114,7 +134,7 @@
       <tr mat-row *matRowDef="let row; columns: columns" class="table-row"></tr>
 
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell empty-state" colspan="3">
+        <td class="mat-cell empty-state" colspan="4">
           <mat-icon>straighten</mat-icon>
           <p>Значень ще немає. Натисніть «Додати діаметр».</p>
         </td>

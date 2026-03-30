@@ -15,6 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SimpleAttributeOption } from '@app/models/config.models';
 import { createAttributeSlug } from '@app/utils/slug.util';
+import { getUsageLabel, isValueUsed } from '../attribute-usage.util';
 
 @Component({
   selector: 'app-spool-attribute-tab',
@@ -45,7 +46,7 @@ export class SpoolAttributeTabComponent {
   }>();
   @Output() removeValue = new EventEmitter<string>();
 
-  readonly columns = ['name', 'slug', 'actions'];
+  readonly columns = ['name', 'slug', 'usage', 'actions'];
   readonly showAddRow = signal(false);
   readonly addForm = new FormGroup({
     name: new FormControl('', [Validators.required]),
@@ -73,6 +74,10 @@ export class SpoolAttributeTabComponent {
   }
 
   onEditNameInput(value: string, form: FormGroup): void {
+    if (this.isUsedBySlug(this.editing()?.oldSlug ?? null)) {
+      return;
+    }
+
     form.controls['slug'].setValue(
       createAttributeSlug(
         value,
@@ -102,7 +107,7 @@ export class SpoolAttributeTabComponent {
 
     if (!name || !slug) return;
 
-    this.addValue.emit({ name, slug });
+    this.addValue.emit({ name, slug, usageCount: 0 });
     this.showAddRow.set(false);
     this.addForm.reset();
   }
@@ -112,6 +117,10 @@ export class SpoolAttributeTabComponent {
       name: new FormControl(opt.name, [Validators.required]),
       slug: new FormControl(opt.slug, [Validators.required]),
     });
+
+    if (this.isUsed(opt)) {
+      form.controls.slug.disable({ emitEvent: false });
+    }
 
     this.editing.set({ oldSlug: opt.slug, form });
     this.showAddRow.set(false);
@@ -130,9 +139,11 @@ export class SpoolAttributeTabComponent {
 
     if (!name || !slug) return;
 
+    const currentItem = this.items.find(item => item.slug === editing.oldSlug);
+
     this.updateValue.emit({
       oldSlug: editing.oldSlug,
-      option: { name, slug },
+      option: { name, slug, usageCount: currentItem?.usageCount },
     });
     this.editing.set(null);
   }
@@ -142,6 +153,10 @@ export class SpoolAttributeTabComponent {
   }
 
   askDelete(slug: string): void {
+    if (this.isUsedBySlug(slug)) {
+      return;
+    }
+
     this.confirmDelete.set(slug);
     this.editing.set(null);
   }
@@ -160,5 +175,33 @@ export class SpoolAttributeTabComponent {
 
   isConfirmingDelete(slug: string): boolean {
     return this.confirmDelete() === slug;
+  }
+
+  isUsed(item: SimpleAttributeOption): boolean {
+    return isValueUsed(item);
+  }
+
+  isUsedBySlug(slug: string | null): boolean {
+    if (!slug) {
+      return false;
+    }
+
+    return this.items.some(item => item.slug === slug && this.isUsed(item));
+  }
+
+  usageLabel(usageCount?: number): string {
+    return getUsageLabel(usageCount ?? 0);
+  }
+
+  deleteTooltip(item: SimpleAttributeOption): string {
+    return this.isUsed(item)
+      ? `Значення використовується: ${this.usageLabel(item.usageCount)}`
+      : 'Видалити';
+  }
+
+  slugEditHint(item: SimpleAttributeOption): string {
+    return this.isUsed(item)
+      ? `Слаг заблоковано: ${this.usageLabel(item.usageCount)}`
+      : 'Системна назва';
   }
 }
