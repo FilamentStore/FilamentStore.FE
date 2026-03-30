@@ -83,8 +83,15 @@ export class ProductsListComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    const f = this.filters();
+
     this.store.dispatch(ProductsActions.loadCategories());
-    this.store.dispatch(ProductsActions.loadProducts({}));
+    this.store.dispatch(ProductsActions.loadProducts(f));
+    this.filterForm.patchValue({
+      search: f.search,
+      status: f.status,
+      category_id: f.category_id,
+    });
   }
 
   applyFilters(): void {

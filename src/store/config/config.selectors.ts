@@ -15,5 +15,18 @@ export const {
 export const selectConfigForSave = createSelector(
   selectColors,
   selectSimpleAttributes,
-  (colors, simpleAttributes) => ({ colors, simpleAttributes }),
+  (colors, simpleAttributes) => ({
+    colors: colors ?? [],
+    simpleAttributes: simpleAttributes ?? {},
+  }),
+);
+
+export const selectColorsSafe = createSelector(
+  selectColors,
+  colors => colors ?? [],
+);
+
+export const selectSimpleAttributesSafe = createSelector(
+  selectSimpleAttributes,
+  attrs => attrs ?? {},
 );

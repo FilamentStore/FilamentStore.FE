@@ -78,6 +78,10 @@ export class CrmShellComponent {
     this.sidenavOpen.update(v => !v);
   }
 
+  onSidenavToggle(): void {
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 300);
+  }
+
   toggleConfig(): void {
     this.configOpen.update(v => !v);
   }

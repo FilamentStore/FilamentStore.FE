@@ -1,5 +1,14 @@
-<mat-sidenav-container class="crm-container">
-  <mat-sidenav class="crm-sidenav" [opened]="sidenavOpen()" mode="side">
+<mat-sidenav-container
+  class="crm-container"
+  [class.sidenav-open]="sidenavOpen()"
+  autosize
+>
+  <mat-sidenav
+    class="crm-sidenav"
+    [opened]="sidenavOpen()"
+    mode="side"
+    (openedChange)="onSidenavToggle()"
+  >
     <div class="sidenav-header">
       <mat-icon class="sidenav-logo-icon">hexagon</mat-icon>
       <span class="sidenav-title">FilamentCRM</span>

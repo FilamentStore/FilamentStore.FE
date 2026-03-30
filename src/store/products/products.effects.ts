@@ -1,9 +1,17 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
+import {
+  catchError,
+  map,
+  switchMap,
+  tap,
+  withLatestFrom,
+} from 'rxjs/operators';
 import { of } from 'rxjs';
 import { ProductsActions } from './products.actions';
+import { selectFilters } from './products.selectors';
 import { ROUTES } from '@constants/app.routes.const';
 import { ProductsService } from '@app/services/tempService/products.service';
 import { VariationsService } from '@app/services/tempService/variations.service';
@@ -11,6 +19,7 @@ import { VariationsService } from '@app/services/tempService/variations.service'
 @Injectable()
 export class ProductsEffects {
   private actions$ = inject(Actions);
+  private store = inject(Store);
   private productsService = inject(ProductsService);
   private variationsService = inject(VariationsService);
   private router = inject(Router);
@@ -90,6 +99,15 @@ export class ProductsEffects {
     ),
   );
 
+  // Після оновлення продукту — перезавантажуємо список з поточними фільтрами
+  updateProductSuccess$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ProductsActions.updateProductSuccess),
+      withLatestFrom(this.store.select(selectFilters)),
+      map(([, filters]) => ProductsActions.loadProducts(filters)),
+    ),
+  );
+
   deleteProduct$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProductsActions.deleteProduct),
@@ -101,6 +119,15 @@ export class ProductsEffects {
           ),
         ),
       ),
+    ),
+  );
+
+  // Після видалення — перезавантажуємо список з поточними фільтрами
+  deleteProductSuccess$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ProductsActions.deleteProductSuccess),
+      withLatestFrom(this.store.select(selectFilters)),
+      map(([, filters]) => ProductsActions.loadProducts(filters)),
     ),
   );
 

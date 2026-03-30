@@ -1,12 +1,15 @@
 import {
+  AfterViewInit,
   Component,
   DestroyRef,
   OnDestroy,
   OnInit,
+  ViewChild,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { MatTabGroup } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   FormControl,
@@ -65,7 +68,9 @@ const DEFAULT_ATTRIBUTES: AttributeValue[] = [
   templateUrl: './product-form.component.html',
   styleUrl: './product-form.component.scss',
 })
-export class ProductFormComponent implements OnInit, OnDestroy {
+export class ProductFormComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
+
   private store = inject(Store);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -123,6 +128,11 @@ export class ProductFormComponent implements OnInit, OnDestroy {
       .subscribe(err => {
         this.snackBar.open(`Помилка: ${err}`, 'Закрити', { duration: 5000 });
       });
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => this.tabGroup?.realignInkBar(), 0);
+    setTimeout(() => this.tabGroup?.realignInkBar(), 300);
   }
 
   ngOnDestroy(): void {

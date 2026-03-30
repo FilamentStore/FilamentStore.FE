@@ -14,8 +14,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AttributeValue } from '@models/product.models';
 import {
-  selectColors,
-  selectSimpleAttributes,
+  selectColorsSafe,
+  selectSimpleAttributesSafe,
 } from '@store/config/config.selectors';
 import { ConfigActions } from '@store/config/config.actions';
 import { ATTRIBUTE_CONFIGS } from '@app/constants/attribute-configs';
@@ -41,8 +41,8 @@ export class TabAttributesComponent implements OnInit {
 
   private store = inject(Store);
 
-  colors = this.store.selectSignal(selectColors);
-  simpleAttributes = this.store.selectSignal(selectSimpleAttributes);
+  colors = this.store.selectSignal(selectColorsSafe);
+  simpleAttributes = this.store.selectSignal(selectSimpleAttributesSafe);
   configs = ATTRIBUTE_CONFIGS;
 
   ngOnInit(): void {

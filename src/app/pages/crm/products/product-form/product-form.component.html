@@ -32,7 +32,7 @@
 
   <mat-card class="form-card">
     <mat-card-content>
-      @if (loading()) {
+      @if (loading() && isEditMode()) {
         <div class="loading-overlay">
           <mat-spinner diameter="48" />
           <p>Завантаження...</p>
@@ -41,7 +41,8 @@
       <mat-tab-group
         animationDuration="200ms"
         color="primary"
-        [class.tabs-hidden]="loading()"
+        style="width: 100%"
+        [class.tabs-hidden]="loading() && isEditMode()"
       >
         <!-- Tab 1: Basic info -->
         <mat-tab>

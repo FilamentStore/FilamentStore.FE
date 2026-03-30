@@ -60,9 +60,14 @@
 .form-card {
   flex: 1;
   position: relative;
+  overflow: visible;
 
   ::ng-deep .mat-mdc-card-content {
     position: relative;
+
+    .mat-mdc-tab-group {
+      width: 100%;
+    }
   }
 }
 
