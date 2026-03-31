@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ArrowButtonComponent } from '../../arrow-button/arrow-button.component';
+import { ArrowButtonComponent } from '@components/arrow-button/arrow-button.component';
 
 @Component({
   selector: 'app-footer',

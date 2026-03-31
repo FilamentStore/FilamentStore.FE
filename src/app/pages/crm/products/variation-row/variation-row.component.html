@@ -1,0 +1,116 @@
+﻿<td class="col-select">
+  <mat-checkbox
+    [checked]="isSelected"
+    (change)="selectionChange.emit($event.checked)"
+  />
+</td>
+
+<td class="col-image">
+  <div
+    class="variation-image"
+    (click)="onImageClick()"
+    matTooltip="Клікніть для зміни фото"
+  >
+    @if (uploadingImage()) {
+      <mat-spinner diameter="24" />
+    } @else if (variation.image?.src) {
+      <img [src]="variation.image!.src" [alt]="combinationLabel" />
+    } @else {
+      <mat-icon>add_photo_alternate</mat-icon>
+    }
+  </div>
+</td>
+
+<td class="col-combo">
+  <span class="combo-label">{{ combinationLabel }}</span>
+  <div class="article-row">
+    <span class="article-prefix">Арт.:</span>
+    <input
+      class="article-input"
+      [formControl]="form.controls.sku"
+      placeholder="—"
+      spellcheck="false"
+    />
+  </div>
+</td>
+
+<td class="col-price">
+  <mat-form-field appearance="outline" class="inline-field">
+    <input
+      matInput
+      [formControl]="form.controls.regular_price"
+      placeholder="0.00"
+      type="number"
+      min="0"
+    />
+    <span matTextSuffix>₴</span>
+  </mat-form-field>
+</td>
+
+<td class="col-price">
+  <mat-form-field appearance="outline" class="inline-field">
+    <input
+      matInput
+      [formControl]="form.controls.sale_price"
+      placeholder="—"
+      type="number"
+      min="0"
+    />
+    <span matTextSuffix>₴</span>
+  </mat-form-field>
+</td>
+
+<td class="col-stock">
+  <mat-form-field appearance="outline" class="inline-field inline-field--sm">
+    <input
+      matInput
+      [formControl]="form.controls.stock_quantity"
+      type="number"
+      min="0"
+    />
+  </mat-form-field>
+  @if (variation.stock_quantity === 0) {
+    <span class="stock-label out-of-stock-label">Немає</span>
+  } @else if (variation.stock_quantity < 5) {
+    <span class="stock-label low-stock-label">Мало</span>
+  }
+</td>
+
+<td class="col-status">
+  <mat-slide-toggle
+    [checked]="form.controls.status.value === 'publish'"
+    (change)="
+      form.controls.status.setValue($event.checked ? 'publish' : 'private')
+    "
+    color="primary"
+    matTooltip="Активна / Прихована"
+  />
+</td>
+
+<td class="col-actions">
+  <div class="actions-group">
+    <button
+      mat-icon-button
+      color="primary"
+      type="button"
+      (click)="save()"
+      [disabled]="form.invalid || saving()"
+      matTooltip="Зберегти"
+    >
+      @if (saving()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        <mat-icon>save</mat-icon>
+      }
+    </button>
+    <button
+      mat-icon-button
+      color="warn"
+      type="button"
+      (click)="openDeleteDialog()"
+      matTooltip="Видалити"
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
+</td>

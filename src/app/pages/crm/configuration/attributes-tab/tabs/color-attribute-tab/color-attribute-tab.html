@@ -1,0 +1,241 @@
+﻿<div class="attr-tab-content">
+  <div class="content-header">
+    <div class="content-copy">
+      <span class="example-label">Приклад атрибуту: Чорний</span>
+      <span class="total-label">
+        Усього: <strong>{{ colors().length }}</strong>
+      </span>
+    </div>
+
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="openAdd()"
+      [disabled]="showAddRow()"
+    >
+      <mat-icon>add</mat-icon>
+      Додати колір
+    </button>
+  </div>
+
+  <div class="table-wrap">
+    <table mat-table [dataSource]="colors()" class="values-table">
+      <ng-container matColumnDef="preview">
+        <th mat-header-cell *matHeaderCellDef>Зразок</th>
+        <td mat-cell *matCellDef="let color">
+          @if (isEditing(color.slug)) {
+            <div class="color-preview-edit">
+              <input
+                type="color"
+                [formControl]="$any(editingColor()!.form.controls['hex'])"
+                class="color-picker"
+              />
+            </div>
+          } @else {
+            <div
+              class="color-swatch"
+              [style.background]="color.hex"
+              [matTooltip]="color.hex"
+            ></div>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Назва</th>
+        <td mat-cell *matCellDef="let color">
+          @if (isEditing(color.slug)) {
+            <mat-form-field appearance="outline" class="edit-field">
+              <input
+                matInput
+                [formControl]="$any(editingColor()!.form.controls['name'])"
+                (input)="
+                  onEditNameInput(
+                    $any($event.target).value,
+                    editingColor()!.form
+                  )
+                "
+                (keyup.escape)="cancelEdit()"
+              />
+            </mat-form-field>
+          } @else {
+            <span class="value-label">{{ color.name }}</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="hex">
+        <th mat-header-cell *matHeaderCellDef>HEX-код</th>
+        <td mat-cell *matCellDef="let color">
+          @if (isEditing(color.slug)) {
+            <mat-form-field
+              appearance="outline"
+              class="edit-field edit-field--sm"
+            >
+              <input
+                matInput
+                [formControl]="$any(editingColor()!.form.controls['hex'])"
+                placeholder="#000000"
+                (keyup.escape)="cancelEdit()"
+              />
+            </mat-form-field>
+          } @else {
+            <code class="hex-badge">{{ color.hex }}</code>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="slug">
+        <th mat-header-cell *matHeaderCellDef>Системна назва</th>
+        <td mat-cell *matCellDef="let color">
+          @if (isEditing(color.slug)) {
+            @if (isUsed(color)) {
+              <div class="locked-cell">
+                <code class="slug-badge">{{ color.slug }}</code>
+                <span class="lock-note" [matTooltip]="slugEditHint(color)">
+                  Слаг зайнятий у варіаціях
+                </span>
+              </div>
+            } @else {
+              <mat-form-field appearance="outline" class="edit-field">
+                <input
+                  matInput
+                  [formControl]="$any(editingColor()!.form.controls['slug'])"
+                  (keyup.escape)="cancelEdit()"
+                />
+              </mat-form-field>
+            }
+          } @else {
+            <code class="slug-badge">{{ color.slug }}</code>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="usage">
+        <th mat-header-cell *matHeaderCellDef>Використання</th>
+        <td mat-cell *matCellDef="let color">
+          <span class="usage-badge" [class.usage-badge--active]="isUsed(color)">
+            {{ color.usageCount ?? 0 }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Дії</th>
+        <td mat-cell *matCellDef="let color" class="actions-cell">
+          @if (isEditing(color.slug)) {
+            <button
+              mat-icon-button
+              color="primary"
+              (click)="submitEdit()"
+              [disabled]="editingColor()!.form.invalid"
+              matTooltip="Зберегти"
+            >
+              <mat-icon>check</mat-icon>
+            </button>
+
+            <button
+              mat-icon-button
+              (click)="cancelEdit()"
+              matTooltip="Скасувати"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          } @else if (confirmDeleteColor() === color.slug) {
+            <span class="confirm-text">Видалити?</span>
+
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="confirmDelete()"
+              matTooltip="Так"
+            >
+              <mat-icon>check</mat-icon>
+            </button>
+
+            <button mat-icon-button (click)="cancelDelete()" matTooltip="Ні">
+              <mat-icon>close</mat-icon>
+            </button>
+          } @else {
+            <button
+              mat-icon-button
+              (click)="startEdit(color)"
+              matTooltip="Редагувати"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+
+            <span [matTooltip]="deleteTooltip(color)">
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="askDelete(color.slug)"
+                [disabled]="isUsed(color)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </span>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="colorColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: colorColumns"
+        class="table-row"
+      ></tr>
+
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell empty-state" [attr.colspan]="colorColumns.length">
+          <mat-icon>palette</mat-icon>
+          <p>Кольорів ще немає. Натисніть «Додати колір».</p>
+        </td>
+      </tr>
+    </table>
+
+    @if (showAddRow()) {
+      <div class="add-row" [formGroup]="addForm">
+        <div class="color-picker-wrap">
+          <label class="color-picker-label">Колір</label>
+          <input type="color" formControlName="hex" class="color-picker" />
+        </div>
+
+        <mat-form-field appearance="outline" class="add-field">
+          <mat-label>Назва</mat-label>
+          <input
+            matInput
+            formControlName="name"
+            placeholder="Чорний"
+            (input)="onNameInput($any($event.target).value)"
+            (keyup.escape)="cancelAdd()"
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="add-field add-field--sm">
+          <mat-label>HEX-код</mat-label>
+          <input matInput formControlName="hex" placeholder="#000000" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="add-field add-field--sm">
+          <mat-label>Системна назва</mat-label>
+          <input matInput formControlName="slug" placeholder="black" />
+        </mat-form-field>
+
+        <div class="add-row-actions">
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="submitAdd()"
+            [disabled]="addForm.invalid || saving"
+          >
+            <mat-icon>add</mat-icon>
+            Додати
+          </button>
+
+          <button mat-stroked-button (click)="cancelAdd()">Скасувати</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

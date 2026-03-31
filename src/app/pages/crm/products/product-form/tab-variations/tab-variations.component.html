@@ -1,0 +1,160 @@
+﻿<div class="tab-variations">
+  <div class="variations-toolbar">
+    <div class="toolbar-left">
+      <button
+        mat-flat-button
+        color="accent"
+        type="button"
+        [disabled]="activeAttributes.length === 0 || saving()"
+        (click)="generateVariations()"
+        matTooltip="Створити всі комбінації атрибутів"
+      >
+        <mat-icon>auto_awesome</mat-icon>
+        Згенерувати варіації
+      </button>
+      <button mat-stroked-button type="button" (click)="openAddVariation()">
+        <mat-icon>add</mat-icon>
+        Додати варіацію
+      </button>
+    </div>
+
+    <div class="toolbar-right">
+      @if (selectedIds.size > 0) {
+        <span class="selected-count">Обрано: {{ selectedIds.size }}</span>
+        <button
+          mat-stroked-button
+          type="button"
+          color="warn"
+          (click)="disableSelected()"
+        >
+          <mat-icon>visibility_off</mat-icon>
+          Вимкнути обрані
+        </button>
+      }
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="enableAll()"
+        matTooltip="Активувати всі варіації"
+      >
+        <mat-icon>check_circle</mat-icon>
+        Увімкнути всі
+      </button>
+      <button
+        mat-stroked-button
+        type="button"
+        color="warn"
+        (click)="disableAll()"
+        matTooltip="Приховати всі варіації"
+      >
+        <mat-icon>cancel</mat-icon>
+        Вимкнути всі
+      </button>
+    </div>
+  </div>
+
+  @if (showManualVariation()) {
+    <div class="manual-variation-panel">
+      <h3>Ручне додавання варіації</h3>
+      <div class="manual-variation-fields">
+        @for (attr of activeAttributes; track attr.name) {
+          <mat-form-field appearance="outline">
+            <mat-label>{{ attr.name }}</mat-label>
+            <mat-select
+              [value]="selectedOptions()[attr.name]"
+              (selectionChange)="updateSelectedOption(attr.name, $event.value)"
+            >
+              @for (option of getManualOptions(attr); track option.value) {
+                <mat-option [value]="option.value">{{
+                  option.label
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+      </div>
+      <div class="manual-variation-sku">
+        SKU: <strong>{{ manualSku() }}</strong>
+      </div>
+      @if (duplicateError()) {
+        <div class="duplicate-error">
+          <mat-icon>warning</mat-icon>
+          Така комбінація вже існує
+        </div>
+      }
+      <div class="manual-variation-actions">
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          [disabled]="!canCreateManualVariation() || saving()"
+          (click)="createManualVariation()"
+        >
+          Створити варіацію
+        </button>
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="cancelManualVariation()"
+        >
+          Скасувати
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (loading() || saving()) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="36" />
+      <span>{{ loading() ? 'Завантаження...' : 'Збереження...' }}</span>
+    </div>
+  }
+
+  @if (variations().length > 0) {
+    <div class="variations-table-wrap">
+      <table class="variations-table">
+        <thead>
+          <tr>
+            <th class="col-select">
+              <mat-checkbox
+                [checked]="isAllSelected()"
+                (change)="toggleAll($event)"
+              />
+            </th>
+            <th class="col-image">Фото</th>
+            <th class="col-combo">Комбінація / Артикул</th>
+            <th class="col-price">Ціна</th>
+            <th class="col-price">Знижка</th>
+            <th class="col-stock">Залишок</th>
+            <th class="col-status">Статус</th>
+            <th class="col-actions">Дії</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (variation of variations(); track trackById($index, variation)) {
+            <tr
+              appVariationRow
+              [variation]="variation"
+              [skuPrefix]="skuPrefix"
+              [colorsList]="colorsList"
+              [simpleAttributes]="simpleAttributes"
+              [isSelected]="selectedIds.has(variation.id)"
+              (selectionChange)="toggleSelect(variation.id, $event)"
+              (saveVariation)="onVariationSave($event)"
+              (deleteVariation)="onVariationDelete($event)"
+            ></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else if (!loading()) {
+    <div class="empty-variations">
+      <mat-icon>tune</mat-icon>
+      <p>Варіацій ще немає.</p>
+      <p class="hint">
+        Заповніть атрибути на вкладці «Атрибути» і натисніть «Згенерувати
+        варіації».
+      </p>
+    </div>
+  }
+</div>

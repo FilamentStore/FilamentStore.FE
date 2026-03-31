@@ -48,6 +48,7 @@
     color: rgba(255, 255, 255, 0.7);
     border-radius: 8px;
     margin: 2px 8px;
+    width: calc(100% - 16px);
     transition:
       background 0.2s,
       color 0.2s;
@@ -67,11 +68,15 @@
 
     &.active-link {
       background: rgba(34, 167, 148, 0.2);
-      color: #22a794;
+      color: #22a794 !important;
 
       mat-icon {
         color: #22a794;
       }
+    }
+
+    .mdc-list-item__primary-text {
+      color: inherit;
     }
   }
 
@@ -98,6 +103,16 @@
   flex-direction: column;
   background: #f5f6fa;
   min-height: 100vh;
+  min-width: 0;
+}
+
+// Гарантуємо правильний margin до того як Angular CDK обрахує його після рендеру
+:host ::ng-deep .sidenav-open .mat-drawer-content {
+  margin-left: 240px !important;
+}
+
+:host ::ng-deep .mat-drawer-content {
+  transition: margin-left 300ms ease;
 }
 
 .crm-toolbar {
@@ -129,4 +144,39 @@
   flex: 1;
   padding: 24px;
   overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
+}
+
+:host ::ng-deep .nav-item--list {
+  max-height: 55px;
+
+  .mdc-list-item__content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .mdc-list-item__secondary-text {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+}
+
+.nav-submenu {
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  margin: 4px 8px;
+  padding: 10px 0;
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nav-subitem {
+  margin-left: 24px;
+  width: calc(100% - 40px);
+  font-size: 14px;
 }

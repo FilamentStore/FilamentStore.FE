@@ -1,0 +1,155 @@
+﻿<div class="tab-basic" [formGroup]="form">
+  <div class="form-row">
+    <mat-form-field appearance="outline" class="field-lg">
+      <mat-label>Назва <span class="required">*</span></mat-label>
+      <input
+        matInput
+        formControlName="name"
+        placeholder="Наприклад: PLA+ Premium"
+      />
+      @if (
+        form.get('name')?.hasError('required') && form.get('name')?.touched
+      ) {
+        <mat-error>Назва обов'язкова</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="field-md">
+      <mat-label>Бренд <span class="required">*</span></mat-label>
+      <mat-select formControlName="brand">
+        @for (brand of brands; track brand.id) {
+          <mat-option [value]="brand.slug">{{ brand.name }}</mat-option>
+        }
+      </mat-select>
+      @if (
+        form.get('brand')?.hasError('required') && form.get('brand')?.touched
+      ) {
+        <mat-error>Бренд обов'язковий</mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  <div class="form-row">
+    <mat-form-field appearance="outline" class="field-md">
+      <mat-label>Категорія <span class="required">*</span></mat-label>
+      <mat-select formControlName="category_id">
+        @for (cat of categories; track cat.id) {
+          <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+        }
+      </mat-select>
+      @if (
+        form.get('category_id')?.hasError('required') &&
+        form.get('category_id')?.touched
+      ) {
+        <mat-error>Оберіть категорію</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="field-sm">
+      <mat-label>Статус</mat-label>
+      <mat-select formControlName="status">
+        @for (opt of statusOptions; track opt.value) {
+          <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <mat-form-field appearance="outline" class="field-full">
+    <mat-label>Короткий опис</mat-label>
+    <textarea
+      matInput
+      formControlName="short_description"
+      rows="3"
+      placeholder="Коротко опишіть продукт..."
+    ></textarea>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="field-full">
+    <mat-label>Повний опис</mat-label>
+    <textarea
+      matInput
+      formControlName="description"
+      rows="6"
+      placeholder="Детальний опис продукту (HTML підтримується)..."
+    ></textarea>
+    <mat-hint>Підтримується HTML розмітка</mat-hint>
+  </mat-form-field>
+
+  <div class="gallery-section">
+    <div class="gallery-header">
+      <h3 class="section-title">
+        <mat-icon>photo_library</mat-icon>
+        Галерея
+      </h3>
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="triggerFileInput()"
+        [disabled]="uploadingIndex() !== null"
+      >
+        <mat-icon>add_photo_alternate</mat-icon>
+        Додати фото
+      </button>
+    </div>
+
+    <input
+      type="file"
+      id="gallery-upload"
+      accept="image/*"
+      (change)="onFileSelect($event)"
+      hidden
+    />
+
+    @if (uploadError()) {
+      <p class="upload-error">
+        <mat-icon>error</mat-icon>
+        {{ uploadError() }}
+      </p>
+    }
+
+    <div
+      class="gallery-grid"
+      cdkDropList
+      cdkDropListOrientation="horizontal"
+      (cdkDropListDropped)="onImageDrop($event)"
+    >
+      @for (image of images; track image.id; let i = $index) {
+        <div class="gallery-item" cdkDrag>
+          <img [src]="image.src" [alt]="image.alt || 'Фото ' + (i + 1)" />
+          <div class="gallery-item-overlay">
+            <button
+              mat-icon-button
+              color="warn"
+              type="button"
+              (click)="removeImage(i)"
+              matTooltip="Видалити"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+          <span class="drag-hint">
+            <mat-icon>drag_indicator</mat-icon>
+          </span>
+          @if (i === 0) {
+            <span class="main-badge">Головне</span>
+          }
+        </div>
+      }
+
+      @if (uploadingIndex() !== null) {
+        <div class="gallery-item uploading">
+          <mat-spinner diameter="32" />
+          <p>Завантаження...</p>
+        </div>
+      }
+
+      @if (images.length === 0 && uploadingIndex() === null) {
+        <div class="gallery-empty">
+          <mat-icon>add_photo_alternate</mat-icon>
+          <p>Немає фото. Натисніть «Додати фото»</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -1,5 +1,14 @@
-<mat-sidenav-container class="crm-container">
-  <mat-sidenav class="crm-sidenav" [opened]="sidenavOpen()" mode="side">
+<mat-sidenav-container
+  class="crm-container"
+  [class.sidenav-open]="sidenavOpen()"
+  autosize
+>
+  <mat-sidenav
+    class="crm-sidenav"
+    [opened]="sidenavOpen()"
+    mode="side"
+    (openedChange)="onSidenavToggle()"
+  >
     <div class="sidenav-header">
       <mat-icon class="sidenav-logo-icon">hexagon</mat-icon>
       <span class="sidenav-title">FilamentCRM</span>
@@ -18,6 +27,36 @@
           <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
           <span matListItemTitle>{{ item.label }}</span>
         </a>
+      }
+
+      <a
+        mat-list-item
+        type="button"
+        class="nav-item nav-item--list"
+        [class.active-link]="configOpen()"
+        (click)="toggleConfig()"
+      >
+        <mat-icon matListItemIcon>settings</mat-icon>
+        <span matListItemTitle>Конфігурація</span>
+        <mat-icon class="expand-icon">
+          {{ configOpen() ? 'expand_less' : 'expand_more' }}
+        </mat-icon>
+      </a>
+
+      @if (configOpen()) {
+        <div class="nav-submenu">
+          @for (item of configItems; track item.route) {
+            <a
+              mat-list-item
+              [routerLink]="item.route"
+              routerLinkActive="active-link"
+              class="nav-item nav-subitem"
+            >
+              <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+              <span matListItemTitle>{{ item.label }}</span>
+            </a>
+          }
+        </div>
       }
     </mat-nav-list>
 

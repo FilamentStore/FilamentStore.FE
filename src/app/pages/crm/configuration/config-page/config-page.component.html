@@ -1,0 +1,31 @@
+<div class="config-page">
+  <div class="page-header">
+    <mat-icon>settings</mat-icon>
+    <div>
+      <h1>Конфігурація</h1>
+      <p>Управління категоріями та атрибутами</p>
+    </div>
+  </div>
+
+  <mat-tab-group animationDuration="150ms" color="primary" class="config-tabs">
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">category</mat-icon>
+        Категорії
+      </ng-template>
+      <div class="tab-content">
+        <app-categories-tab />
+      </div>
+    </mat-tab>
+
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">storefront</mat-icon>
+        Бренди
+      </ng-template>
+      <div class="tab-content">
+        <app-brands-tab />
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

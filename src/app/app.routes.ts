@@ -64,6 +64,7 @@ export const routes: Routes = [
   // CRM — повністю ізольований, зі своїм sidenav
   {
     path: ROUTES.crm.root,
-    loadChildren: () => import('./crm/crm.routes').then(m => m.CRM_ROUTES),
+    loadChildren: () =>
+      import('./helper/route/crm.routes').then(m => m.CRM_ROUTES),
   },
 ];
