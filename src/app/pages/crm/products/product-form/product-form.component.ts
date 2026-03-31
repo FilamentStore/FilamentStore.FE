@@ -33,11 +33,15 @@ import {
   ProductImage,
   WcCategory,
 } from '@models/product.models';
-import { Brand } from '@models/config.models';
+import { Brand, SimpleAttributeOption } from '@models/config.models';
 import { ROUTES } from '@constants/app.routes.const';
 import { ProductsService } from '@app/services/tempService/products.service';
 import { BrandsService } from '@app/services/tempService/brands.service';
-import { AttributesStore } from '@store/attributes/attributes.store';
+import { Store } from '@ngrx/store';
+import {
+  selectAttributeColors,
+  selectAttributeSimpleAttributes,
+} from '@store/attributes/attributes.selectors';
 
 const DEFAULT_ATTRIBUTES: AttributeValue[] = [
   { name: 'Тип кольору', options: [] },
@@ -74,7 +78,7 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
   private snackBar = inject(MatSnackBar);
   private productsService = inject(ProductsService);
   private brandsService = inject(BrandsService);
-  private attributesStore = inject(AttributesStore);
+  private store = inject(Store);
 
   readonly productId = signal<number | null>(null);
   readonly isEditMode = computed(() => this.productId() !== null);
@@ -83,9 +87,15 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
   readonly saving = signal(false);
   readonly categories = signal<WcCategory[]>([]);
   readonly brands = signal<Brand[]>([]);
-  readonly colors = this.attributesStore.colors;
+  readonly colors = toSignal(this.store.select(selectAttributeColors), {
+    initialValue: [],
+  });
+  private readonly _simpleAttributesRaw = toSignal(
+    this.store.select(selectAttributeSimpleAttributes),
+    { initialValue: {} as Record<string, SimpleAttributeOption[]> },
+  );
   readonly simpleAttributes = computed(() => {
-    const attrs = this.attributesStore.simpleAttributes();
+    const attrs = this._simpleAttributesRaw();
 
     return {
       color_type: attrs['color_type'] ?? attrs['material'] ?? [],

@@ -14,6 +14,8 @@ import {
   AttributesConfig,
   AttributesService,
 } from '@app/services/tempService/attributes.service';
+import { Store } from '@ngrx/store';
+import { AttributesActions } from '@store/attributes/attributes.actions';
 
 @Component({
   selector: 'app-attributes-tab',
@@ -33,6 +35,7 @@ import {
 })
 export class AttributesTabComponent implements OnInit {
   private readonly attributesService = inject(AttributesService);
+  private readonly store = inject(Store);
 
   readonly colors = signal<ColorValue[]>([]);
   readonly simpleAttributes = signal<Record<string, SimpleAttributeOption[]>>(
@@ -143,7 +146,10 @@ export class AttributesTabComponent implements OnInit {
   private save(request: ReturnType<AttributesService['saveConfig']>): void {
     this.saving.set(true);
     request.pipe(finalize(() => this.saving.set(false))).subscribe({
-      next: config => this.applyConfig(config),
+      next: config => {
+        this.applyConfig(config);
+        this.store.dispatch(AttributesActions.loadAttributes());
+      },
     });
   }
 

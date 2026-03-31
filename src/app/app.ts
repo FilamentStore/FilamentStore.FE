@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AttributesStore } from '@store/attributes/attributes.store';
+import { Store } from '@ngrx/store';
+import { AttributesActions } from '@store/attributes/attributes.actions';
 
 @Component({
   selector: 'app-root',
@@ -9,6 +10,6 @@ import { AttributesStore } from '@store/attributes/attributes.store';
 })
 export class App {
   constructor() {
-    inject(AttributesStore).init();
+    inject(Store).dispatch(AttributesActions.loadAttributes());
   }
 }

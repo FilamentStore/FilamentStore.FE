@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
 import { finalize } from 'rxjs/operators';
 import { Brand } from '@app/models/config.models';
 import { BrandsService } from '@app/services/tempService/brands.service';
@@ -31,6 +32,7 @@ import { createSlug } from '@app/utils/slug.util';
     MatFormFieldModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatChipsModule,
   ],
   templateUrl: './brands-tab.component.html',
   styleUrl: './brands-tab.component.scss',
@@ -56,7 +58,7 @@ export class BrandsTabComponent implements OnInit {
 
   confirmDeleteId = signal<number | null>(null);
 
-  displayedColumns = ['name', 'slug', 'actions'];
+  displayedColumns = ['name', 'slug', 'usage', 'actions'];
 
   ngOnInit(): void {
     this.loadBrands();

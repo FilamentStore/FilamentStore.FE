@@ -36,6 +36,11 @@
 
 export type AttributeSlugKind = 'default' | 'weight' | 'diameter' | 'spool';
 
+const ATTRIBUTE_SLUG_PREFIXES: Partial<Record<AttributeSlugKind, string>> = {
+  diameter: 'dm',
+  spool: 's',
+};
+
 function transliterate(value: string): string {
   return value
     .toLowerCase()
@@ -95,8 +100,21 @@ export function createAttributeSlug(
   existing: string[] = [],
   exclude?: string | null,
 ): string {
-  return createSlug(value, {
-    existing,
-    exclude,
-  });
+  const prefix = ATTRIBUTE_SLUG_PREFIXES[kind] ?? '';
+  const normalized = prefix + normalizeSlugValue(value);
+
+  const filteredExisting = existing
+    .filter(Boolean)
+    .map(s => s.toLowerCase())
+    .filter(s => s !== (exclude ?? '').toLowerCase());
+
+  let candidate = normalized || prefix || 'item';
+  let counter = 2;
+
+  while (filteredExisting.includes(candidate.toLowerCase())) {
+    candidate = `${normalized}${counter}`;
+    counter += 1;
+  }
+
+  return candidate;
 }
