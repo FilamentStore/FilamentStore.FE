@@ -127,11 +127,7 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
   });
 
   readonly skuPrefix = computed(() => {
-    const brand = this._formValues()?.brand ?? '';
-    const catId = this._formValues()?.category_id;
-    const category = this.categories().find(c => c.id === catId)?.slug ?? '';
-
-    return [brand, category].filter(Boolean).join('-');
+    return String(this.productId() ?? '');
   });
 
   ngOnInit(): void {

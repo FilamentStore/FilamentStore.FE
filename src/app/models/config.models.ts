@@ -1,6 +1,6 @@
 ﻿export interface ColorValue {
   name: string;
-  hex: string;
+  hex: string[];
   slug: string;
   usageCount?: number;
 }

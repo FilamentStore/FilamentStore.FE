@@ -1,0 +1,109 @@
+<article class="card">
+  <!-- Image -->
+  <div class="card__image-wrapper">
+    @if (image()) {
+      <img
+        class="card__image"
+        [src]="image()!.src"
+        [alt]="image()!.alt || product().name"
+        loading="lazy"
+      />
+    } @else {
+      <div class="card__image-placeholder">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="48"
+          height="48"
+        >
+          <path
+            fill="currentColor"
+            d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"
+          />
+        </svg>
+        <span>Немає фото</span>
+      </div>
+    }
+
+    <!-- Stock badge -->
+    @if (stockStatus() !== 'in') {
+      <span
+        class="card__stock-badge"
+        [class.card__stock-badge--out]="stockStatus() === 'out'"
+      >
+        {{ stockStatus() === 'out' ? 'Немає в наявності' : 'Закінчується' }}
+      </span>
+    }
+  </div>
+
+  <!-- Body -->
+  <div class="card__body">
+    <p class="card__brand">{{ product().brand }}</p>
+    <h4 class="card__name">{{ product().name }}</h4>
+
+    <!-- Prices -->
+    <div class="card__prices">
+      <span class="card__price-current">{{ currentPrice() }} грн</span>
+      @if (oldPrice()) {
+        <span class="card__price-old">{{ oldPrice() }} грн</span>
+      }
+    </div>
+
+    <!-- Variation attributes -->
+    @if (variation().attributes.length) {
+      <div class="card__attributes">
+        @for (attr of variation().attributes; track attr.name) {
+          <div class="card__attr-row">
+            <span class="card__attr-name">{{ attr.name }}</span>
+            <span class="card__attr-value">{{ attr.option }}</span>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Actions -->
+    <div class="card__actions">
+      <button
+        class="card__btn-cart"
+        [disabled]="stockStatus() === 'out'"
+        (click)="onAddToCart()"
+      >
+        {{ stockStatus() === 'out' ? 'Немає в наявності' : 'Додати в кошик' }}
+      </button>
+      <button
+        class="card__btn-fav"
+        [class.card__btn-fav--active]="isFavorite()"
+        (click)="onToggleFavorite()"
+        aria-label="Додати в обране"
+      >
+        @if (isFavorite()) {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+          >
+            <path
+              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+              fill="currentColor"
+            />
+          </svg>
+        } @else {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+          >
+            <path
+              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+          </svg>
+        }
+      </button>
+    </div>
+  </div>
+</article>
