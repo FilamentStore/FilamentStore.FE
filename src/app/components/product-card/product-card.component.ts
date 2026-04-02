@@ -1,5 +1,6 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Product, ProductVariation } from '@app/models/product.models';
@@ -31,6 +32,7 @@ export class ProductCardComponent {
   toggleFavorite = output<ProductCardEvent>();
 
   private store = inject(Store);
+  private router = inject(Router);
 
   private colors = toSignal(this.store.select(selectAttributeColors), {
     initialValue: [],
@@ -94,6 +96,10 @@ export class ProductCardComponent {
       this.simpleAttributes()[config.key]?.find(o => o.slug === slug)?.name ??
       slug
     );
+  }
+
+  navigateToDetail(): void {
+    void this.router.navigate(['/product', this.product().id]);
   }
 
   onAddToCart(): void {

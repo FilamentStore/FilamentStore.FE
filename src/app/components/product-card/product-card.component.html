@@ -1,4 +1,4 @@
-<article class="card">
+<article class="card" (click)="navigateToDetail()">
   <!-- Image -->
   <div class="card__image-wrapper">
     @if (image()) {
@@ -59,14 +59,14 @@
       <button
         class="card__btn-cart"
         [disabled]="stockStatus() === 'out'"
-        (click)="onAddToCart()"
+        (click)="onAddToCart(); $event.stopPropagation()"
       >
         {{ stockStatus() === 'out' ? 'Немає в наявності' : 'Додати в кошик' }}
       </button>
       <button
         class="card__btn-fav"
         [class.card__btn-fav--active]="isFavorite()"
-        (click)="onToggleFavorite()"
+        (click)="onToggleFavorite(); $event.stopPropagation()"
         aria-label="Додати в обране"
       >
         @if (isFavorite()) {

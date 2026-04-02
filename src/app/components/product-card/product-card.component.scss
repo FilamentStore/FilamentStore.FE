@@ -12,6 +12,7 @@
   border-radius: 16px;
   overflow: hidden;
   height: 100%;
+  cursor: pointer;
   transition:
     box-shadow 0.25s ease,
     transform 0.25s ease;
@@ -20,8 +21,6 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     transform: translateY(-2px);
   }
-
-  // ── Image ─────────────────────────────────────────────────────────────────
 
   &__image-wrapper {
     position: relative;
@@ -93,8 +92,6 @@
     border: 1px solid color-mix(in srgb, $color-success 30%, transparent);
   }
 
-  // ── Body ──────────────────────────────────────────────────────────────────
-
   &__body {
     display: flex;
     flex-direction: column;
@@ -123,8 +120,6 @@
       font-size: 15px;
     }
   }
-
-  // ── Prices ────────────────────────────────────────────────────────────────
 
   &__prices {
     display: flex;
