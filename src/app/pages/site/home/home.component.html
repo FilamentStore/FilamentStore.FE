@@ -1,8 +1,32 @@
-<section class="home">
-  <header class="home__header">
-    <h2 class="home__title">Каталог філаменту</h2>
-    <p class="home__subtitle">
-      Знайдіть ідеальний матеріал для вашого 3D-принтера
-    </p>
-  </header>
+<section class="hero">
+  @for (slide of slides; track slide.material; let i = $index) {
+    <div
+      class="hero__slide hero__slide--{{ slide.material.toLowerCase() }}"
+      [class.hero__slide--active]="activeIndex() === i"
+    >
+      <div class="hero__blob hero__blob--1"></div>
+      <div class="hero__blob hero__blob--2"></div>
+      <div class="hero__blob hero__blob--3"></div>
+
+      <div class="hero__content">
+        <span class="hero__tag">{{ slide.material }}</span>
+        <h1 class="hero__title">{{ slide.title }}</h1>
+        <p class="hero__desc">{{ slide.description }}</p>
+        <a class="hero__cta" [routerLink]="slide.ctaLink">{{ slide.cta }}</a>
+      </div>
+
+      <div class="hero__watermark" aria-hidden="true">{{ slide.material }}</div>
+    </div>
+  }
+
+  <nav class="hero__dots" aria-label="Навігація слайдера">
+    @for (slide of slides; track slide.material; let i = $index) {
+      <button
+        class="hero__dot"
+        [class.hero__dot--active]="activeIndex() === i"
+        (click)="goTo(i)"
+        [attr.aria-label]="'Слайд ' + (i + 1)"
+      ></button>
+    }
+  </nav>
 </section>
