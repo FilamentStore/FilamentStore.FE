@@ -1,14 +1,20 @@
 import { Component } from '@angular/core';
+import { BreadcrumbComponent } from '@app/components/breadcrumb/breadcrumb.component';
 
 @Component({
   selector: 'app-account',
   standalone: true,
-  template: `<div class="page-placeholder"><h1>Акаунт</h1></div>`,
+  imports: [BreadcrumbComponent],
+  template: `
+    <div class="page-placeholder">
+      <app-breadcrumb [items]="[{ label: 'Акаунт' }]" />
+      <h1>Акаунт</h1>
+    </div>
+  `,
   styles: [
     `
       .page-placeholder {
-        padding: 48px 16px;
-        text-align: center;
+        padding: 0 16px 48px;
       }
     `,
   ],

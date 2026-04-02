@@ -1,0 +1,17 @@
+<nav class="breadcrumb" aria-label="Навігаційний ланцюжок">
+  <a class="breadcrumb__home" routerLink="/" aria-label="Головна">
+    <span class="breadcrumb__home-icon"></span>
+  </a>
+
+  @for (item of items(); track item.label; let last = $last) {
+    <span class="breadcrumb__sep" aria-hidden="true"></span>
+
+    @if (item.route && !last) {
+      <a class="breadcrumb__link" [routerLink]="item.route">{{ item.label }}</a>
+    } @else {
+      <span class="breadcrumb__current" aria-current="page">{{
+        item.label
+      }}</span>
+    }
+  }
+</nav>

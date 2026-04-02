@@ -12,6 +12,7 @@ import {
   ProductCardComponent,
   ProductCardEvent,
 } from '@app/components/product-card/product-card.component';
+import { BreadcrumbComponent } from '@app/components/breadcrumb/breadcrumb.component';
 import { selectAttributeColors } from '@store/attributes/attributes.selectors';
 
 export interface ProductCardItem {
@@ -31,7 +32,7 @@ export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  imports: [CommonModule, ProductCardComponent],
+  imports: [CommonModule, ProductCardComponent, BreadcrumbComponent],
   templateUrl: './catalog.component.html',
   styleUrl: './catalog.component.scss',
 })
