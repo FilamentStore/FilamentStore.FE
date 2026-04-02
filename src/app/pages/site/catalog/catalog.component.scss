@@ -3,10 +3,11 @@
 .catalog {
   @include content-padding-in-line;
 
-  padding-block: 32px;
+  padding-block-start: 24px;
+  padding-block-end: 32px;
 
   @include on-tablet {
-    padding-block: 48px;
+    padding-block-end: 48px;
   }
 
   &__header {

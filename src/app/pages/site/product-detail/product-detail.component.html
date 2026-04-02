@@ -1,4 +1,4 @@
-<div class="detail">
+<article class="detail">
   <app-breadcrumb [items]="breadcrumbs()" />
 
   <button class="detail__back" (click)="goBack()">
@@ -197,10 +197,10 @@
 
     <!-- Full description -->
     @if (p.description) {
-      <div class="detail__description">
+      <section class="detail__description">
         <h2 class="detail__description-title">Опис</h2>
         <div class="detail__description-body" [innerHTML]="p.description"></div>
-      </div>
+      </section>
     }
   }
-</div>
+</article>

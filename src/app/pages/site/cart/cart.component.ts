@@ -14,7 +14,7 @@ import { BreadcrumbComponent } from '@app/components/breadcrumb/breadcrumb.compo
   styles: [
     `
       .page-placeholder {
-        padding: 0 16px 48px;
+        padding-inline: 16px;
       }
     `,
   ],
