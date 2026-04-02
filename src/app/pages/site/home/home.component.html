@@ -5,30 +5,4 @@
       Знайдіть ідеальний матеріал для вашого 3D-принтера
     </p>
   </div>
-
-  @if (loading()) {
-    <div class="home__spinner">
-      <div class="spinner"></div>
-    </div>
-  }
-
-  @if (!loading() && items().length === 0) {
-    <div class="home__empty">
-      <p>Товари не знайдено</p>
-    </div>
-  }
-
-  @if (!loading() && items().length > 0) {
-    <div class="home__grid">
-      @for (item of items(); track item.variation.id) {
-        <app-product-card
-          [product]="item.product"
-          [variation]="item.variation"
-          [isFavorite]="favorites().has(item.variation.id)"
-          (addToCart)="onAddToCart($event)"
-          (toggleFavorite)="onToggleFavorite($event)"
-        />
-      }
-    </div>
-  }
 </section>

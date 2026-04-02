@@ -25,7 +25,7 @@
       </div>
     }
 
-    <!-- Stock badge -->
+    <!-- Stock badge (top-left) -->
     @if (stockStatus() !== 'in') {
       <span
         class="card__stock-badge"
@@ -34,12 +34,17 @@
         {{ stockStatus() === 'out' ? 'Немає в наявності' : 'Закінчується' }}
       </span>
     }
+
+    <!-- Sale badge (top-right) -->
+    @if (oldPrice()) {
+      <span class="card__sale-badge">Акція</span>
+    }
   </div>
 
   <!-- Body -->
   <div class="card__body">
     <p class="card__brand">{{ product().brand }}</p>
-    <h4 class="card__name">{{ product().name }}</h4>
+    <h4 class="card__name">{{ displayName() }}</h4>
 
     <!-- Prices -->
     <div class="card__prices">
@@ -48,18 +53,6 @@
         <span class="card__price-old">{{ oldPrice() }} грн</span>
       }
     </div>
-
-    <!-- Variation attributes -->
-    @if (variation().attributes.length) {
-      <div class="card__attributes">
-        @for (attr of variation().attributes; track attr.name) {
-          <div class="card__attr-row">
-            <span class="card__attr-name">{{ attr.name }}</span>
-            <span class="card__attr-value">{{ attr.option }}</span>
-          </div>
-        }
-      </div>
-    }
 
     <!-- Actions -->
     <div class="card__actions">

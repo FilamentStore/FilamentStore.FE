@@ -1,0 +1,454 @@
+@use 'index' as *;
+
+.catalog {
+  @include content-padding-in-line;
+
+  padding-block: 32px;
+
+  @include on-tablet {
+    padding-block: 48px;
+  }
+
+  &__header {
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  &__title {
+    margin: 0 0 8px;
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: $color-text-secondary;
+  }
+
+  // ── Toolbar ───────────────────────────────────────────────────────────────
+
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 20px;
+
+    // На мобільному — колонка: сортування зверху, фільтри знизу праворуч
+    @media (max-width: 519px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  // ── Sort ──────────────────────────────────────────────────────────────────
+
+  // Обгортка для горизонтального скролу на мобільному
+  &__sort-scroll {
+    overflow-x: auto;
+    flex: 1;
+    min-width: 0;
+
+    // Прибираємо смугу прокрутки візуально
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &__sort {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+
+    @media (max-width: 519px) {
+      justify-content: flex-start;
+    }
+  }
+
+  &__sort-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-text-secondary;
+    flex-shrink: 0;
+    margin-right: 2px;
+  }
+
+  &__sort-btn {
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1.5px solid $color-element;
+    background: transparent;
+    font-family: Mont, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-text-secondary;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition:
+      border-color 0.2s,
+      color 0.2s,
+      background-color 0.2s;
+
+    &:hover {
+      border-color: $color-accent;
+      color: $color-accent;
+    }
+
+    &--active {
+      border-color: $color-accent;
+      background-color: color-mix(in srgb, $color-accent 10%, transparent);
+      color: $color-accent;
+    }
+  }
+
+  // ── Filters ───────────────────────────────────────────────────────────────
+
+  &__filters-wrap {
+    position: relative;
+    flex-shrink: 0;
+
+    @media (max-width: 519px) {
+      align-self: flex-end;
+    }
+  }
+
+  &__filters-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 100px;
+    border: 1.5px solid $color-element;
+    background: transparent;
+    font-family: Mont, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: $color-text-main;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      border-color 0.2s,
+      color 0.2s;
+
+    &:hover {
+      border-color: $color-accent;
+      color: $color-accent;
+    }
+  }
+
+  &__filters-drop {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 100;
+    width: 260px;
+    background: $color-card;
+    border: 1.5px solid $color-element;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    // На мобільному — розтягуємо на всю ширину екрану
+    @media (max-width: 519px) {
+      position: fixed;
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      border-radius: 20px 20px 0 0;
+      max-height: 80dvh;
+      overflow-y: auto;
+      box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+    }
+  }
+
+  &__filters-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__filters-group-title {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: $color-text-secondary;
+  }
+
+  // ── Custom checkbox ────────────────────────────────────────────────────────
+
+  &__filters-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 8px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-text-main;
+    cursor: pointer;
+    transition: background-color 0.15s;
+
+    &:hover {
+      background-color: $color-surface;
+    }
+  }
+
+  &__check-box {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    border: 1.5px solid $color-element;
+    background: $color-card;
+    transition:
+      border-color 0.15s,
+      background-color 0.15s;
+
+    .catalog__filters-check:hover & {
+      border-color: $color-accent;
+    }
+  }
+
+  // ── Color select ──────────────────────────────────────────────────────────
+
+  &__color-select {
+    position: relative;
+  }
+
+  &__color-select-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 10px;
+    border: 1.5px solid $color-element;
+    background: $color-card;
+    cursor: pointer;
+    transition: border-color 0.15s;
+
+    &:hover {
+      border-color: $color-accent;
+    }
+  }
+
+  &__color-select-preview {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  &__color-placeholder {
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-text-secondary;
+  }
+
+  &__color-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+  }
+
+  &__color-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: $color-text-secondary;
+    white-space: nowrap;
+  }
+
+  &__color-chevron {
+    flex-shrink: 0;
+    color: $color-text-secondary;
+    transition: transform 0.2s;
+
+    &--open {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__color-drop {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1.5px solid $color-element;
+    background: $color-surface;
+    overflow: visible;
+  }
+
+  &__color-swatch {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition:
+      transform 0.15s,
+      border-color 0.15s,
+      box-shadow 0.15s;
+    outline: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+
+    &::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%) scale(0.85);
+      background: $color-text-main;
+      color: $color-card;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+      padding: 3px 8px;
+      border-radius: 6px;
+      pointer-events: none;
+      opacity: 0;
+      transition:
+        opacity 0.15s,
+        transform 0.15s;
+      z-index: 10;
+    }
+
+    &:hover {
+      transform: scale(1.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+      &::after {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+      }
+    }
+
+    &--selected {
+      border-color: $color-accent;
+      box-shadow: 0 0 0 2px color-mix(in srgb, $color-accent 30%, transparent);
+      transform: scale(1.1);
+    }
+  }
+
+  // ── Filter actions ────────────────────────────────────────────────────────
+
+  &__filters-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 6px;
+    border-top: 1px solid $color-element;
+  }
+
+  &__filters-apply {
+    flex: 1;
+    padding: 8px;
+    border-radius: 100px;
+    border: none;
+    background: $color-accent;
+    color: $color-text-buttons;
+    font-family: Mont, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: color-mix(in srgb, $color-accent 82%, black);
+    }
+  }
+
+  &__filters-reset {
+    padding: 8px 14px;
+    border-radius: 100px;
+    border: 1.5px solid $color-element;
+    background: transparent;
+    font-family: Mont, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition:
+      border-color 0.2s,
+      color 0.2s;
+
+    &:hover {
+      border-color: $color-accent;
+      color: $color-accent;
+    }
+  }
+
+  // ── Grid ──────────────────────────────────────────────────────────────────
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+
+    @media (min-width: 520px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 820px) {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @include on-desktop {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+  }
+
+  // ── Loading ────────────────────────────────────────────────────────────────
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 64px 0;
+  }
+
+  // ── Empty ──────────────────────────────────────────────────────────────────
+
+  &__empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 64px 16px;
+    color: $color-text-secondary;
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid $color-element;
+  border-top-color: $color-accent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

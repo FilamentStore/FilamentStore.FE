@@ -1,6 +1,14 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Store } from '@ngrx/store';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Product, ProductVariation } from '@app/models/product.models';
+import { SimpleAttributeOption } from '@app/models/config.models';
+import { ATTRIBUTE_CONFIGS } from '@app/constants/attribute-configs';
+import {
+  selectAttributeColors,
+  selectAttributeSimpleAttributes,
+} from '@store/attributes/attributes.selectors';
 
 export interface ProductCardEvent {
   product: Product;
@@ -21,6 +29,16 @@ export class ProductCardComponent {
 
   addToCart = output<ProductCardEvent>();
   toggleFavorite = output<ProductCardEvent>();
+
+  private store = inject(Store);
+
+  private colors = toSignal(this.store.select(selectAttributeColors), {
+    initialValue: [],
+  });
+  private simpleAttributes = toSignal(
+    this.store.select(selectAttributeSimpleAttributes),
+    { initialValue: {} as Record<string, SimpleAttributeOption[]> },
+  );
 
   readonly image = computed(() => {
     const v = this.variation();
@@ -45,6 +63,15 @@ export class ProductCardComponent {
       : null;
   });
 
+  readonly displayName = computed(() => {
+    const name = this.product().name;
+    const parts = this.variation().attributes.map(a =>
+      this.resolveOptionName(a.name, a.option),
+    );
+
+    return parts.length ? `${name} ${parts.join(' ')}` : name;
+  });
+
   readonly stockStatus = computed(() => {
     const qty = this.variation().stock_quantity;
 
@@ -53,6 +80,21 @@ export class ProductCardComponent {
 
     return 'in';
   });
+
+  resolveOptionName(attrName: string, slug: string): string {
+    const config = ATTRIBUTE_CONFIGS.find(c => c.label === attrName);
+
+    if (!config) return slug;
+
+    if (config.type === 'color') {
+      return this.colors().find(c => c.slug === slug)?.name ?? slug;
+    }
+
+    return (
+      this.simpleAttributes()[config.key]?.find(o => o.slug === slug)?.name ??
+      slug
+    );
+  }
 
   onAddToCart(): void {
     this.addToCart.emit({
