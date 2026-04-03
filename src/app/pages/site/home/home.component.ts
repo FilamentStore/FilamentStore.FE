@@ -1,5 +1,26 @@
-import { Component, signal, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  signal,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { catchError, forkJoin, map, of, switchMap, finalize } from 'rxjs';
+import { ProductsService } from '@app/services/tempService/products.service';
+import { VariationsService } from '@app/services/tempService/variations.service';
+import { Product, ProductVariation } from '@app/models/product.models';
+import {
+  ProductCardComponent,
+  ProductCardEvent,
+} from '@app/components/product-card/product-card.component';
+
+export interface NewArrivalItem {
+  product: Product;
+  variation: ProductVariation;
+}
 
 interface HeroSlide {
   material: string;
@@ -13,11 +34,16 @@ interface HeroSlide {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, ProductCardComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  private productsService = inject(ProductsService);
+  private variationsService = inject(VariationsService);
+
+  @ViewChild('newArrivalsTrack') trackEl?: ElementRef<HTMLElement>;
+  @ViewChild('saleTrack') saleTrackEl?: ElementRef<HTMLElement>;
   readonly slides: HeroSlide[] = [
     {
       material: 'PLA',
@@ -49,15 +75,75 @@ export class HomeComponent implements OnInit, OnDestroy {
   ];
 
   activeIndex = signal(0);
+  newArrivals = signal<NewArrivalItem[]>([]);
+  newArrivalsLoading = signal(true);
+
   private timer?: ReturnType<typeof setInterval>;
   private touchStartX = 0;
 
   ngOnInit(): void {
     this.startTimer();
+    this.loadNewArrivals();
   }
 
   ngOnDestroy(): void {
     clearInterval(this.timer);
+  }
+
+  private loadNewArrivals(): void {
+    this.productsService
+      .getProducts({ status: 'publish', page: 1 })
+      .pipe(
+        switchMap(response => {
+          const products = response.products;
+
+          if (!products.length) return of([]);
+
+          return forkJoin(
+            products.map(product =>
+              this.variationsService.getVariations(product.id).pipe(
+                map(variations =>
+                  variations
+                    .filter(v => v.status === 'publish')
+                    .map(variation => ({ product, variation })),
+                ),
+                catchError(() => of([])),
+              ),
+            ),
+          ).pipe(map((groups: NewArrivalItem[][]) => groups.flat()));
+        }),
+        finalize(() => this.newArrivalsLoading.set(false)),
+      )
+      .subscribe({ next: items => this.newArrivals.set(items) });
+  }
+
+  scrollArrivals(dir: 1 | -1): void {
+    this.scrollTrack(this.trackEl, dir);
+  }
+
+  scrollSale(dir: 1 | -1): void {
+    this.scrollTrack(this.saleTrackEl, dir);
+  }
+
+  private scrollTrack(
+    ref: ElementRef<HTMLElement> | undefined,
+    dir: 1 | -1,
+  ): void {
+    const el = ref?.nativeElement;
+
+    if (!el) return;
+    const card = el.querySelector<HTMLElement>('.new-arrivals__card');
+    const cardWidth = card ? card.offsetWidth + 20 : 300;
+
+    el.scrollBy({ left: dir * cardWidth, behavior: 'smooth' });
+  }
+
+  onAddToCart(event: ProductCardEvent): void {
+    void event;
+  }
+
+  onToggleFavorite(event: ProductCardEvent): void {
+    void event;
   }
 
   goTo(index: number): void {
