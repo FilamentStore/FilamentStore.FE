@@ -3,28 +3,35 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '@env/environment';
-import { ProductImage } from '@models/product.models';
 
-interface WpMediaResponse {
+export interface UploadedMedia {
   id: number;
-  source_url: string;
-  alt_text: string;
+  src: string;
+  alt: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class MediaService {
   private http = inject(HttpClient);
-  private mediaUrl = `${environment.wpJsonUrl}/wp/v2/media`;
 
-  uploadImage(file: File): Observable<ProductImage> {
+  uploadImage(file: File): Observable<UploadedMedia> {
     const formData = new FormData();
 
-    formData.append('file', file);
+    formData.append('file', file, file.name);
+    formData.append('title', file.name);
 
     return this.http
-      .post<WpMediaResponse>(this.mediaUrl, formData)
+      .post<{
+        id: number;
+        source_url: string;
+        alt_text: string;
+      }>(`${environment.wpJsonUrl}/wp/v2/media`, formData)
       .pipe(
-        map(res => ({ id: res.id, src: res.source_url, alt: res.alt_text })),
+        map(res => ({
+          id: res.id,
+          src: res.source_url,
+          alt: res.alt_text ?? '',
+        })),
       );
   }
 }

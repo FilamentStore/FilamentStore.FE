@@ -101,7 +101,8 @@
     aspect-ratio: 1;
     border-radius: 16px;
     overflow: hidden;
-    background-color: $color-card;
+    background-color: #ffffff;
+    border: 1.5px solid $color-element;
   }
 
   &__image {

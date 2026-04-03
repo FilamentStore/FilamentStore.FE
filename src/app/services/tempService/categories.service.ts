@@ -13,16 +13,29 @@ export class CategoriesService {
     return this.http.get<WcCategory[]>(this.base);
   }
 
-  createCategory(name: string, slug: string): Observable<WcCategory> {
-    return this.http.post<WcCategory>(this.base, { name, slug });
+  createCategory(
+    name: string,
+    slug: string,
+    imageId?: number,
+  ): Observable<WcCategory> {
+    const body: Record<string, unknown> = { name, slug };
+
+    if (imageId != null) body['image_id'] = imageId;
+
+    return this.http.post<WcCategory>(this.base, body);
   }
 
   updateCategory(
     id: number,
     name: string,
     slug: string,
+    imageId?: number | null,
   ): Observable<WcCategory> {
-    return this.http.put<WcCategory>(`${this.base}/${id}`, { name, slug });
+    const body: Record<string, unknown> = { name, slug };
+
+    if (imageId !== undefined) body['image_id'] = imageId ?? 0;
+
+    return this.http.put<WcCategory>(`${this.base}/${id}`, body);
   }
 
   deleteCategory(id: number): Observable<void> {

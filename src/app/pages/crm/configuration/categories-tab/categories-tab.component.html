@@ -26,6 +26,60 @@
   } @else {
     <div class="table-wrap">
       <table mat-table [dataSource]="categories()" class="config-table">
+        <!-- Image column -->
+        <ng-container matColumnDef="image">
+          <th mat-header-cell *matHeaderCellDef>Фото</th>
+          <td mat-cell *matCellDef="let cat">
+            @if (editingId() === cat.id) {
+              <div class="img-cell">
+                @if (editImageUploading()) {
+                  <div class="cat-thumb cat-thumb--loading">
+                    <mat-spinner diameter="20" />
+                  </div>
+                } @else if (editImagePreview()) {
+                  <div class="cat-thumb cat-thumb--preview">
+                    <img [src]="editImagePreview()!" alt="" />
+                    <button
+                      class="cat-thumb__remove"
+                      type="button"
+                      mat-icon-button
+                      matTooltip="Видалити фото"
+                      (click)="removeEditImage()"
+                    >
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                } @else {
+                  <label
+                    class="cat-thumb cat-thumb--upload"
+                    matTooltip="Завантажити фото"
+                  >
+                    <mat-icon>add_photo_alternate</mat-icon>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      class="img-input-hidden"
+                      (change)="onEditImageSelect($event)"
+                    />
+                  </label>
+                }
+              </div>
+            } @else {
+              @if (cat.image) {
+                <img
+                  class="cat-thumb-view"
+                  [src]="cat.image.src"
+                  [alt]="cat.name"
+                />
+              } @else {
+                <div class="cat-thumb-view cat-thumb-view--empty">
+                  <mat-icon>image_not_supported</mat-icon>
+                </div>
+              }
+            }
+          </td>
+        </ng-container>
+
         <!-- Name column -->
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef>Назва</th>
@@ -83,7 +137,9 @@
                 mat-icon-button
                 color="primary"
                 (click)="submitEdit(cat.id)"
-                [disabled]="editForm.invalid || saving()"
+                [disabled]="
+                  editForm.invalid || saving() || editImageUploading()
+                "
                 matTooltip="Зберегти"
               >
                 <mat-icon>check</mat-icon>
@@ -155,6 +211,42 @@
       <!-- Add row -->
       @if (showAddRow()) {
         <div class="add-row" [formGroup]="addForm">
+          <!-- Image upload -->
+          <div class="add-image-zone">
+            @if (addImageUploading()) {
+              <div class="cat-thumb cat-thumb--loading">
+                <mat-spinner diameter="24" />
+              </div>
+            } @else if (addImagePreview()) {
+              <div class="cat-thumb cat-thumb--preview">
+                <img [src]="addImagePreview()!" alt="preview" />
+                <button
+                  class="cat-thumb__remove"
+                  type="button"
+                  mat-icon-button
+                  matTooltip="Видалити"
+                  (click)="removeAddImage()"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            } @else {
+              <label
+                class="cat-thumb cat-thumb--upload"
+                matTooltip="Додати фото"
+              >
+                <mat-icon>add_photo_alternate</mat-icon>
+                <span>Фото</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  class="img-input-hidden"
+                  (change)="onAddImageSelect($event)"
+                />
+              </label>
+            }
+          </div>
+
           <mat-form-field appearance="outline" class="add-field">
             <mat-label>Назва</mat-label>
             <input
@@ -187,7 +279,7 @@
               mat-flat-button
               color="primary"
               (click)="submitAdd()"
-              [disabled]="addForm.invalid || saving()"
+              [disabled]="addForm.invalid || saving() || addImageUploading()"
             >
               @if (saving()) {
                 <mat-spinner diameter="18" />
