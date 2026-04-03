@@ -131,6 +131,41 @@
   }
 </section>
 
+<!-- ── Категорії ─────────────────────────────────────────────────────── -->
+<section class="categories">
+  <h2 class="categories__title">Категорії</h2>
+
+  @if (categoriesLoading()) {
+    <div class="categories__loader">
+      <span class="categories__spinner"></span>
+    </div>
+  } @else {
+    <div class="categories__grid">
+      @for (cat of categories(); track cat.id) {
+        <a
+          class="categories__card"
+          [routerLink]="['/catalog']"
+          [queryParams]="{ category_id: cat.id }"
+        >
+          @if (cat.image) {
+            <div class="categories__img-wrap">
+              <img
+                class="categories__img"
+                [src]="cat.image.src"
+                [alt]="cat.name"
+              />
+            </div>
+          }
+          <div class="categories__info">
+            <span class="categories__name">{{ cat.name }}</span>
+            <span class="categories__count">{{ cat.count ?? 0 }} товарів</span>
+          </div>
+        </a>
+      }
+    </div>
+  }
+</section>
+
 <!-- ── Акційні ───────────────────────────────────────────────────────── -->
 <section class="new-arrivals">
   <div class="new-arrivals__head">

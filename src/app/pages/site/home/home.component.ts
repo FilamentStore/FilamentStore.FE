@@ -11,7 +11,9 @@ import { RouterLink } from '@angular/router';
 import { catchError, forkJoin, map, of, switchMap, finalize } from 'rxjs';
 import { ProductsService } from '@app/services/tempService/products.service';
 import { VariationsService } from '@app/services/tempService/variations.service';
+import { CategoriesService } from '@app/services/tempService/categories.service';
 import { Product, ProductVariation } from '@app/models/product.models';
+import { WcCategory } from '@app/models/config.models';
 import {
   ProductCardComponent,
   ProductCardEvent,
@@ -41,9 +43,11 @@ interface HeroSlide {
 export class HomeComponent implements OnInit, OnDestroy {
   private productsService = inject(ProductsService);
   private variationsService = inject(VariationsService);
+  private categoriesService = inject(CategoriesService);
 
   @ViewChild('newArrivalsTrack') trackEl?: ElementRef<HTMLElement>;
   @ViewChild('saleTrack') saleTrackEl?: ElementRef<HTMLElement>;
+  @ViewChild('categoriesTrack') categoriesTrackEl?: ElementRef<HTMLElement>;
   readonly slides: HeroSlide[] = [
     {
       material: 'PLA',
@@ -77,6 +81,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   activeIndex = signal(0);
   newArrivals = signal<NewArrivalItem[]>([]);
   newArrivalsLoading = signal(true);
+  categories = signal<WcCategory[]>([]);
+  categoriesLoading = signal(true);
 
   private timer?: ReturnType<typeof setInterval>;
   private touchStartX = 0;
@@ -84,6 +90,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.startTimer();
     this.loadNewArrivals();
+    this.loadCategories();
   }
 
   ngOnDestroy(): void {
@@ -123,6 +130,23 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   scrollSale(dir: 1 | -1): void {
     this.scrollTrack(this.saleTrackEl, dir);
+  }
+
+  scrollCategories(dir: 1 | -1): void {
+    const el = this.categoriesTrackEl?.nativeElement;
+
+    if (!el) return;
+    const card = el.querySelector<HTMLElement>('.categories__card');
+    const cardWidth = card ? card.offsetWidth + 16 : 200;
+
+    el.scrollBy({ left: dir * cardWidth, behavior: 'smooth' });
+  }
+
+  private loadCategories(): void {
+    this.categoriesService
+      .getCategories()
+      .pipe(finalize(() => this.categoriesLoading.set(false)))
+      .subscribe({ next: cats => this.categories.set(cats) });
   }
 
   private scrollTrack(
