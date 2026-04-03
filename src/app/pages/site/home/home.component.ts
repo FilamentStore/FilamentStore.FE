@@ -38,12 +38,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       image: 'assets/images/baners/2.png',
     },
     {
-      material: 'TPU',
-      title: 'Гнучкий\nеластичний матеріал',
-      description: 'Ударостійкий і гнучкий,\nідеальний для чохлів та ущільнень',
-      cta: 'Обрати TPU',
+      material: 'WOOD',
+      title: 'Деревний\nфіламент',
+      description:
+        'Натуральний вигляд і текстура,\nідеальний для декоративних елементів',
+      cta: 'Обрати WOOD',
       ctaLink: '/catalog',
-      image: 'assets/images/baners/3.svg',
+      image: 'assets/images/baners/3.png',
     },
   ];
 
