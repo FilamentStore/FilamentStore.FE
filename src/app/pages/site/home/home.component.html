@@ -1,4 +1,8 @@
-<section class="hero">
+<section
+  class="hero"
+  (touchstart)="onTouchStart($event)"
+  (touchend)="onTouchEnd($event)"
+>
   @for (slide of slides; track slide.material; let i = $index) {
     <div
       class="hero__slide hero__slide--{{ slide.material.toLowerCase() }}"

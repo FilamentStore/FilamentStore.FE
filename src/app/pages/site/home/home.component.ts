@@ -50,11 +50,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   activeIndex = signal(0);
   private timer?: ReturnType<typeof setInterval>;
+  private touchStartX = 0;
 
   ngOnInit(): void {
-    this.timer = setInterval(() => {
-      this.activeIndex.update(i => (i + 1) % this.slides.length);
-    }, 7000);
+    this.startTimer();
   }
 
   ngOnDestroy(): void {
@@ -63,5 +62,35 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   goTo(index: number): void {
     this.activeIndex.set(index);
+  }
+
+  onTouchStart(event: TouchEvent): void {
+    this.touchStartX = event.touches[0].clientX;
+  }
+
+  onTouchEnd(event: TouchEvent): void {
+    const delta = this.touchStartX - event.changedTouches[0].clientX;
+
+    if (Math.abs(delta) < 40) return;
+    if (delta > 0) {
+      this.activeIndex.update(i => (i + 1) % this.slides.length);
+    } else {
+      this.activeIndex.update(
+        i => (i - 1 + this.slides.length) % this.slides.length,
+      );
+    }
+
+    this.restartTimer();
+  }
+
+  private startTimer(): void {
+    this.timer = setInterval(() => {
+      this.activeIndex.update(i => (i + 1) % this.slides.length);
+    }, 7000);
+  }
+
+  private restartTimer(): void {
+    clearInterval(this.timer);
+    this.startTimer();
   }
 }

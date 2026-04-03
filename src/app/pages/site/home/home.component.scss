@@ -531,6 +531,8 @@ $header-h-tablet: 70px;
   .hero {
     min-height: 100dvh;
     height: auto;
+    touch-action: pan-y;
+    user-select: none;
   }
 
   .hero__slide {
@@ -539,32 +541,43 @@ $header-h-tablet: 70px;
   }
 
   .hero__content {
-    max-width: calc(100% - 24px);
-    padding-inline: 16px;
-    padding-top: 24px;
+    max-width: 58%;
+    padding-inline: 20px;
+    padding-top: 28px;
   }
 
   .hero__title {
-    font-size: clamp(40px, 10vw, 56px);
-    margin-bottom: 16px;
+    font-size: clamp(32px, 9vw, 48px);
+    margin-bottom: 12px;
   }
 
   .hero__desc {
-    margin-bottom: 24px;
-    max-width: 290px;
+    margin-bottom: 20px;
+    max-width: 240px;
+    font-size: 14px;
+  }
+
+  .hero__cta {
+    height: 44px;
+    padding-inline: 22px;
+    font-size: 14px;
+  }
+
+  .hero__dots {
+    display: none;
   }
 
   .hero__visual {
     top: auto;
-    bottom: 72px;
-    right: 8px;
-    width: min(48vw, 220px);
+    bottom: 48px;
+    right: 0;
+    width: min(52vw, 280px);
   }
 
   .hero__visual-image {
-    inset: 10% 8% 8% 8%;
-    width: 84%;
-    height: 84%;
+    inset: 6% 4% 4% 4%;
+    width: 92%;
+    height: 92%;
   }
 
   .hero__slide--pla .hero__decor--main {
