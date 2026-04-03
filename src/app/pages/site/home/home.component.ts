@@ -7,6 +7,7 @@ interface HeroSlide {
   description: string;
   cta: string;
   ctaLink: string;
+  image: string;
 }
 
 @Component({
@@ -25,6 +26,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         'Біорозкладний, простий у друку,\nдоступний у широкій палітрі кольорів',
       cta: 'Переглянути асортимент',
       ctaLink: '/catalog',
+      image: 'assets/images/baners/1.png',
     },
     {
       material: 'PETG',
@@ -33,6 +35,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         'Стійкий до температур та хімії,\nідеальний для функціональних деталей',
       cta: 'Обрати PETG',
       ctaLink: '/catalog',
+      image: 'assets/images/baners/2.png',
     },
     {
       material: 'TPU',
@@ -40,6 +43,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       description: 'Ударостійкий і гнучкий,\nідеальний для чохлів та ущільнень',
       cta: 'Обрати TPU',
       ctaLink: '/catalog',
+      image: 'assets/images/baners/3.svg',
     },
   ];
 
@@ -49,7 +53,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.timer = setInterval(() => {
       this.activeIndex.update(i => (i + 1) % this.slides.length);
-    }, 5000);
+    }, 7000);
   }
 
   ngOnDestroy(): void {
