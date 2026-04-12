@@ -115,9 +115,16 @@
     font-weight: 700;
     line-height: 20px;
     color: $color-text-main;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(20px * 4);
 
     @include on-tablet {
       font-size: 15px;
+      line-height: 21px;
+      min-height: calc(21px * 4);
     }
   }
 

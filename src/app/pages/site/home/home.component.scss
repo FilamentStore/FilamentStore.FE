@@ -716,7 +716,7 @@ $header-h-tablet: 70px;
 
 .categories {
   padding-block: 40px 56px;
-  @include content-padding-in-line;
+  overflow: hidden;
 
   @include on-tablet {
     padding-block: 52px 64px;
@@ -727,43 +727,63 @@ $header-h-tablet: 70px;
     font-size: 22px;
     font-weight: 800;
     color: $color-text-main;
+    @include content-padding-in-line;
 
     @include on-tablet {
       font-size: 26px;
     }
   }
 
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(260px, 45vw), 1fr));
-    gap: 16px;
+  // ── 3D Stage ──────────────────────────────────────────────────────────────
+
+  &__stage {
+    position: relative;
+    height: 160px;
+    perspective: 1100px;
+    perspective-origin: center center;
 
     @include on-tablet {
-      gap: 20px;
+      height: 200px;
     }
 
     @include on-desktop {
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 24px;
+      height: 253px;
+      mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        black 18%,
+        black 82%,
+        transparent 100%
+      );
     }
   }
 
+  // ── Card ──────────────────────────────────────────────────────────────────
+
   &__card {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    aspect-ratio: 3 / 2;
     text-decoration: none;
     display: block;
     cursor: pointer;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    transition:
+      transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      filter 0.5s ease,
+      opacity 0.5s ease;
 
     &:hover .categories__img {
-      transform: scale(1.04);
+      transform: scale(1.06);
     }
   }
 
   &__img-wrap {
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    border-radius: 12px;
-    margin-bottom: 14px;
+    position: absolute;
+    inset: 0;
   }
 
   &__img {
@@ -775,25 +795,50 @@ $header-h-tablet: 70px;
   }
 
   &__info {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 1;
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    gap: 6px;
   }
 
   &__name {
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 700;
-    color: $color-text-main;
-
-    @include on-tablet {
-      font-size: 18px;
-    }
+    color: #fff;
+    line-height: 1;
+    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.52);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    white-space: nowrap;
   }
 
   &__count {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
-    color: $color-text-secondary;
+    color: #fff;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease;
+  }
+
+  &__card:hover &__count {
+    opacity: 1;
+    transform: translateX(0);
   }
 
   &__loader {
@@ -874,6 +919,7 @@ $header-h-tablet: 70px;
 
   &__viewport {
     position: relative;
+    margin-block: -8px;
   }
 
   &__track {
@@ -883,7 +929,7 @@ $header-h-tablet: 70px;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding-bottom: 4px;
+    padding-block: 8px;
 
     &::-webkit-scrollbar {
       display: none;

@@ -47,7 +47,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   @ViewChild('newArrivalsTrack') trackEl?: ElementRef<HTMLElement>;
   @ViewChild('saleTrack') saleTrackEl?: ElementRef<HTMLElement>;
-  @ViewChild('categoriesTrack') categoriesTrackEl?: ElementRef<HTMLElement>;
+
   readonly slides: HeroSlide[] = [
     {
       material: 'PLA',
@@ -83,9 +83,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   newArrivalsLoading = true;
   categories: WcCategory[] = [];
   categoriesLoading = true;
+  activeCategory = 0;
 
   private timer?: ReturnType<typeof setInterval>;
   private touchStartX = 0;
+  private catTouchX = 0;
 
   ngOnInit(): void {
     this.startTimer();
@@ -96,6 +98,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     clearInterval(this.timer);
   }
+
+  // ── New arrivals ──────────────────────────────────────────────────────────
 
   private loadNewArrivals(): void {
     this.productsService
@@ -132,23 +136,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.scrollTrack(this.saleTrackEl, dir);
   }
 
-  scrollCategories(dir: 1 | -1): void {
-    const el = this.categoriesTrackEl?.nativeElement;
-
-    if (!el) return;
-    const card = el.querySelector<HTMLElement>('.categories__card');
-    const cardWidth = card ? card.offsetWidth + 16 : 200;
-
-    el.scrollBy({ left: dir * cardWidth, behavior: 'smooth' });
-  }
-
-  private loadCategories(): void {
-    this.categoriesService
-      .getCategories()
-      .pipe(finalize(() => (this.categoriesLoading = false)))
-      .subscribe({ next: cats => (this.categories = cats) });
-  }
-
   private scrollTrack(
     ref: ElementRef<HTMLElement> | undefined,
     dir: 1 | -1,
@@ -161,6 +148,94 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     el.scrollBy({ left: dir * cardWidth, behavior: 'smooth' });
   }
+
+  // ── Categories 3D carousel ────────────────────────────────────────────────
+
+  private loadCategories(): void {
+    this.categoriesService
+      .getCategories()
+      .pipe(finalize(() => (this.categoriesLoading = false)))
+      .subscribe({ next: cats => (this.categories = cats) });
+  }
+
+  getCategoryOffset(index: number): number {
+    const total = this.categories.length;
+
+    if (!total) return 0;
+    let offset = index - this.activeCategory;
+
+    if (offset > total / 2) offset -= total;
+    if (offset < -total / 2) offset += total;
+
+    return offset;
+  }
+
+  onCategoryCardClick(index: number, event: Event): void {
+    const offset = this.getCategoryOffset(index);
+
+    if (offset === 0) return;
+
+    event.preventDefault();
+
+    if (offset > 0) this.nextCategory();
+    else this.prevCategory();
+  }
+
+  prevCategory(): void {
+    this.activeCategory =
+      (this.activeCategory - 1 + this.categories.length) %
+      this.categories.length;
+  }
+
+  nextCategory(): void {
+    this.activeCategory = (this.activeCategory + 1) % this.categories.length;
+  }
+
+  onCatTouchStart(e: TouchEvent): void {
+    this.catTouchX = e.touches[0].clientX;
+  }
+
+  onCatTouchEnd(e: TouchEvent): void {
+    const delta = this.catTouchX - e.changedTouches[0].clientX;
+
+    if (Math.abs(delta) < 40) return;
+    if (delta > 0) this.nextCategory();
+    else this.prevCategory();
+  }
+
+  getCardStyle(index: number): Record<string, string> {
+    const total = this.categories.length;
+
+    if (!total) return {};
+
+    let offset = index - this.activeCategory;
+
+    if (offset > total / 2) offset -= total;
+    if (offset < -total / 2) offset += total;
+
+    const absOffset = Math.abs(offset);
+    const w = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const cardW = w >= 1024 ? 380 : w >= 768 ? 300 : 240;
+    const gap = cardW + 24;
+    const translateX = offset * gap;
+    // positive rotateY = left edge toward viewer → concave effect
+    const rotateY = offset * 28;
+    const scale = Math.max(0.65, 1 - absOffset * 0.14);
+    const blur = Math.min(absOffset * 2.5, 8);
+    const opacity = Math.max(0.28, 1 - absOffset * 0.3);
+    const zIndex = Math.max(0, 10 - absOffset);
+
+    return {
+      width: `${cardW}px`,
+      transform: `translateX(calc(-50% + ${translateX}px)) rotateY(${rotateY}deg) scale(${scale})`,
+      filter: blur > 0 ? `blur(${blur}px)` : 'none',
+      opacity: opacity.toFixed(2),
+      zIndex: String(zIndex),
+      cursor: absOffset === 0 ? 'pointer' : 'pointer',
+    };
+  }
+
+  // ── Hero slider ───────────────────────────────────────────────────────────
 
   onAddToCart(event: ProductCardEvent): void {
     void event;
