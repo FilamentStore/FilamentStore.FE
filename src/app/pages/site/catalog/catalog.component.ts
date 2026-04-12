@@ -41,8 +41,8 @@ export class CatalogComponent implements OnInit {
   private variationsService = inject(VariationsService);
   private store = inject(Store);
 
-  readonly items = signal<ProductCardItem[]>([]);
-  readonly loading = signal(false);
+  items: ProductCardItem[] = [];
+  loading = false;
   readonly favorites = signal<Set<number>>(new Set());
 
   readonly sortOptions = SORT_OPTIONS;
@@ -66,7 +66,7 @@ export class CatalogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loading.set(true);
+    this.loading = true;
 
     this.productsService
       .getProducts({ status: 'publish', page: 1 })
@@ -89,11 +89,11 @@ export class CatalogComponent implements OnInit {
             ),
           ).pipe(map(groups => (groups as ProductCardItem[][]).flat()));
         }),
-        finalize(() => this.loading.set(false)),
+        finalize(() => (this.loading = false)),
       )
       .subscribe({
-        next: items => this.items.set(items),
-        error: () => this.items.set([]),
+        next: items => (this.items = items),
+        error: () => (this.items = []),
       });
   }
 

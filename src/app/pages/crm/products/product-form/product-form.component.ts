@@ -83,10 +83,10 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
   readonly productId = signal<number | null>(null);
   readonly isEditMode = computed(() => this.productId() !== null);
 
-  readonly loading = signal(false);
-  readonly saving = signal(false);
-  readonly categories = signal<WcCategory[]>([]);
-  readonly brands = signal<Brand[]>([]);
+  loading = false;
+  saving = false;
+  categories: WcCategory[] = [];
+  brands: Brand[] = [];
   readonly colors = toSignal(this.store.select(selectAttributeColors), {
     initialValue: [],
   });
@@ -120,10 +120,6 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
     short_description: new FormControl(''),
     description: new FormControl(''),
     status: new FormControl<'publish' | 'draft' | 'private'>('draft'),
-  });
-
-  private readonly _formValues = toSignal(this.form.valueChanges, {
-    initialValue: this.form.getRawValue(),
   });
 
   readonly skuPrefix = computed(() => {
@@ -190,13 +186,13 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
       })),
     };
 
-    this.saving.set(true);
+    this.saving = true;
 
     const request$ = this.isEditMode()
       ? this.productsService.updateProduct(this.productId()!, productData)
       : this.productsService.createProduct(productData);
 
-    request$.pipe(finalize(() => this.saving.set(false))).subscribe({
+    request$.pipe(finalize(() => (this.saving = false))).subscribe({
       next: product => {
         if (this.isEditMode()) {
           this.patchForm(product);
@@ -234,21 +230,21 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
 
   private loadReferenceData(): void {
     this.productsService.getCategories().subscribe({
-      next: categories => this.categories.set(categories),
-      error: () => this.categories.set([]),
+      next: categories => (this.categories = categories),
+      error: () => (this.categories = []),
     });
 
     this.brandsService.getBrands().subscribe({
-      next: brands => this.brands.set(brands),
-      error: () => this.brands.set([]),
+      next: brands => (this.brands = brands),
+      error: () => (this.brands = []),
     });
   }
 
   private loadProduct(id: number): void {
-    this.loading.set(true);
+    this.loading = true;
     this.productsService
       .getProduct(id)
-      .pipe(finalize(() => this.loading.set(false)))
+      .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: product => this.patchForm(product),
         error: error => {

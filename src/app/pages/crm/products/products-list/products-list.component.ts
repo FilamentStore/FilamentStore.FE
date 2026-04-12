@@ -50,19 +50,16 @@ export class ProductsListComponent implements OnInit {
   private router = inject(Router);
   private productsService = inject(ProductsService);
 
-  readonly products = signal<Product[]>([]);
-  readonly loading = signal(false);
-  readonly categories = signal<WcCategory[]>([]);
-  readonly pagination = signal<ProductsPagination>({
-    total: 0,
-    totalPages: 0,
-  });
-  readonly filters = signal<ProductFilters>({
+  products: Product[] = [];
+  loading = false;
+  categories: WcCategory[] = [];
+  pagination: ProductsPagination = { total: 0, totalPages: 0 };
+  filters: ProductFilters = {
     search: '',
     status: '',
     category_id: null,
     page: 1,
-  });
+  };
 
   readonly confirmDeleteId = signal<number | null>(null);
 
@@ -97,12 +94,12 @@ export class ProductsListComponent implements OnInit {
   applyFilters(): void {
     const { search, status, category_id } = this.filterForm.getRawValue();
 
-    this.filters.set({
+    this.filters = {
       search: search ?? '',
       status: status ?? '',
       category_id: category_id ?? null,
       page: 1,
-    });
+    };
 
     this.loadProducts();
   }
@@ -113,11 +110,7 @@ export class ProductsListComponent implements OnInit {
   }
 
   onPageChange(event: PageEvent): void {
-    this.filters.update(filters => ({
-      ...filters,
-      page: event.pageIndex + 1,
-    }));
-
+    this.filters = { ...this.filters, page: event.pageIndex + 1 };
     this.loadProducts();
   }
 
@@ -144,22 +137,16 @@ export class ProductsListComponent implements OnInit {
       return;
     }
 
-    this.loading.set(true);
+    this.loading = true;
     this.productsService
       .deleteProduct(id)
-      .pipe(finalize(() => this.loading.set(false)))
+      .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: () => {
           this.confirmDeleteId.set(null);
 
-          const currentFilters = this.filters();
-          const currentProducts = this.products();
-
-          if (currentProducts.length === 1 && currentFilters.page > 1) {
-            this.filters.update(filters => ({
-              ...filters,
-              page: filters.page - 1,
-            }));
+          if (this.products.length === 1 && this.filters.page > 1) {
+            this.filters = { ...this.filters, page: this.filters.page - 1 };
           }
 
           this.loadProducts();
@@ -190,7 +177,7 @@ export class ProductsListComponent implements OnInit {
   }
 
   private syncFormWithFilters(): void {
-    const filters = this.filters();
+    const filters = this.filters;
 
     this.filterForm.patchValue(
       {
@@ -203,30 +190,30 @@ export class ProductsListComponent implements OnInit {
   }
 
   private loadProducts(): void {
-    this.loading.set(true);
+    this.loading = true;
 
     this.productsService
-      .getProducts(this.filters())
-      .pipe(finalize(() => this.loading.set(false)))
+      .getProducts(this.filters)
+      .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: response => {
-          this.products.set(response.products);
-          this.pagination.set({
+          this.products = response.products;
+          this.pagination = {
             total: response.total,
             totalPages: response.total_pages,
-          });
+          };
         },
         error: () => {
-          this.products.set([]);
-          this.pagination.set({ total: 0, totalPages: 0 });
+          this.products = [];
+          this.pagination = { total: 0, totalPages: 0 };
         },
       });
   }
 
   private loadCategories(): void {
     this.productsService.getCategories().subscribe({
-      next: categories => this.categories.set(categories),
-      error: () => this.categories.set([]),
+      next: categories => (this.categories = categories),
+      error: () => (this.categories = []),
     });
   }
 }

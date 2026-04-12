@@ -109,14 +109,14 @@
     </div>
   </div>
 
-  @if (newArrivalsLoading()) {
+  @if (newArrivalsLoading) {
     <div class="new-arrivals__loader">
       <span class="new-arrivals__spinner"></span>
     </div>
   } @else {
     <div class="new-arrivals__viewport">
       <div class="new-arrivals__track" #newArrivalsTrack>
-        @for (item of newArrivals(); track item.variation.id) {
+        @for (item of newArrivals; track item.variation.id) {
           <div class="new-arrivals__card">
             <app-product-card
               [product]="item.product"
@@ -135,13 +135,13 @@
 <section class="categories">
   <h2 class="categories__title">Категорії</h2>
 
-  @if (categoriesLoading()) {
+  @if (categoriesLoading) {
     <div class="categories__loader">
       <span class="categories__spinner"></span>
     </div>
   } @else {
     <div class="categories__grid">
-      @for (cat of categories(); track cat.id) {
+      @for (cat of categories; track cat.id) {
         <a
           class="categories__card"
           [routerLink]="['/catalog']"
@@ -210,14 +210,14 @@
     </div>
   </div>
 
-  @if (newArrivalsLoading()) {
+  @if (newArrivalsLoading) {
     <div class="new-arrivals__loader">
       <span class="new-arrivals__spinner"></span>
     </div>
   } @else {
     <div class="new-arrivals__viewport">
       <div class="new-arrivals__track" #saleTrack>
-        @for (item of newArrivals(); track item.variation.id) {
+        @for (item of newArrivals; track item.variation.id) {
           <div class="new-arrivals__card">
             <app-product-card
               [product]="item.product"

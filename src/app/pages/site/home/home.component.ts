@@ -1,11 +1,11 @@
 import {
   Component,
   ElementRef,
-  signal,
   OnInit,
   OnDestroy,
   ViewChild,
   inject,
+  signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { catchError, forkJoin, map, of, switchMap, finalize } from 'rxjs';
@@ -79,10 +79,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   ];
 
   activeIndex = signal(0);
-  newArrivals = signal<NewArrivalItem[]>([]);
-  newArrivalsLoading = signal(true);
-  categories = signal<WcCategory[]>([]);
-  categoriesLoading = signal(true);
+  newArrivals: NewArrivalItem[] = [];
+  newArrivalsLoading = true;
+  categories: WcCategory[] = [];
+  categoriesLoading = true;
 
   private timer?: ReturnType<typeof setInterval>;
   private touchStartX = 0;
@@ -119,9 +119,9 @@ export class HomeComponent implements OnInit, OnDestroy {
             ),
           ).pipe(map((groups: NewArrivalItem[][]) => groups.flat()));
         }),
-        finalize(() => this.newArrivalsLoading.set(false)),
+        finalize(() => (this.newArrivalsLoading = false)),
       )
-      .subscribe({ next: items => this.newArrivals.set(items) });
+      .subscribe({ next: items => (this.newArrivals = items) });
   }
 
   scrollArrivals(dir: 1 | -1): void {
@@ -145,8 +145,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   private loadCategories(): void {
     this.categoriesService
       .getCategories()
-      .pipe(finalize(() => this.categoriesLoading.set(false)))
-      .subscribe({ next: cats => this.categories.set(cats) });
+      .pipe(finalize(() => (this.categoriesLoading = false)))
+      .subscribe({ next: cats => (this.categories = cats) });
   }
 
   private scrollTrack(
