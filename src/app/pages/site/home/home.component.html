@@ -65,178 +65,23 @@
   </nav>
 </section>
 
-<!-- ── Новинки ───────────────────────────────────────────────────────── -->
-<section class="new-arrivals">
-  <div class="new-arrivals__head">
-    <h2 class="new-arrivals__title">Новинки</h2>
-    <div class="new-arrivals__arrows">
-      <button
-        class="new-arrivals__arrow"
-        (click)="scrollArrivals(-1)"
-        aria-label="Назад"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-      </button>
-      <button
-        class="new-arrivals__arrow"
-        (click)="scrollArrivals(1)"
-        aria-label="Вперед"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <polyline points="9 6 15 12 9 18" />
-        </svg>
-      </button>
-    </div>
-  </div>
+<app-products-slider
+  title="Новинки"
+  [items]="newArrivals"
+  [loading]="newArrivalsLoading"
+  (addToCart)="onAddToCart($event)"
+  (toggleFavorite)="onToggleFavorite($event)"
+/>
 
-  @if (newArrivalsLoading) {
-    <div class="new-arrivals__loader">
-      <span class="new-arrivals__spinner"></span>
-    </div>
-  } @else {
-    <div class="new-arrivals__viewport">
-      <div class="new-arrivals__track" #newArrivalsTrack>
-        @for (item of newArrivals; track item.variation.id) {
-          <div class="new-arrivals__card">
-            <app-product-card
-              [product]="item.product"
-              [variation]="item.variation"
-              (addToCart)="onAddToCart($event)"
-              (toggleFavorite)="onToggleFavorite($event)"
-            />
-          </div>
-        }
-      </div>
-    </div>
-  }
-</section>
+<app-categories-carousel
+  [categories]="categories"
+  [loading]="categoriesLoading"
+/>
 
-<!-- ── Категорії ─────────────────────────────────────────────────────── -->
-<section class="categories">
-  <h2 class="categories__title">Категорії</h2>
-
-  @if (categoriesLoading) {
-    <div class="categories__loader">
-      <span class="categories__spinner"></span>
-    </div>
-  } @else {
-    <div
-      class="categories__stage"
-      (touchstart)="onCatTouchStart($event)"
-      (touchend)="onCatTouchEnd($event)"
-    >
-      @for (cat of categories; track cat.id; let i = $index) {
-        <a
-          class="categories__card"
-          [style]="getCardStyle(i)"
-          [routerLink]="getCategoryOffset(i) === 0 ? ['/catalog'] : null"
-          [queryParams]="
-            getCategoryOffset(i) === 0 ? { category_id: cat.id } : null
-          "
-          (click)="onCategoryCardClick(i, $event)"
-        >
-          <div class="categories__img-wrap">
-            @if (cat.image) {
-              <img
-                class="categories__img"
-                [src]="cat.image.src"
-                [alt]="cat.name"
-                loading="lazy"
-              />
-            }
-          </div>
-          <div class="categories__info">
-            <span class="categories__name">{{ cat.name }}</span>
-            <span class="categories__count">{{ cat.count ?? 0 }} товарів</span>
-          </div>
-        </a>
-      }
-    </div>
-  }
-</section>
-
-<!-- ── Акційні ───────────────────────────────────────────────────────── -->
-<section class="new-arrivals">
-  <div class="new-arrivals__head">
-    <h2 class="new-arrivals__title">Акційні</h2>
-    <div class="new-arrivals__arrows">
-      <button
-        class="new-arrivals__arrow"
-        (click)="scrollSale(-1)"
-        aria-label="Назад"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-      </button>
-      <button
-        class="new-arrivals__arrow"
-        (click)="scrollSale(1)"
-        aria-label="Вперед"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <polyline points="9 6 15 12 9 18" />
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  @if (newArrivalsLoading) {
-    <div class="new-arrivals__loader">
-      <span class="new-arrivals__spinner"></span>
-    </div>
-  } @else {
-    <div class="new-arrivals__viewport">
-      <div class="new-arrivals__track" #saleTrack>
-        @for (item of newArrivals; track item.variation.id) {
-          <div class="new-arrivals__card">
-            <app-product-card
-              [product]="item.product"
-              [variation]="item.variation"
-              (addToCart)="onAddToCart($event)"
-              (toggleFavorite)="onToggleFavorite($event)"
-            />
-          </div>
-        }
-      </div>
-    </div>
-  }
-</section>
+<app-products-slider
+  title="Акційні"
+  [items]="saleItems"
+  [loading]="saleLoading"
+  (addToCart)="onAddToCart($event)"
+  (toggleFavorite)="onToggleFavorite($event)"
+/>
