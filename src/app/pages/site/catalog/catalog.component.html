@@ -186,5 +186,65 @@
         />
       }
     </div>
+
+    @if (totalPages() > 1) {
+      <nav class="catalog__pagination">
+        <button
+          class="catalog__page-btn catalog__page-btn--nav"
+          [disabled]="currentPage() === 1"
+          (click)="goToPage(currentPage() - 1)"
+          aria-label="Попередня сторінка"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+
+        @for (page of pageNumbers(); track $index) {
+          @if (page === null) {
+            <span class="catalog__page-ellipsis">…</span>
+          } @else {
+            <button
+              class="catalog__page-btn"
+              [class.catalog__page-btn--active]="page === currentPage()"
+              (click)="goToPage(page)"
+            >
+              {{ page }}
+            </button>
+          }
+        }
+
+        <button
+          class="catalog__page-btn catalog__page-btn--nav"
+          [disabled]="currentPage() === totalPages()"
+          (click)="goToPage(currentPage() + 1)"
+          aria-label="Наступна сторінка"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
+      </nav>
+    }
   }
 </section>

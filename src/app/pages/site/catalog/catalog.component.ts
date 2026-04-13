@@ -1,12 +1,21 @@
-import { Component, HostListener, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, finalize, map, switchMap } from 'rxjs/operators';
-import { forkJoin, of } from 'rxjs';
-import { Product, ProductVariation } from '@app/models/product.models';
+import { finalize } from 'rxjs/operators';
+import {
+  CatalogVariationItem,
+  Product,
+  ProductVariation,
+} from '@app/models/product.models';
 import { ColorValue } from '@app/models/config.models';
-import { ProductsService } from '@app/services/tempService/products.service';
 import { VariationsService } from '@app/services/tempService/variations.service';
 import {
   ProductCardComponent,
@@ -31,6 +40,48 @@ export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'name', label: 'за назвою' },
 ];
 
+const SORT_MAP: Record<
+  SortOption,
+  'popularity' | 'name' | 'price_asc' | 'price_desc'
+> = {
+  popular: 'popularity',
+  name: 'name',
+  'price-asc': 'price_asc',
+  'price-desc': 'price_desc',
+};
+
+const PER_PAGE = 24;
+
+function mapToCardItem(v: CatalogVariationItem): ProductCardItem {
+  return {
+    product: {
+      id: v.product_id,
+      name: v.product_name,
+      brand: v.brand,
+      category_id: v.category_id,
+      short_description: '',
+      description: '',
+      images: v.product_images,
+      status: v.product_status,
+      slug: '',
+      type: 'variable',
+      attributes: [],
+    },
+    variation: {
+      id: v.id,
+      attributes: v.attributes.map(a => ({ name: a.name, option: a.option })),
+      image: v.image ?? undefined,
+      regular_price: v.regular_price,
+      sale_price: v.sale_price,
+      stock_quantity: v.stock_quantity,
+      manage_stock: true,
+      sku: v.sku,
+      status: 'publish',
+      weight: '',
+    },
+  };
+}
+
 @Component({
   selector: 'app-catalog',
   standalone: true,
@@ -39,7 +90,6 @@ export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   styleUrl: './catalog.component.scss',
 })
 export class CatalogComponent implements OnInit {
-  private productsService = inject(ProductsService);
   private variationsService = inject(VariationsService);
   private store = inject(Store);
 
@@ -60,6 +110,32 @@ export class CatalogComponent implements OnInit {
     initialValue: [] as ColorValue[],
   });
 
+  // pagination
+  readonly currentPage = signal(1);
+  readonly totalItems = signal(0);
+  readonly totalPages = signal(0);
+
+  readonly pageNumbers = computed<(number | null)[]>(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const delta = 2;
+    const pages: (number | null)[] = [];
+
+    for (let i = 1; i <= total; i++) {
+      if (
+        i === 1 ||
+        i === total ||
+        (i >= current - delta && i <= current + delta)
+      ) {
+        pages.push(i);
+      } else if (pages[pages.length - 1] !== null) {
+        pages.push(null);
+      }
+    }
+
+    return pages;
+  });
+
   @HostListener('document:click', ['$event.target'])
   onDocumentClick(target: EventTarget | null): void {
     const toolbar = document.querySelector('.catalog__toolbar');
@@ -71,39 +147,42 @@ export class CatalogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadPage(1);
+  }
+
+  private loadPage(page: number): void {
     this.loading.set(true);
 
-    this.productsService
-      .getProducts({ status: 'publish', page: 1 })
-      .pipe(
-        switchMap(response => {
-          const products = response.products;
-
-          if (!products.length) return of([]);
-
-          return forkJoin(
-            products.map(product =>
-              this.variationsService.getVariations(product.id).pipe(
-                map(variations =>
-                  variations
-                    .filter(v => v.status === 'publish')
-                    .map(variation => ({ product, variation })),
-                ),
-                catchError(() => of([])),
-              ),
-            ),
-          ).pipe(map(groups => (groups as ProductCardItem[][]).flat()));
-        }),
-        finalize(() => this.loading.set(false)),
-      )
+    this.variationsService
+      .getCatalogVariations({
+        page,
+        per_page: PER_PAGE,
+        sort: SORT_MAP[this.activeSort()],
+      })
+      .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: items => (this.items = items),
+        next: response => {
+          this.items = response.items.map(mapToCardItem);
+          this.totalItems.set(response.total);
+          this.totalPages.set(response.totalPages);
+          this.currentPage.set(response.page);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
         error: () => (this.items = []),
       });
   }
 
   setSort(sort: SortOption): void {
     this.activeSort.set(sort);
+    this.loadPage(1);
+  }
+
+  goToPage(page: number | null): void {
+    if (page === null) return;
+    const p = Math.max(1, Math.min(page, this.totalPages()));
+
+    if (p === this.currentPage()) return;
+    this.loadPage(p);
   }
 
   toggleFilters(): void {
