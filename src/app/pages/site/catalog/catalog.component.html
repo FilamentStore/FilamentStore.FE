@@ -43,6 +43,9 @@
           <line x1="11" y1="18" x2="13" y2="18" />
         </svg>
         Фільтри
+        @if (activeFiltersCount() > 0) {
+          <span class="catalog__filters-badge">{{ activeFiltersCount() }}</span>
+        }
       </button>
 
       @if (filtersOpen()) {
@@ -50,9 +53,17 @@
           <!-- Бренд -->
           <div class="catalog__filters-group">
             <p class="catalog__filters-group-title">Бренд</p>
-            @for (brand of ['BambuLab', 'Sunlu', 'Kingroon']; track brand) {
-              <label class="catalog__filters-check">
-                <span class="catalog__check-box"></span>
+            @for (brand of brands; track brand) {
+              <label
+                class="catalog__filters-check"
+                (click)="toggleBrand(brand)"
+              >
+                <span
+                  class="catalog__check-box"
+                  [class.catalog__check-box--checked]="
+                    selectedBrands().has(brand)
+                  "
+                ></span>
                 {{ brand }}
               </label>
             }
@@ -123,9 +134,17 @@
           <!-- Матеріал -->
           <div class="catalog__filters-group">
             <p class="catalog__filters-group-title">Матеріал</p>
-            @for (mat of ['PLA', 'PETG', 'ABS', 'TPU']; track mat) {
-              <label class="catalog__filters-check">
-                <span class="catalog__check-box"></span>
+            @for (mat of materials; track mat) {
+              <label
+                class="catalog__filters-check"
+                (click)="toggleMaterial(mat)"
+              >
+                <span
+                  class="catalog__check-box"
+                  [class.catalog__check-box--checked]="
+                    selectedMaterials().has(mat)
+                  "
+                ></span>
                 {{ mat }}
               </label>
             }
@@ -134,10 +153,18 @@
           <!-- Діаметр -->
           <div class="catalog__filters-group">
             <p class="catalog__filters-group-title">Діаметр</p>
-            @for (d of ['1.75 мм', '3.00 мм']; track d) {
-              <label class="catalog__filters-check">
-                <span class="catalog__check-box"></span>
-                {{ d }}
+            @for (d of diameters; track d.value) {
+              <label
+                class="catalog__filters-check"
+                (click)="toggleDiameter(d.value)"
+              >
+                <span
+                  class="catalog__check-box"
+                  [class.catalog__check-box--checked]="
+                    selectedDiameters().has(d.value)
+                  "
+                ></span>
+                {{ d.label }}
               </label>
             }
           </div>
@@ -145,17 +172,29 @@
           <!-- Вага -->
           <div class="catalog__filters-group">
             <p class="catalog__filters-group-title">Вага</p>
-            @for (w of ['0.5 кг', '1 кг', '2 кг']; track w) {
-              <label class="catalog__filters-check">
-                <span class="catalog__check-box"></span>
-                {{ w }}
+            @for (w of weights; track w.value) {
+              <label
+                class="catalog__filters-check"
+                (click)="toggleWeight(w.value)"
+              >
+                <span
+                  class="catalog__check-box"
+                  [class.catalog__check-box--checked]="
+                    selectedWeights().has(w.value)
+                  "
+                ></span>
+                {{ w.label }}
               </label>
             }
           </div>
 
           <div class="catalog__filters-actions">
-            <button class="catalog__filters-apply">Застосувати</button>
-            <button class="catalog__filters-reset">Скинути</button>
+            <button class="catalog__filters-apply" (click)="applyFilters()">
+              Застосувати
+            </button>
+            <button class="catalog__filters-reset" (click)="resetFilters()">
+              Скинути
+            </button>
           </div>
         </div>
       }
