@@ -14,6 +14,7 @@ import {
   ProductCardComponent,
   ProductCardEvent,
 } from '@app/components/product-card/product-card.component';
+import { SkeletonComponent } from '@app/components/skeleton/skeleton.component';
 import { selectFavoriteVariationIds } from '@store/favorites/favorites.selectors';
 import { FavoritesActions } from '@store/favorites/favorites.actions';
 
@@ -25,7 +26,7 @@ export interface ProductSliderItem {
 @Component({
   selector: 'app-products-slider',
   standalone: true,
-  imports: [ProductCardComponent],
+  imports: [ProductCardComponent, SkeletonComponent],
   templateUrl: './products-slider.component.html',
   styleUrl: './products-slider.component.scss',
 })

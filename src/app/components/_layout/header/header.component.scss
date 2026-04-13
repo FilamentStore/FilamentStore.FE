@@ -471,21 +471,6 @@
   scrollbar-color: $color-element transparent;
 }
 
-.header-search__drop-loader {
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-}
-
-.header-search__drop-spinner {
-  width: 24px;
-  height: 24px;
-  border: 2.5px solid $color-element;
-  border-top-color: $color-accent;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-
 .header-search__drop-empty {
   margin: 0;
   padding: 16px;
@@ -556,12 +541,6 @@
   letter-spacing: 0.06em;
   white-space: nowrap;
   flex-shrink: 0;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 // Same padding as .icon to make all icon buttons identical

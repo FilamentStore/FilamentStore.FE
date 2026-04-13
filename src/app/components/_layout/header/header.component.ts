@@ -29,11 +29,12 @@ import { Subject } from 'rxjs';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { ProductsService } from '@app/services/tempService/products.service';
 import { Product } from '@app/models/product.models';
+import { SkeletonComponent } from '@app/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, NavbarComponent],
+  imports: [RouterLink, RouterLinkActive, NavbarComponent, SkeletonComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })

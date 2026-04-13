@@ -1,0 +1,384 @@
+@use 'index' as *;
+
+:host {
+  display: block;
+}
+
+.skeleton {
+  &--product-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+
+    @media (min-width: 520px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (min-width: 820px) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    @include on-desktop {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 20px;
+    }
+  }
+
+  &--product-slider {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+
+    @media (min-width: 768px) and (max-width: 1023px) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    @media (max-width: 767px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+  }
+
+  &--categories {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    min-height: 160px;
+    padding-inline: 24px;
+
+    @include on-tablet {
+      min-height: 200px;
+    }
+
+    @include on-desktop {
+      gap: 28px;
+      min-height: 293px;
+    }
+  }
+
+  &--product-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px 0 40px;
+  }
+
+  &--search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  &__product-card {
+    border: 1.5px solid $color-element;
+    border-radius: 16px;
+    background: $color-card;
+    overflow: hidden;
+  }
+
+  &__product-media {
+    aspect-ratio: 4 / 3;
+    @include skeleton-shimmer;
+  }
+
+  &__product-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  &__product-brand,
+  &__product-line,
+  &__product-tag,
+  &__product-price,
+  &__product-btn,
+  &__product-icon,
+  &__category-badge,
+  &__category-count,
+  &__detail-line,
+  &__detail-pill,
+  &__detail-price,
+  &__detail-old-price,
+  &__detail-button,
+  &__search-thumb,
+  &__search-line,
+  &__search-brand {
+    display: block;
+    @include skeleton-shimmer;
+  }
+
+  &__product-brand {
+    width: 72px;
+    height: 12px;
+    border-radius: 999px;
+  }
+
+  &__product-line {
+    height: 14px;
+    border-radius: 8px;
+
+    &--title {
+      width: 100%;
+    }
+
+    &--title-short {
+      width: 74%;
+    }
+  }
+
+  &__product-tags {
+    display: flex;
+    gap: 8px;
+  }
+
+  &__product-tag {
+    width: 56px;
+    height: 22px;
+    border-radius: 999px;
+  }
+
+  &__product-price {
+    width: 104px;
+    height: 30px;
+    border-radius: 10px;
+  }
+
+  &__product-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  &__product-btn {
+    flex: 1;
+    height: 40px;
+    border-radius: 10px;
+  }
+
+  &__product-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+
+  &__category-card {
+    position: relative;
+    flex: 1 1 0;
+    width: 100%;
+    max-width: 440px;
+    min-height: inherit;
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14);
+    @include skeleton-shimmer;
+  }
+
+  &__category-badge,
+  &__category-count {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    height: 28px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.45);
+  }
+
+  &__category-badge {
+    width: 108px;
+  }
+
+  &__category-count {
+    left: 128px;
+    width: 92px;
+  }
+
+  &__detail-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  &__detail-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__detail-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    @include on-tablet {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 32px;
+    }
+
+    @include on-desktop {
+      gap: 48px;
+    }
+  }
+
+  &__detail-image-col {
+    width: 100%;
+
+    @include on-tablet {
+      width: 45%;
+      flex-shrink: 0;
+    }
+
+    @include on-desktop {
+      width: 50%;
+    }
+  }
+
+  &__detail-image {
+    aspect-ratio: 1;
+    border-radius: 16px;
+    border: 1.5px solid $color-element;
+    background: $color-card;
+    @include skeleton-shimmer;
+  }
+
+  &__detail-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  &__detail-info-col {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__detail-attr {
+    margin-bottom: 14px;
+  }
+
+  &__detail-line {
+    height: 14px;
+    border-radius: 999px;
+
+    &--brand {
+      width: 88px;
+      height: 12px;
+    }
+
+    &--title {
+      width: min(560px, 100%);
+      height: 24px;
+      border-radius: 10px;
+    }
+
+    &--title-short {
+      width: min(420px, 78%);
+      height: 24px;
+      border-radius: 10px;
+    }
+
+    &--label {
+      width: 96px;
+      height: 12px;
+    }
+
+    &--medium {
+      width: 82%;
+    }
+
+    &--short {
+      width: 58%;
+    }
+  }
+
+  &__detail-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  &__detail-pill {
+    width: 80px;
+    height: 36px;
+    border-radius: 999px;
+  }
+
+  &__detail-divider {
+    height: 1px;
+    margin: 16px 0;
+    background: $color-element;
+  }
+
+  &__detail-prices {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  &__detail-price {
+    width: 160px;
+    height: 34px;
+    border-radius: 12px;
+  }
+
+  &__detail-old-price {
+    width: 84px;
+    height: 22px;
+    border-radius: 999px;
+  }
+
+  &__detail-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  &__detail-button {
+    height: 48px;
+    border-radius: 100px;
+
+    &--cart {
+      flex: 1;
+    }
+
+    &--fav {
+      width: 48px;
+      flex: 0 0 48px;
+    }
+  }
+
+  &__search-item {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 64px;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__search-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+  }
+
+  &__search-line {
+    height: 14px;
+    border-radius: 999px;
+  }
+
+  &__search-brand {
+    width: 64px;
+    height: 12px;
+    justify-self: end;
+    border-radius: 999px;
+  }
+}

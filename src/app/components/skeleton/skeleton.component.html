@@ -1,0 +1,145 @@
+@switch (variant) {
+  @case ('product-grid') {
+    <div class="skeleton skeleton--product-grid" aria-hidden="true">
+      @for (_ of items; track $index) {
+        <article class="skeleton__product-card">
+          <div class="skeleton__product-media"></div>
+          <div class="skeleton__product-body">
+            <span class="skeleton__product-brand"></span>
+            <span
+              class="skeleton__product-line skeleton__product-line--title"
+            ></span>
+            <span
+              class="skeleton__product-line skeleton__product-line--title-short"
+            ></span>
+            <div class="skeleton__product-tags">
+              <span class="skeleton__product-tag"></span>
+              <span class="skeleton__product-tag"></span>
+            </div>
+            <span class="skeleton__product-price"></span>
+            <div class="skeleton__product-actions">
+              <span class="skeleton__product-btn"></span>
+              <span class="skeleton__product-icon"></span>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  @case ('product-slider') {
+    <div class="skeleton skeleton--product-slider" aria-hidden="true">
+      @for (_ of items; track $index) {
+        <article class="skeleton__product-card">
+          <div class="skeleton__product-media"></div>
+          <div class="skeleton__product-body">
+            <span class="skeleton__product-brand"></span>
+            <span
+              class="skeleton__product-line skeleton__product-line--title"
+            ></span>
+            <span
+              class="skeleton__product-line skeleton__product-line--title-short"
+            ></span>
+            <div class="skeleton__product-tags">
+              <span class="skeleton__product-tag"></span>
+              <span class="skeleton__product-tag"></span>
+            </div>
+            <span class="skeleton__product-price"></span>
+            <div class="skeleton__product-actions">
+              <span class="skeleton__product-btn"></span>
+              <span class="skeleton__product-icon"></span>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  @case ('categories') {
+    <div class="skeleton skeleton--categories" aria-hidden="true">
+      @for (_ of items; track $index) {
+        <div class="skeleton__category-card">
+          <span class="skeleton__category-badge"></span>
+          <span class="skeleton__category-count"></span>
+        </div>
+      }
+    </div>
+  }
+
+  @case ('product-detail') {
+    <div class="skeleton skeleton--product-detail" aria-hidden="true">
+      <div class="skeleton__detail-title-row">
+        <div class="skeleton__detail-heading">
+          <span
+            class="skeleton__detail-line skeleton__detail-line--brand"
+          ></span>
+          <span
+            class="skeleton__detail-line skeleton__detail-line--title"
+          ></span>
+          <span
+            class="skeleton__detail-line skeleton__detail-line--title-short"
+          ></span>
+        </div>
+        <span class="skeleton__detail-pill"></span>
+      </div>
+
+      <div class="skeleton__detail-layout">
+        <div class="skeleton__detail-image-col">
+          <div class="skeleton__detail-image"></div>
+          <div class="skeleton__detail-copy">
+            <span class="skeleton__detail-line"></span>
+            <span
+              class="skeleton__detail-line skeleton__detail-line--medium"
+            ></span>
+            <span
+              class="skeleton__detail-line skeleton__detail-line--short"
+            ></span>
+          </div>
+        </div>
+
+        <div class="skeleton__detail-info-col">
+          @for (_ of [1, 2, 3]; track $index) {
+            <div class="skeleton__detail-attr">
+              <span
+                class="skeleton__detail-line skeleton__detail-line--label"
+              ></span>
+              <div class="skeleton__detail-options">
+                <span class="skeleton__detail-pill"></span>
+                <span class="skeleton__detail-pill"></span>
+                <span class="skeleton__detail-pill"></span>
+              </div>
+            </div>
+          }
+
+          <div class="skeleton__detail-divider"></div>
+
+          <div class="skeleton__detail-prices">
+            <span class="skeleton__detail-price"></span>
+            <span class="skeleton__detail-old-price"></span>
+          </div>
+
+          <div class="skeleton__detail-actions">
+            <span
+              class="skeleton__detail-button skeleton__detail-button--cart"
+            ></span>
+            <span
+              class="skeleton__detail-button skeleton__detail-button--fav"
+            ></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @case ('search-results') {
+    <div class="skeleton skeleton--search-results" aria-hidden="true">
+      @for (_ of items; track $index) {
+        <div class="skeleton__search-item">
+          <span class="skeleton__search-thumb"></span>
+          <span class="skeleton__search-line"></span>
+          <span class="skeleton__search-brand"></span>
+        </div>
+      }
+    </div>
+  }
+}

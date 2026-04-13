@@ -12,6 +12,7 @@ import {
   BreadcrumbComponent,
   BreadcrumbItem,
 } from '@app/components/breadcrumb/breadcrumb.component';
+import { SkeletonComponent } from '@app/components/skeleton/skeleton.component';
 import { ATTRIBUTE_CONFIGS } from '@app/constants/attribute-configs';
 import {
   selectAttributeColors,
@@ -24,7 +25,7 @@ import { ROUTES } from '@app/constants/app.routes.const';
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, BreadcrumbComponent],
+  imports: [CommonModule, BreadcrumbComponent, SkeletonComponent],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss',
 })

@@ -29,6 +29,7 @@ import {
   ProductCardEvent,
 } from '@app/components/product-card/product-card.component';
 import { BreadcrumbComponent } from '@app/components/breadcrumb/breadcrumb.component';
+import { SkeletonComponent } from '@app/components/skeleton/skeleton.component';
 import {
   selectAttributeColors,
   selectAttributeSimpleAttributes,
@@ -107,7 +108,12 @@ function mapToCardItem(v: CatalogVariationItem): ProductCardItem {
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  imports: [CommonModule, ProductCardComponent, BreadcrumbComponent],
+  imports: [
+    CommonModule,
+    ProductCardComponent,
+    BreadcrumbComponent,
+    SkeletonComponent,
+  ],
   templateUrl: './catalog.component.html',
   styleUrl: './catalog.component.scss',
 })

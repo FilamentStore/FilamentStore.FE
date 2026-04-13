@@ -10,6 +10,7 @@ import {
   ProductCardEvent,
 } from '@app/components/product-card/product-card.component';
 import { BreadcrumbComponent } from '@app/components/breadcrumb/breadcrumb.component';
+import { SkeletonComponent } from '@app/components/skeleton/skeleton.component';
 import { Product, ProductVariation } from '@app/models/product.models';
 import { selectFavoriteItems } from '@store/favorites/favorites.selectors';
 import { FavoritesActions } from '@store/favorites/favorites.actions';
@@ -22,7 +23,12 @@ interface FavoriteCard {
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [RouterLink, ProductCardComponent, BreadcrumbComponent],
+  imports: [
+    RouterLink,
+    ProductCardComponent,
+    BreadcrumbComponent,
+    SkeletonComponent,
+  ],
   templateUrl: './favorites.component.html',
   styleUrl: './favorites.component.scss',
 })

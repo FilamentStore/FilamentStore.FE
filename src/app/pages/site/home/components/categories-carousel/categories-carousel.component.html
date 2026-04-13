@@ -2,9 +2,7 @@
   <h2 class="categories__title">Категорії</h2>
 
   @if (loading) {
-    <div class="categories__loader">
-      <span class="categories__spinner"></span>
-    </div>
+    <app-skeleton variant="categories" [count]="3" />
   } @else {
     <div
       class="categories__stage"

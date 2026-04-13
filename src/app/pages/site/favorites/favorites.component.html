@@ -5,9 +5,7 @@
   </div>
 
   @if (loading()) {
-    <div class="favorites__loader">
-      <span class="favorites__spinner"></span>
-    </div>
+    <app-skeleton variant="product-grid" [count]="4" />
   } @else if (!cards().length) {
     <div class="favorites__empty">
       <svg

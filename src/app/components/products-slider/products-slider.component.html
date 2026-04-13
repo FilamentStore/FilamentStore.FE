@@ -42,9 +42,7 @@
   </div>
 
   @if (loading) {
-    <div class="products-slider__loader">
-      <span class="products-slider__spinner"></span>
-    </div>
+    <app-skeleton variant="product-slider" [count]="4" />
   } @else {
     <div class="products-slider__viewport">
       <div class="products-slider__track" #track>

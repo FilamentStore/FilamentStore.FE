@@ -1,0 +1,24 @@
+@use 'variables' as *;
+
+@mixin skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, $color-surface 88%, white) 0%,
+    color-mix(in srgb, $color-element 28%, white) 50%,
+    color-mix(in srgb, $color-surface 88%, white) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.35s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}

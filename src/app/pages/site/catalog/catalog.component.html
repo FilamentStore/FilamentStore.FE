@@ -298,9 +298,7 @@
   </div>
 
   @if (loading()) {
-    <div class="catalog__spinner">
-      <div class="spinner"></div>
-    </div>
+    <app-skeleton variant="product-grid" [count]="8" />
   }
 
   @if (!loading() && items.length === 0) {

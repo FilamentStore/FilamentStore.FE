@@ -7,9 +7,7 @@
   </button>
 
   @if (loading()) {
-    <div class="detail__loading">
-      <div class="detail__spinner"></div>
-    </div>
+    <app-skeleton variant="product-detail" />
   } @else if (product(); as p) {
     <div class="detail__title-row">
       <div>

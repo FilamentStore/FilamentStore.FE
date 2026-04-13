@@ -13,10 +13,7 @@ import { ProductsService } from '@app/services/tempService/products.service';
 import { VariationsService } from '@app/services/tempService/variations.service';
 import { CategoriesService } from '@app/services/tempService/categories.service';
 import { WcCategory } from '@app/models/config.models';
-import {
-  ProductCardComponent,
-  ProductCardEvent,
-} from '@app/components/product-card/product-card.component';
+import { ProductCardEvent } from '@app/components/product-card/product-card.component';
 import {
   ProductsSliderComponent,
   ProductSliderItem,
@@ -35,12 +32,7 @@ interface HeroSlide {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [
-    RouterLink,
-    ProductCardComponent,
-    ProductsSliderComponent,
-    CategoriesCarouselComponent,
-  ],
+  imports: [RouterLink, ProductsSliderComponent, CategoriesCarouselComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })

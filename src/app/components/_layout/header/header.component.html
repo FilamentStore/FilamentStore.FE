@@ -68,9 +68,7 @@
       @if (isSearchOpen && (searchLoading() || searchQuery().length >= 2)) {
         <div class="header-search__dropdown">
           @if (searchLoading()) {
-            <div class="header-search__drop-loader">
-              <span class="header-search__drop-spinner"></span>
-            </div>
+            <app-skeleton variant="search-results" [count]="3" />
           } @else if (searchResults().length === 0) {
             <p class="header-search__drop-empty">Нічого не знайдено</p>
           } @else {
