@@ -5,5 +5,6 @@ export const STORAGE_KEYS = {
   },
   site: {
     favorites: 'fs_favorites',
+    cart: 'fs_cart',
   },
 } as const;

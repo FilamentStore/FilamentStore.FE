@@ -13,6 +13,7 @@ import { AttributesEffects } from '@store/attributes/attributes.effects';
 import { favoritesReducer } from '@store/favorites/favorites.reducer';
 import { configReducer } from '@store/config/config.reducer';
 import { ConfigEffects } from '@store/config/config.effects';
+import { cartReducer } from '@store/cart/cart.reducer';
 
 import { routes } from './app.routes';
 
@@ -26,6 +27,7 @@ export const appConfig: ApplicationConfig = {
       attributes: attributesReducer,
       favorites: favoritesReducer,
       config: configReducer,
+      cart: cartReducer,
     }),
     provideEffects(AttributesEffects, ConfigEffects),
   ],

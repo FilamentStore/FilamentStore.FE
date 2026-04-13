@@ -37,6 +37,8 @@ import {
 import { selectFavoriteVariationIds } from '@store/favorites/favorites.selectors';
 import { FavoritesActions } from '@store/favorites/favorites.actions';
 import { selectBrands, selectCategories } from '@store/config/config.selectors';
+import { selectCartVariationIds } from '@store/cart/cart.selectors';
+import { CartActions } from '@store/cart/cart.actions';
 
 export interface ProductCardItem {
   product: Product;
@@ -130,6 +132,10 @@ export class CatalogComponent implements OnInit {
   readonly loading = signal(false);
   readonly favoriteVariationIds = toSignal(
     this.store.select(selectFavoriteVariationIds),
+    { initialValue: [] as number[] },
+  );
+  readonly cartVariationIds = toSignal(
+    this.store.select(selectCartVariationIds),
     { initialValue: [] as number[] },
   );
 
@@ -432,8 +438,12 @@ export class CatalogComponent implements OnInit {
   }
 
   onAddToCart(event: ProductCardEvent): void {
-    // TODO: dispatch add-to-cart action
-    void event;
+    this.store.dispatch(
+      CartActions.add({
+        productId: event.product.id,
+        variationId: event.variation.id,
+      }),
+    );
   }
 
   onToggleFavorite(event: ProductCardEvent): void {

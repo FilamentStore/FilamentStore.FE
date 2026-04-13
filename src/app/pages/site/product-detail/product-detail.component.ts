@@ -1,6 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
@@ -20,6 +20,8 @@ import {
 } from '@store/attributes/attributes.selectors';
 import { selectFavoriteVariationIds } from '@store/favorites/favorites.selectors';
 import { FavoritesActions } from '@store/favorites/favorites.actions';
+import { selectCartVariationIds } from '@store/cart/cart.selectors';
+import { CartActions } from '@store/cart/cart.actions';
 import { ROUTES } from '@app/constants/app.routes.const';
 
 @Component({
@@ -31,6 +33,7 @@ import { ROUTES } from '@app/constants/app.routes.const';
 })
 export class ProductDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private location = inject(Location);
   private productsService = inject(ProductsService);
   private variationsService = inject(VariationsService);
@@ -44,9 +47,16 @@ export class ProductDetailComponent implements OnInit {
     this.store.select(selectFavoriteVariationIds),
     { initialValue: [] as number[] },
   );
+  private readonly cartVariationIds = toSignal(
+    this.store.select(selectCartVariationIds),
+    { initialValue: [] as number[] },
+  );
 
   readonly isFavorite = computed(() =>
     this.favoriteVariationIds().includes(this.activeVariation()?.id ?? -1),
+  );
+  readonly isInCart = computed(() =>
+    this.cartVariationIds().includes(this.activeVariation()?.id ?? -1),
   );
 
   private colors = toSignal(this.store.select(selectAttributeColors), {
@@ -202,7 +212,25 @@ export class ProductDetailComponent implements OnInit {
     }
   }
 
+  addToCart(): void {
+    const product = this.product();
+    const variation = this.activeVariation();
+
+    if (product && variation) {
+      this.store.dispatch(
+        CartActions.add({
+          productId: product.id,
+          variationId: variation.id,
+        }),
+      );
+    }
+  }
+
   goBack(): void {
     this.location.back();
+  }
+
+  goToCart(): void {
+    void this.router.navigate(['/cart']);
   }
 }

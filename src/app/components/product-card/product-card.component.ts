@@ -26,6 +26,7 @@ export class ProductCardComponent {
   product = input.required<Product>();
   variation = input.required<ProductVariation>();
   isFavorite = input<boolean>(false);
+  isInCart = input<boolean>(false);
 
   addToCart = output<ProductCardEvent>();
   toggleFavorite = output<ProductCardEvent>();
@@ -152,6 +153,17 @@ export class ProductCardComponent {
 
   navigateToDetail(): void {
     void this.router.navigate(['/product', this.product().id]);
+  }
+
+  onCartClick(): void {
+    if (this.isInCart()) {
+      void this.router.navigate(['/cart']);
+    } else {
+      this.addToCart.emit({
+        product: this.product(),
+        variation: this.variation(),
+      });
+    }
   }
 
   onAddToCart(): void {

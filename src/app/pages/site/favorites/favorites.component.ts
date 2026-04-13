@@ -14,6 +14,8 @@ import { SkeletonComponent } from '@app/components/skeleton/skeleton.component';
 import { Product, ProductVariation } from '@app/models/product.models';
 import { selectFavoriteItems } from '@store/favorites/favorites.selectors';
 import { FavoritesActions } from '@store/favorites/favorites.actions';
+import { selectCartVariationIds } from '@store/cart/cart.selectors';
+import { CartActions } from '@store/cart/cart.actions';
 
 interface FavoriteCard {
   product: Product;
@@ -40,6 +42,10 @@ export class FavoritesComponent implements OnInit {
   readonly favoriteItems = toSignal(this.store.select(selectFavoriteItems), {
     initialValue: [] as { productId: number; variationId: number }[],
   });
+  readonly cartVariationIds = toSignal(
+    this.store.select(selectCartVariationIds),
+    { initialValue: [] as number[] },
+  );
 
   readonly cards = signal<FavoriteCard[]>([]);
   readonly loading = signal(true);
@@ -109,6 +115,11 @@ export class FavoritesComponent implements OnInit {
   }
 
   onAddToCart(event: ProductCardEvent): void {
-    void event;
+    this.store.dispatch(
+      CartActions.add({
+        productId: event.product.id,
+        variationId: event.variation.id,
+      }),
+    );
   }
 }

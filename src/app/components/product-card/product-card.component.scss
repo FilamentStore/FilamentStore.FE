@@ -246,6 +246,16 @@
       color: $color-text-secondary;
       cursor: not-allowed;
     }
+
+    &--in-cart {
+      background-color: transparent;
+      color: $color-accent;
+      border: 1.5px solid $color-accent;
+
+      &:hover:not([disabled]) {
+        background-color: color-mix(in srgb, $color-accent 10%, transparent);
+      }
+    }
   }
 
   &__btn-fav {

@@ -293,28 +293,6 @@
   }
 }
 
-.icon-counter {
-  position: absolute;
-  top: 25%;
-  right: 25%;
-  height: 12px;
-  width: 12px;
-  padding: 2px;
-  border-radius: 7px;
-  background: $color-error;
-  color: $color-bg;
-  font-size: 9px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  @include on-tablet {
-    top: 2px;
-    right: 2px;
-  }
-}
-
 .icon-burger-menu {
   display: flex;
   align-items: center;

@@ -30,6 +30,7 @@
           [product]="card.product"
           [variation]="card.variation"
           [isFavorite]="true"
+          [isInCart]="cartVariationIds().includes(card.variation.id)"
           (addToCart)="onAddToCart($event)"
           (toggleFavorite)="onToggleFavorite($event)"
         />

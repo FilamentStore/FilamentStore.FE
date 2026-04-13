@@ -93,10 +93,27 @@
     <div class="card__actions">
       <button
         class="card__btn-cart"
+        [class.card__btn-cart--in-cart]="isInCart()"
         [disabled]="stockStatus() === 'out'"
-        (click)="onAddToCart(); $event.stopPropagation()"
+        (click)="onCartClick(); $event.stopPropagation()"
       >
-        @if (stockStatus() !== 'out') {
+        @if (stockStatus() === 'out') {
+          Немає в наявності
+        } @else if (isInCart()) {
+          <svg
+            viewBox="0 0 24 24"
+            width="15"
+            height="15"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          В кошику
+        } @else {
           <svg
             viewBox="0 0 24 24"
             width="15"
@@ -111,8 +128,8 @@
             <line x1="3" y1="6" x2="21" y2="6" />
             <path d="M16 10a4 4 0 0 1-8 0" />
           </svg>
+          До кошика
         }
-        {{ stockStatus() === 'out' ? 'Немає в наявності' : 'До кошика' }}
       </button>
       <button
         class="card__btn-fav"

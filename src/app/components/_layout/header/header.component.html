@@ -118,9 +118,7 @@
       aria-label="Go to Favorites"
     >
       <span class="icon-img icon-img--favorite" aria-hidden="true"></span>
-      @if (favoritesCount() > 0) {
-        <span class="icon-counter">{{ favoritesCount() }}</span>
-      }
+      <app-icon-badge [count]="favoritesCount()" />
     </a>
 
     <a
@@ -130,9 +128,7 @@
       aria-label="Go to Shopping Bag"
     >
       <span class="icon-img icon-img--bag" aria-hidden="true"></span>
-      @if (cartCount > 0) {
-        <span class="icon-counter">{{ cartCount }}</span>
-      }
+      <app-icon-badge [count]="cartCount()" />
     </a>
 
     <button

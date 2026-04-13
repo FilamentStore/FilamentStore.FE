@@ -135,10 +135,19 @@
 
         <!-- Actions -->
         <div class="detail__actions">
-          <button class="detail__btn-cart" [disabled]="stockStatus() === 'out'">
-            {{
-              stockStatus() === 'out' ? 'Немає в наявності' : 'Додати в кошик'
-            }}
+          <button
+            class="detail__btn-cart"
+            [class.detail__btn-cart--in-cart]="isInCart()"
+            [disabled]="stockStatus() === 'out'"
+            (click)="isInCart() ? goToCart() : addToCart()"
+          >
+            @if (stockStatus() === 'out') {
+              Немає в наявності
+            } @else if (isInCart()) {
+              В кошику
+            } @else {
+              Додати в кошик
+            }
           </button>
           <button
             class="detail__btn-fav"

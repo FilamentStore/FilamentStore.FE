@@ -10,6 +10,8 @@ import {
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { selectFavoritesCount } from '@store/favorites/favorites.selectors';
+import { selectCartItemsCount } from '@store/cart/cart.selectors';
+import { IconBadgeComponent } from '@app/components/icon-badge/icon-badge.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   NavigationEnd,
@@ -34,7 +36,13 @@ import { SkeletonComponent } from '@app/components/skeleton/skeleton.component';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, NavbarComponent, SkeletonComponent],
+  imports: [
+    RouterLink,
+    RouterLinkActive,
+    NavbarComponent,
+    SkeletonComponent,
+    IconBadgeComponent,
+  ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
@@ -44,7 +52,9 @@ export class HeaderComponent {
   readonly favoritesCount = toSignal(this.store.select(selectFavoritesCount), {
     initialValue: 0,
   });
-  cartCount = 0;
+  readonly cartCount = toSignal(this.store.select(selectCartItemsCount), {
+    initialValue: 0,
+  });
   isMenuOpen = false;
   isSearchOpen = false;
 
