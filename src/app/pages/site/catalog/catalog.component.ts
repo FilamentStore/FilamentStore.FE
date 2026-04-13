@@ -14,6 +14,8 @@ import {
 } from '@app/components/product-card/product-card.component';
 import { BreadcrumbComponent } from '@app/components/breadcrumb/breadcrumb.component';
 import { selectAttributeColors } from '@store/attributes/attributes.selectors';
+import { selectFavoriteVariationIds } from '@store/favorites/favorites.selectors';
+import { FavoritesActions } from '@store/favorites/favorites.actions';
 
 export interface ProductCardItem {
   product: Product;
@@ -42,8 +44,11 @@ export class CatalogComponent implements OnInit {
   private store = inject(Store);
 
   items: ProductCardItem[] = [];
-  loading = false;
-  readonly favorites = signal<Set<number>>(new Set());
+  readonly loading = signal(false);
+  readonly favoriteVariationIds = toSignal(
+    this.store.select(selectFavoriteVariationIds),
+    { initialValue: [] as number[] },
+  );
 
   readonly sortOptions = SORT_OPTIONS;
   readonly activeSort = signal<SortOption>('popular');
@@ -66,7 +71,7 @@ export class CatalogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loading = true;
+    this.loading.set(true);
 
     this.productsService
       .getProducts({ status: 'publish', page: 1 })
@@ -89,7 +94,7 @@ export class CatalogComponent implements OnInit {
             ),
           ).pipe(map(groups => (groups as ProductCardItem[][]).flat()));
         }),
-        finalize(() => (this.loading = false)),
+        finalize(() => this.loading.set(false)),
       )
       .subscribe({
         next: items => (this.items = items),
@@ -147,16 +152,11 @@ export class CatalogComponent implements OnInit {
   }
 
   onToggleFavorite(event: ProductCardEvent): void {
-    this.favorites.update(favs => {
-      const next = new Set(favs);
-
-      if (next.has(event.variation.id)) {
-        next.delete(event.variation.id);
-      } else {
-        next.add(event.variation.id);
-      }
-
-      return next;
-    });
+    this.store.dispatch(
+      FavoritesActions.toggle({
+        productId: event.product.id,
+        variationId: event.variation.id,
+      }),
+    );
   }
 }

@@ -53,8 +53,9 @@
             <app-product-card
               [product]="item.product"
               [variation]="item.variation"
+              [isFavorite]="favoriteVariationIds().includes(item.variation.id)"
               (addToCart)="addToCart.emit($event)"
-              (toggleFavorite)="toggleFavorite.emit($event)"
+              (toggleFavorite)="onToggleFavorite($event)"
             />
           </div>
         }

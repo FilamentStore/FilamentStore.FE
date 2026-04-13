@@ -5,12 +5,17 @@ import {
   Input,
   Output,
   ViewChild,
+  inject,
 } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Product, ProductVariation } from '@app/models/product.models';
 import {
   ProductCardComponent,
   ProductCardEvent,
 } from '@app/components/product-card/product-card.component';
+import { selectFavoriteVariationIds } from '@store/favorites/favorites.selectors';
+import { FavoritesActions } from '@store/favorites/favorites.actions';
 
 export interface ProductSliderItem {
   product: Product;
@@ -25,6 +30,8 @@ export interface ProductSliderItem {
   styleUrl: './products-slider.component.scss',
 })
 export class ProductsSliderComponent {
+  private store = inject(Store);
+
   @Input() title = '';
   @Input() items: ProductSliderItem[] = [];
   @Input() loading = false;
@@ -33,6 +40,11 @@ export class ProductsSliderComponent {
   @Output() toggleFavorite = new EventEmitter<ProductCardEvent>();
 
   @ViewChild('track') trackEl?: ElementRef<HTMLElement>;
+
+  readonly favoriteVariationIds = toSignal(
+    this.store.select(selectFavoriteVariationIds),
+    { initialValue: [] as number[] },
+  );
 
   scroll(dir: 1 | -1): void {
     const el = this.trackEl?.nativeElement;
@@ -43,5 +55,15 @@ export class ProductsSliderComponent {
     const cardWidth = card ? card.offsetWidth + 20 : 300;
 
     el.scrollBy({ left: dir * cardWidth, behavior: 'smooth' });
+  }
+
+  onToggleFavorite(event: ProductCardEvent): void {
+    this.store.dispatch(
+      FavoritesActions.toggle({
+        productId: event.product.id,
+        variationId: event.variation.id,
+      }),
+    );
+    this.toggleFavorite.emit(event);
   }
 }

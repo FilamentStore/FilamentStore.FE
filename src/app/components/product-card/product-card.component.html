@@ -1,52 +1,87 @@
 <article class="card" (click)="navigateToDetail()">
-  <!-- Image -->
+  <!-- ── Image ──────────────────────────────────────────────────────────── -->
   <div class="card__image-wrapper">
-    @if (image()) {
+    @if (image(); as img) {
       <img
         class="card__image"
-        [src]="image()!.src"
-        [alt]="image()!.alt || product().name"
+        [src]="img.src"
+        [alt]="img.alt || product().name"
         loading="lazy"
       />
     } @else {
       <div class="card__image-placeholder">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="48"
-          height="48"
-        >
+        <svg viewBox="0 0 48 48" width="44" height="44" fill="none">
+          <circle
+            cx="24"
+            cy="24"
+            r="18"
+            stroke="currentColor"
+            stroke-width="2.5"
+          />
+          <circle
+            cx="24"
+            cy="24"
+            r="7"
+            stroke="currentColor"
+            stroke-width="2"
+          />
           <path
-            fill="currentColor"
-            d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"
+            d="M6 24 Q10 12 24 12"
+            stroke="currentColor"
+            stroke-width="1.5"
+            fill="none"
           />
         </svg>
         <span>Немає фото</span>
       </div>
     }
 
-    <!-- Stock badge (top-left) -->
+    <!-- Color strip at bottom of image -->
+    @if (colorSwatchBg()) {
+      <div class="card__color-strip" [style.background]="colorSwatchBg()"></div>
+    }
+
+    <!-- Stock badge -->
     @if (stockStatus() !== 'in') {
       <span
         class="card__stock-badge"
         [class.card__stock-badge--out]="stockStatus() === 'out'"
       >
-        {{ stockStatus() === 'out' ? 'Немає в наявності' : 'Закінчується' }}
+        {{ stockStatus() === 'out' ? 'Немає' : 'Закінчується' }}
       </span>
     }
 
-    <!-- Sale badge (top-right) -->
-    @if (oldPrice()) {
-      <span class="card__sale-badge">Акція</span>
+    <!-- Discount badge -->
+    @if (discountPercent()) {
+      <span class="card__sale-badge">-{{ discountPercent() }}%</span>
     }
   </div>
 
-  <!-- Body -->
+  <!-- ── Body ───────────────────────────────────────────────────────────── -->
   <div class="card__body">
-    <p class="card__brand">{{ product().brand }}</p>
+    @if (product().brand) {
+      <p class="card__brand">{{ product().brand }}</p>
+    }
     <h4 class="card__name">{{ displayName() }}</h4>
 
-    <!-- Prices -->
+    <!-- Specs: color swatch + diameter + weight -->
+    <div class="card__specs">
+      @if (colorSwatchBg()) {
+        <span
+          class="card__swatch"
+          [style.background]="colorSwatchBg()"
+          [title]="colorAttr()?.name ?? ''"
+        ></span>
+      }
+      @if (diameterAttr()) {
+        <span class="card__spec-tag">{{ diameterAttr() }}</span>
+      }
+      @if (weightAttr()) {
+        <span class="card__spec-tag">{{ weightAttr() }}</span>
+      }
+    </div>
+
+    <!-- Price -->
     <div class="card__prices">
       <span class="card__price-current">{{ currentPrice() }} грн</span>
       @if (oldPrice()) {
@@ -61,7 +96,23 @@
         [disabled]="stockStatus() === 'out'"
         (click)="onAddToCart(); $event.stopPropagation()"
       >
-        {{ stockStatus() === 'out' ? 'Немає в наявності' : 'Додати в кошик' }}
+        @if (stockStatus() !== 'out') {
+          <svg
+            viewBox="0 0 24 24"
+            width="15"
+            height="15"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 0 1-8 0" />
+          </svg>
+        }
+        {{ stockStatus() === 'out' ? 'Немає в наявності' : 'До кошика' }}
       </button>
       <button
         class="card__btn-fav"
@@ -70,29 +121,19 @@
         aria-label="Додати в обране"
       >
         @if (isFavorite()) {
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-          >
+          <svg viewBox="0 0 24 24" width="17" height="17">
             <path
               d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
               fill="currentColor"
             />
           </svg>
         } @else {
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-          >
+          <svg viewBox="0 0 24 24" width="17" height="17">
             <path
               d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
               fill="none"
               stroke="currentColor"
-              stroke-width="1.5"
+              stroke-width="1.8"
             />
           </svg>
         }

@@ -17,6 +17,8 @@ import {
   selectAttributeColors,
   selectAttributeSimpleAttributes,
 } from '@store/attributes/attributes.selectors';
+import { selectFavoriteVariationIds } from '@store/favorites/favorites.selectors';
+import { FavoritesActions } from '@store/favorites/favorites.actions';
 import { ROUTES } from '@app/constants/app.routes.const';
 
 @Component({
@@ -37,7 +39,14 @@ export class ProductDetailComponent implements OnInit {
   readonly variations = signal<ProductVariation[]>([]);
   readonly activeVariation = signal<ProductVariation | null>(null);
   readonly loading = signal(true);
-  readonly isFavorite = signal(false);
+  private readonly favoriteVariationIds = toSignal(
+    this.store.select(selectFavoriteVariationIds),
+    { initialValue: [] as number[] },
+  );
+
+  readonly isFavorite = computed(() =>
+    this.favoriteVariationIds().includes(this.activeVariation()?.id ?? -1),
+  );
 
   private colors = toSignal(this.store.select(selectAttributeColors), {
     initialValue: [] as ColorValue[],
@@ -176,6 +185,20 @@ export class ProductDetailComponent implements OnInit {
       .join(', ');
 
     return `linear-gradient(135deg, ${stops})`;
+  }
+
+  toggleFavorite(): void {
+    const product = this.product();
+    const variation = this.activeVariation();
+
+    if (product && variation) {
+      this.store.dispatch(
+        FavoritesActions.toggle({
+          productId: product.id,
+          variationId: variation.id,
+        }),
+      );
+    }
   }
 
   goBack(): void {

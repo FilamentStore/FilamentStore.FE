@@ -145,7 +145,7 @@
           <button
             class="detail__btn-fav"
             [class.detail__btn-fav--active]="isFavorite()"
-            (click)="isFavorite.set(!isFavorite())"
+            (click)="toggleFavorite()"
             aria-label="Додати в обране"
           >
             @if (isFavorite()) {

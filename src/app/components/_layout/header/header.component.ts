@@ -7,6 +7,9 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { selectFavoritesCount } from '@store/favorites/favorites.selectors';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   NavigationEnd,
@@ -35,7 +38,11 @@ import { Product } from '@app/models/product.models';
   styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent {
-  favoritesCount = 0;
+  private store = inject(Store);
+
+  readonly favoritesCount = toSignal(this.store.select(selectFavoritesCount), {
+    initialValue: 0,
+  });
   cartCount = 0;
   isMenuOpen = false;
   isSearchOpen = false;

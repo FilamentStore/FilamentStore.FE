@@ -18,8 +18,13 @@ export class ProductsService {
     status?: string;
     category_id?: number | null;
     page?: number;
+    include?: number[];
+    perPage?: number;
   }): Observable<ProductsListResponse> {
-    let params = new HttpParams().set('per_page', '20');
+    let params = new HttpParams().set(
+      'per_page',
+      String(filters.perPage ?? 20),
+    );
 
     if (filters.search) params = params.set('search', filters.search);
     const status = filters.status?.trim() === '' ? 'any' : filters.status;
@@ -28,6 +33,8 @@ export class ProductsService {
     if (filters.category_id != null)
       params = params.set('category_id', String(filters.category_id));
     if (filters.page) params = params.set('page', String(filters.page));
+    if (filters.include?.length)
+      params = params.set('include', filters.include.join(','));
 
     return this.http.get<ProductsListResponse>(this.baseUrl, { params });
   }

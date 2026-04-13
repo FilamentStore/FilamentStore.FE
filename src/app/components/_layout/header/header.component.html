@@ -120,8 +120,8 @@
       aria-label="Go to Favorites"
     >
       <span class="icon-img icon-img--favorite" aria-hidden="true"></span>
-      @if (favoritesCount > 0) {
-        <span class="icon-counter">{{ favoritesCount }}</span>
+      @if (favoritesCount() > 0) {
+        <span class="icon-counter">{{ favoritesCount() }}</span>
       }
     </a>
 

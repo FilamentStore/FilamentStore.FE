@@ -10,6 +10,7 @@ import { authInterceptor } from './helper/interceptors/auth.interceptor';
 import { authReducer } from '@store/auth/auth.reducer';
 import { attributesReducer } from '@store/attributes/attributes.reducer';
 import { AttributesEffects } from '@store/attributes/attributes.effects';
+import { favoritesReducer } from '@store/favorites/favorites.reducer';
 
 import { routes } from './app.routes';
 
@@ -18,7 +19,11 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
-    provideStore({ auth: authReducer, attributes: attributesReducer }),
+    provideStore({
+      auth: authReducer,
+      attributes: attributesReducer,
+      favorites: favoritesReducer,
+    }),
     provideEffects(AttributesEffects),
   ],
 };

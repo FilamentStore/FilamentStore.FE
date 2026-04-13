@@ -162,25 +162,25 @@
     </div>
   </div>
 
-  @if (loading) {
+  @if (loading()) {
     <div class="catalog__spinner">
       <div class="spinner"></div>
     </div>
   }
 
-  @if (!loading && items.length === 0) {
+  @if (!loading() && items.length === 0) {
     <div class="catalog__empty">
       <p>Товари не знайдено</p>
     </div>
   }
 
-  @if (!loading && items.length > 0) {
+  @if (!loading() && items.length > 0) {
     <div class="catalog__grid">
       @for (item of items; track item.variation.id) {
         <app-product-card
           [product]="item.product"
           [variation]="item.variation"
-          [isFavorite]="favorites().has(item.variation.id)"
+          [isFavorite]="favoriteVariationIds().includes(item.variation.id)"
           (addToCart)="onAddToCart($event)"
           (toggleFavorite)="onToggleFavorite($event)"
         />

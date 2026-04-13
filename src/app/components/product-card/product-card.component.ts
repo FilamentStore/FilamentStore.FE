@@ -1,5 +1,4 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -19,7 +18,7 @@ export interface ProductCardEvent {
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './product-card.component.html',
   styleUrl: './product-card.component.scss',
 })
@@ -49,21 +48,21 @@ export class ProductCardComponent {
     return v.image ?? p.images?.[0] ?? null;
   });
 
+  private readonly isOnSale = computed(() => {
+    const { sale_price, regular_price } = this.variation();
+
+    return !!(sale_price && sale_price !== '0' && sale_price !== regular_price);
+  });
+
   readonly currentPrice = computed(() => {
     const { sale_price, regular_price } = this.variation();
 
-    return sale_price && sale_price !== '0' && sale_price !== regular_price
-      ? sale_price
-      : regular_price;
+    return this.isOnSale() ? sale_price! : regular_price;
   });
 
-  readonly oldPrice = computed(() => {
-    const { sale_price, regular_price } = this.variation();
-
-    return sale_price && sale_price !== '0' && sale_price !== regular_price
-      ? regular_price
-      : null;
-  });
+  readonly oldPrice = computed(() =>
+    this.isOnSale() ? this.variation().regular_price : null,
+  );
 
   readonly displayName = computed(() => {
     const name = this.product().name;
@@ -83,7 +82,60 @@ export class ProductCardComponent {
     return 'in';
   });
 
-  resolveOptionName(attrName: string, slug: string): string {
+  readonly colorAttr = computed(() => {
+    const attr = this.variation().attributes.find(a => a.name === 'Колір');
+
+    if (!attr) return null;
+
+    return this.colors().find(c => c.slug === attr.option) ?? null;
+  });
+
+  readonly colorSwatchBg = computed(() => {
+    const hex = this.colorAttr()?.hex;
+
+    if (!hex?.length) return null;
+    if (hex.length === 1) return hex[0];
+
+    const step = 100 / hex.length;
+    const stops = hex
+      .flatMap((h, i) => [`${h} ${i * step}%`, `${h} ${(i + 1) * step}%`])
+      .join(', ');
+
+    return `linear-gradient(135deg, ${stops})`;
+  });
+
+  readonly diameterAttr = computed(() => {
+    const attr = this.variation().attributes.find(a => a.name === 'Діаметр');
+
+    if (!attr) return null;
+
+    return (
+      this.simpleAttributes()['diameter']?.find(o => o.slug === attr.option)
+        ?.name ?? attr.option
+    );
+  });
+
+  readonly weightAttr = computed(() => {
+    const attr = this.variation().attributes.find(a => a.name === 'Вага');
+
+    if (!attr) return null;
+
+    return (
+      this.simpleAttributes()['weight']?.find(o => o.slug === attr.option)
+        ?.name ?? attr.option
+    );
+  });
+
+  readonly discountPercent = computed(() => {
+    const current = parseFloat(this.currentPrice());
+    const old = parseFloat(this.oldPrice() ?? '0');
+
+    if (!old || old <= current) return null;
+
+    return Math.round((1 - current / old) * 100);
+  });
+
+  private resolveOptionName(attrName: string, slug: string): string {
     const config = ATTRIBUTE_CONFIGS.find(c => c.label === attrName);
 
     if (!config) return slug;
