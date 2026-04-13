@@ -152,7 +152,9 @@ export class ProductCardComponent {
   }
 
   navigateToDetail(): void {
-    void this.router.navigate(['/product', this.product().id]);
+    void this.router.navigate(['/product', this.product().id], {
+      queryParams: { variationId: this.variation().id },
+    });
   }
 
   onCartClick(): void {

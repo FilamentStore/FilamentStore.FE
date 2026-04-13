@@ -128,6 +128,9 @@ export class ProductDetailComponent implements OnInit {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('productId'));
+    const queryVariationId = Number(
+      this.route.snapshot.queryParamMap.get('variationId'),
+    );
 
     forkJoin({
       product: this.productsService.getProduct(id),
@@ -135,10 +138,16 @@ export class ProductDetailComponent implements OnInit {
     }).subscribe({
       next: ({ product, variations }) => {
         const published = variations.filter(v => v.status === 'publish');
+        const initial =
+          (queryVariationId
+            ? published.find(v => v.id === queryVariationId)
+            : null) ??
+          published[0] ??
+          null;
 
         this.product.set(product);
         this.variations.set(published);
-        this.activeVariation.set(published[0] ?? null);
+        this.activeVariation.set(initial);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
@@ -162,7 +171,15 @@ export class ProductDetailComponent implements OnInit {
       );
     }
 
-    if (match) this.activeVariation.set(match);
+    if (match) {
+      this.activeVariation.set(match);
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { variationId: match.id },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
   }
 
   isColorAttr(attrName: string): boolean {
