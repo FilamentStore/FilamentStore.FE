@@ -111,6 +111,7 @@
   &__filters-wrap {
     position: relative;
     flex-shrink: 0;
+    z-index: 6;
 
     @media (max-width: 519px) {
       align-self: flex-end;
@@ -156,20 +157,28 @@
     line-height: 1;
   }
 
+  &__filters-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 8;
+    border: 0;
+    background: rgba(18, 24, 33, 0.24);
+  }
+
   &__filters-drop {
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    z-index: 100;
-    width: 260px;
+    z-index: 9;
+    width: min(320px, calc(100vw - 24px));
     background: $color-card;
     border: 1.5px solid $color-element;
-    border-radius: 16px;
-    padding: 16px;
+    border-radius: 20px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    overflow: hidden;
+    max-height: min(72vh, 720px);
 
     // На мобільному — розтягуємо на всю ширину екрану
     @media (max-width: 519px) {
@@ -179,10 +188,100 @@
       left: 0;
       right: 0;
       width: 100%;
-      border-radius: 20px 20px 0 0;
-      max-height: 80dvh;
-      overflow-y: auto;
+      border-radius: 24px 24px 0 0;
+      max-height: min(82dvh, 760px);
       box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+    }
+  }
+
+  &__filters-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 18px 14px;
+    border-bottom: 1px solid color-mix(in srgb, $color-element 75%, white);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, $color-accent 8%, white) 0%,
+      $color-card 100%
+    );
+  }
+
+  &__filters-eyebrow {
+    margin: 0 0 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: $color-text-secondary;
+  }
+
+  &__filters-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: $color-text-main;
+  }
+
+  &__filters-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid $color-element;
+    background: color-mix(in srgb, $color-surface 85%, white);
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition:
+      border-color 0.2s,
+      color 0.2s,
+      background-color 0.2s;
+
+    &:hover {
+      border-color: $color-accent;
+      color: $color-accent;
+      background: color-mix(in srgb, $color-accent 10%, white);
+    }
+  }
+
+  &__filters-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px 18px 18px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    scrollbar-gutter: stable;
+  }
+
+  &__filters-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: color-mix(in srgb, $color-accent 10%, white);
+    color: $color-text-main;
+    font-size: 13px;
+    font-weight: 700;
+
+    strong {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 26px;
+      height: 26px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: $color-card;
+      color: $color-accent;
     }
   }
 
@@ -190,6 +289,10 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    padding: 12px;
+    border-radius: 16px;
+    background: color-mix(in srgb, $color-surface 84%, white);
+    border: 1px solid color-mix(in srgb, $color-element 70%, white);
   }
 
   &__filters-group-title {
@@ -218,6 +321,13 @@
     &:hover {
       background-color: $color-surface;
     }
+  }
+
+  &__filters-count {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    color: $color-text-secondary;
   }
 
   &__check-box {
@@ -376,13 +486,18 @@
 
   &__filters-actions {
     display: flex;
-    gap: 8px;
-    padding-top: 6px;
-    border-top: 1px solid $color-element;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-bottom: 1px solid $color-element;
+    background: color-mix(in srgb, $color-card 92%, white);
+    position: sticky;
+    top: 0;
+    z-index: 2;
   }
 
   &__filters-apply {
-    flex: 1;
+    min-width: 140px;
     padding: 8px;
     border-radius: 100px;
     border: none;
@@ -400,6 +515,7 @@
   }
 
   &__filters-reset {
+    min-width: 110px;
     padding: 8px 14px;
     border-radius: 100px;
     border: 1.5px solid $color-element;

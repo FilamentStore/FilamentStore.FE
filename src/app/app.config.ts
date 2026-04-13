@@ -11,6 +11,8 @@ import { authReducer } from '@store/auth/auth.reducer';
 import { attributesReducer } from '@store/attributes/attributes.reducer';
 import { AttributesEffects } from '@store/attributes/attributes.effects';
 import { favoritesReducer } from '@store/favorites/favorites.reducer';
+import { configReducer } from '@store/config/config.reducer';
+import { ConfigEffects } from '@store/config/config.effects';
 
 import { routes } from './app.routes';
 
@@ -23,7 +25,8 @@ export const appConfig: ApplicationConfig = {
       auth: authReducer,
       attributes: attributesReducer,
       favorites: favoritesReducer,
+      config: configReducer,
     }),
-    provideEffects(AttributesEffects),
+    provideEffects(AttributesEffects, ConfigEffects),
   ],
 };

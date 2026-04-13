@@ -8,7 +8,6 @@
     </p>
   </header>
 
-  <!-- Toolbar -->
   <div class="catalog__toolbar">
     <div class="catalog__sort-scroll">
       <div class="catalog__sort">
@@ -26,7 +25,11 @@
     </div>
 
     <div class="catalog__filters-wrap">
-      <button class="catalog__filters-btn" (click)="toggleFilters()">
+      <button
+        class="catalog__filters-btn"
+        type="button"
+        (click)="toggleFilters()"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="15"
@@ -49,152 +52,245 @@
       </button>
 
       @if (filtersOpen()) {
-        <div class="catalog__filters-drop">
-          <!-- Бренд -->
-          <div class="catalog__filters-group">
-            <p class="catalog__filters-group-title">Бренд</p>
-            @for (brand of brands; track brand) {
-              <label
-                class="catalog__filters-check"
-                (click)="toggleBrand(brand)"
-              >
-                <span
-                  class="catalog__check-box"
-                  [class.catalog__check-box--checked]="
-                    selectedBrands().has(brand)
-                  "
-                ></span>
-                {{ brand }}
-              </label>
-            }
-          </div>
-
-          <!-- Колір -->
-          <div class="catalog__filters-group">
-            <p class="catalog__filters-group-title">Колір</p>
-            <div class="catalog__color-select">
-              <button
-                class="catalog__color-select-btn"
-                (click)="toggleColorsDrop($event)"
-              >
-                <span class="catalog__color-select-preview">
-                  @if (selectedColors().size === 0) {
-                    <span class="catalog__color-placeholder"
-                      >Оберіть кольори</span
-                    >
-                  } @else {
-                    @for (color of colorsList(); track color.slug) {
-                      @if (selectedColors().has(color.slug)) {
-                        <span
-                          class="catalog__color-dot"
-                          [style.background]="swatchBg(color.hex)"
-                        ></span>
-                      }
-                    }
-                    <span class="catalog__color-count"
-                      >{{ selectedColors().size }} обрано</span
-                    >
-                  }
-                </span>
-                <svg
-                  class="catalog__color-chevron"
-                  [class.catalog__color-chevron--open]="colorsDropOpen()"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </button>
-
-              @if (colorsDropOpen()) {
-                <div class="catalog__color-drop">
-                  @for (color of colorsList(); track color.slug) {
-                    <button
-                      class="catalog__color-swatch"
-                      [class.catalog__color-swatch--selected]="
-                        selectedColors().has(color.slug)
-                      "
-                      [style.background]="swatchBg(color.hex)"
-                      [attr.data-label]="color.name"
-                      (click)="toggleColor(color.slug)"
-                    ></button>
-                  }
-                </div>
-              }
+        <button
+          class="catalog__filters-backdrop"
+          type="button"
+          aria-label="Закрити фільтри"
+          (click)="closeFilters()"
+        ></button>
+        <div class="catalog__filters-drop" (click)="$event.stopPropagation()">
+          <div class="catalog__filters-head">
+            <div>
+              <p class="catalog__filters-eyebrow">Підбір параметрів</p>
+              <h3 class="catalog__filters-title">Фільтри</h3>
             </div>
+            <button
+              class="catalog__filters-close"
+              type="button"
+              aria-label="Закрити фільтри"
+              (click)="closeFilters()"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
           </div>
 
-          <!-- Матеріал -->
-          <div class="catalog__filters-group">
-            <p class="catalog__filters-group-title">Матеріал</p>
-            @for (mat of materials; track mat) {
-              <label
-                class="catalog__filters-check"
-                (click)="toggleMaterial(mat)"
-              >
-                <span
-                  class="catalog__check-box"
-                  [class.catalog__check-box--checked]="
-                    selectedMaterials().has(mat)
-                  "
-                ></span>
-                {{ mat }}
-              </label>
-            }
-          </div>
-
-          <!-- Діаметр -->
-          <div class="catalog__filters-group">
-            <p class="catalog__filters-group-title">Діаметр</p>
-            @for (d of diameters; track d.value) {
-              <label
-                class="catalog__filters-check"
-                (click)="toggleDiameter(d.value)"
-              >
-                <span
-                  class="catalog__check-box"
-                  [class.catalog__check-box--checked]="
-                    selectedDiameters().has(d.value)
-                  "
-                ></span>
-                {{ d.label }}
-              </label>
-            }
-          </div>
-
-          <!-- Вага -->
-          <div class="catalog__filters-group">
-            <p class="catalog__filters-group-title">Вага</p>
-            @for (w of weights; track w.value) {
-              <label
-                class="catalog__filters-check"
-                (click)="toggleWeight(w.value)"
-              >
-                <span
-                  class="catalog__check-box"
-                  [class.catalog__check-box--checked]="
-                    selectedWeights().has(w.value)
-                  "
-                ></span>
-                {{ w.label }}
-              </label>
-            }
-          </div>
+          @if (activeFiltersCount() > 0) {
+            <div class="catalog__filters-summary">
+              <span>Обрано фільтрів</span>
+              <strong>{{ activeFiltersCount() }}</strong>
+            </div>
+          }
 
           <div class="catalog__filters-actions">
-            <button class="catalog__filters-apply" (click)="applyFilters()">
+            <button
+              class="catalog__filters-apply"
+              type="button"
+              (click)="applyFilters()"
+            >
               Застосувати
             </button>
-            <button class="catalog__filters-reset" (click)="resetFilters()">
+            <button
+              class="catalog__filters-reset"
+              type="button"
+              (click)="resetFilters()"
+            >
               Скинути
             </button>
+          </div>
+
+          <div class="catalog__filters-scroll">
+            @if (categoriesList().length > 0) {
+              <div class="catalog__filters-group">
+                <p class="catalog__filters-group-title">Категорія</p>
+                @for (cat of categoriesList(); track cat.id) {
+                  <label
+                    class="catalog__filters-check"
+                    (click)="toggleCategory(cat.id.toString())"
+                  >
+                    <span
+                      class="catalog__check-box"
+                      [class.catalog__check-box--checked]="
+                        selectedCategories().has(cat.id.toString())
+                      "
+                    ></span>
+                    {{ cat.name }}
+                    @if (cat.count) {
+                      <span class="catalog__filters-count">{{
+                        cat.count
+                      }}</span>
+                    }
+                  </label>
+                }
+              </div>
+            }
+
+            @if (brandsList().length > 0) {
+              <div class="catalog__filters-group">
+                <p class="catalog__filters-group-title">Бренд</p>
+                @for (brand of brandsList(); track brand.id) {
+                  <label
+                    class="catalog__filters-check"
+                    (click)="toggleBrand(brand.name)"
+                  >
+                    <span
+                      class="catalog__check-box"
+                      [class.catalog__check-box--checked]="
+                        selectedBrands().has(brand.name)
+                      "
+                    ></span>
+                    {{ brand.name }}
+                    @if (brand.usageCount) {
+                      <span class="catalog__filters-count">{{
+                        brand.usageCount
+                      }}</span>
+                    }
+                  </label>
+                }
+              </div>
+            }
+
+            @if (colorsList().length > 0) {
+              <div class="catalog__filters-group">
+                <p class="catalog__filters-group-title">Колір</p>
+                <div class="catalog__color-select">
+                  <button
+                    class="catalog__color-select-btn"
+                    type="button"
+                    (click)="toggleColorsDrop($event)"
+                  >
+                    <span class="catalog__color-select-preview">
+                      @if (selectedColors().size === 0) {
+                        <span class="catalog__color-placeholder"
+                          >Оберіть кольори</span
+                        >
+                      } @else {
+                        @for (color of colorsList(); track color.slug) {
+                          @if (selectedColors().has(color.slug)) {
+                            <span
+                              class="catalog__color-dot"
+                              [style.background]="swatchBg(color.hex)"
+                            ></span>
+                          }
+                        }
+                        <span class="catalog__color-count"
+                          >{{ selectedColors().size }} обрано</span
+                        >
+                      }
+                    </span>
+                    <svg
+                      class="catalog__color-chevron"
+                      [class.catalog__color-chevron--open]="colorsDropOpen()"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+
+                  @if (colorsDropOpen()) {
+                    <div class="catalog__color-drop">
+                      @for (color of colorsList(); track color.slug) {
+                        <button
+                          class="catalog__color-swatch"
+                          type="button"
+                          [class.catalog__color-swatch--selected]="
+                            selectedColors().has(color.slug)
+                          "
+                          [style.background]="swatchBg(color.hex)"
+                          [attr.data-label]="color.name"
+                          (click)="toggleColor(color.slug)"
+                        ></button>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (materialsList().length > 0) {
+              <div class="catalog__filters-group">
+                <p class="catalog__filters-group-title">Матеріал</p>
+                @for (mat of materialsList(); track mat.slug) {
+                  <label
+                    class="catalog__filters-check"
+                    (click)="toggleMaterial(mat.slug)"
+                  >
+                    <span
+                      class="catalog__check-box"
+                      [class.catalog__check-box--checked]="
+                        selectedMaterials().has(mat.slug)
+                      "
+                    ></span>
+                    {{ mat.name }}
+                    @if (mat.usageCount) {
+                      <span class="catalog__filters-count">{{
+                        mat.usageCount
+                      }}</span>
+                    }
+                  </label>
+                }
+              </div>
+            }
+
+            @if (diametersList().length > 0) {
+              <div class="catalog__filters-group">
+                <p class="catalog__filters-group-title">Діаметр</p>
+                @for (d of diametersList(); track d.slug) {
+                  <label
+                    class="catalog__filters-check"
+                    (click)="toggleDiameter(d.slug)"
+                  >
+                    <span
+                      class="catalog__check-box"
+                      [class.catalog__check-box--checked]="
+                        selectedDiameters().has(d.slug)
+                      "
+                    ></span>
+                    {{ d.name }}
+                  </label>
+                }
+              </div>
+            }
+
+            @if (weightsList().length > 0) {
+              <div class="catalog__filters-group">
+                <p class="catalog__filters-group-title">Вага</p>
+                @for (w of weightsList(); track w.slug) {
+                  <label
+                    class="catalog__filters-check"
+                    (click)="toggleWeight(w.slug)"
+                  >
+                    <span
+                      class="catalog__check-box"
+                      [class.catalog__check-box--checked]="
+                        selectedWeights().has(w.slug)
+                      "
+                    ></span>
+                    {{ w.name }}
+                  </label>
+                }
+              </div>
+            }
           </div>
         </div>
       }

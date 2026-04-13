@@ -17,16 +17,25 @@ import {
   Product,
   ProductVariation,
 } from '@app/models/product.models';
-import { ColorValue } from '@app/models/config.models';
+import {
+  ColorValue,
+  SimpleAttributeOption,
+  WcCategory,
+  Brand,
+} from '@app/models/config.models';
 import { VariationsService } from '@app/services/tempService/variations.service';
 import {
   ProductCardComponent,
   ProductCardEvent,
 } from '@app/components/product-card/product-card.component';
 import { BreadcrumbComponent } from '@app/components/breadcrumb/breadcrumb.component';
-import { selectAttributeColors } from '@store/attributes/attributes.selectors';
+import {
+  selectAttributeColors,
+  selectAttributeSimpleAttributes,
+} from '@store/attributes/attributes.selectors';
 import { selectFavoriteVariationIds } from '@store/favorites/favorites.selectors';
 import { FavoritesActions } from '@store/favorites/favorites.actions';
+import { selectBrands, selectCategories } from '@store/config/config.selectors';
 
 export interface ProductCardItem {
   product: Product;
@@ -60,18 +69,6 @@ const VALID_SORTS = new Set<SortOption>([
 ]);
 
 const PER_PAGE = 24;
-
-export const FILTER_BRANDS = ['BambuLab', 'Sunlu', 'Kingroon'];
-export const FILTER_MATERIALS = ['PLA', 'PETG', 'ABS', 'TPU'];
-export const FILTER_DIAMETERS = [
-  { label: '1.75 мм', value: '1.75' },
-  { label: '3.00 мм', value: '3.00' },
-];
-export const FILTER_WEIGHTS = [
-  { label: '0.5 кг', value: '0.5' },
-  { label: '1 кг', value: '1' },
-  { label: '2 кг', value: '2' },
-];
 
 function splitParam(value: string | null): string[] {
   return value ? value.split(',').filter(Boolean) : [];
@@ -162,8 +159,40 @@ export class CatalogComponent implements OnInit {
     return pages;
   });
 
-  // ── Filters (pending state — committed to URL on applyFilters) ────────────
+  // ── Filter options from store ─────────────────────────────────────────────
 
+  readonly categoriesList = toSignal(this.store.select(selectCategories), {
+    initialValue: [] as WcCategory[],
+  });
+
+  readonly brandsList = toSignal(this.store.select(selectBrands), {
+    initialValue: [] as Brand[],
+  });
+
+  readonly colorsList = toSignal(this.store.select(selectAttributeColors), {
+    initialValue: [] as ColorValue[],
+  });
+
+  private readonly simpleAttributes = toSignal(
+    this.store.select(selectAttributeSimpleAttributes),
+    { initialValue: {} as Record<string, SimpleAttributeOption[]> },
+  );
+
+  readonly materialsList = computed(
+    () => this.simpleAttributes()['material'] ?? [],
+  );
+
+  readonly diametersList = computed(
+    () => this.simpleAttributes()['diameter'] ?? [],
+  );
+
+  readonly weightsList = computed(
+    () => this.simpleAttributes()['weight'] ?? [],
+  );
+
+  // ── Filter pending state ──────────────────────────────────────────────────
+
+  readonly selectedCategories = signal<Set<string>>(new Set());
   readonly selectedBrands = signal<Set<string>>(new Set());
   readonly selectedColors = signal<Set<string>>(new Set());
   readonly selectedMaterials = signal<Set<string>>(new Set());
@@ -172,23 +201,13 @@ export class CatalogComponent implements OnInit {
 
   readonly activeFiltersCount = computed(
     () =>
+      this.selectedCategories().size +
       this.selectedBrands().size +
       this.selectedColors().size +
       this.selectedMaterials().size +
       this.selectedDiameters().size +
       this.selectedWeights().size,
   );
-
-  // ── Filter options ────────────────────────────────────────────────────────
-
-  readonly brands = FILTER_BRANDS;
-  readonly materials = FILTER_MATERIALS;
-  readonly diameters = FILTER_DIAMETERS;
-  readonly weights = FILTER_WEIGHTS;
-
-  readonly colorsList = toSignal(this.store.select(selectAttributeColors), {
-    initialValue: [] as ColorValue[],
-  });
 
   // ── UI state ──────────────────────────────────────────────────────────────
 
@@ -225,6 +244,7 @@ export class CatalogComponent implements OnInit {
       sortRaw && VALID_SORTS.has(sortRaw) ? sortRaw : 'popular',
     );
     this.currentPage.set(Math.max(1, Number(params.get('page') ?? 1)));
+    this.selectedCategories.set(new Set(splitParam(params.get('category_id'))));
     this.selectedBrands.set(new Set(splitParam(params.get('brand'))));
     this.selectedColors.set(new Set(splitParam(params.get('attribute_color'))));
     this.selectedMaterials.set(
@@ -241,6 +261,7 @@ export class CatalogComponent implements OnInit {
   private fetch(): void {
     this.loading.set(true);
 
+    const categoryId = [...this.selectedCategories()].join(',') || undefined;
     const brand = [...this.selectedBrands()].join(',') || undefined;
     const attrColor = [...this.selectedColors()].join(',') || undefined;
     const attrMaterial = [...this.selectedMaterials()].join(',') || undefined;
@@ -252,6 +273,7 @@ export class CatalogComponent implements OnInit {
         page: this.currentPage(),
         per_page: PER_PAGE,
         sort: SORT_MAP[this.activeSort()],
+        ...(categoryId && { category_id: categoryId }),
         ...(brand && { brand }),
         ...(attrColor && { attribute_color: attrColor }),
         ...(attrMaterial && { attribute_material: attrMaterial }),
@@ -297,54 +319,41 @@ export class CatalogComponent implements OnInit {
 
   // ── Filter toggles ────────────────────────────────────────────────────────
 
-  toggleBrand(brand: string): void {
-    this.selectedBrands.update(set => {
+  private toggle(
+    sig: ReturnType<typeof signal<Set<string>>>,
+    value: string,
+  ): void {
+    sig.update(set => {
       const next = new Set(set);
 
-      next.has(brand) ? next.delete(brand) : next.add(brand);
+      next.has(value) ? next.delete(value) : next.add(value);
 
       return next;
     });
   }
 
-  toggleMaterial(mat: string): void {
-    this.selectedMaterials.update(set => {
-      const next = new Set(set);
-
-      next.has(mat) ? next.delete(mat) : next.add(mat);
-
-      return next;
-    });
+  toggleCategory(id: string): void {
+    this.toggle(this.selectedCategories, id);
   }
 
-  toggleDiameter(val: string): void {
-    this.selectedDiameters.update(set => {
-      const next = new Set(set);
-
-      next.has(val) ? next.delete(val) : next.add(val);
-
-      return next;
-    });
-  }
-
-  toggleWeight(val: string): void {
-    this.selectedWeights.update(set => {
-      const next = new Set(set);
-
-      next.has(val) ? next.delete(val) : next.add(val);
-
-      return next;
-    });
+  toggleBrand(slug: string): void {
+    this.toggle(this.selectedBrands, slug);
   }
 
   toggleColor(slug: string): void {
-    this.selectedColors.update(set => {
-      const next = new Set(set);
+    this.toggle(this.selectedColors, slug);
+  }
 
-      next.has(slug) ? next.delete(slug) : next.add(slug);
+  toggleMaterial(slug: string): void {
+    this.toggle(this.selectedMaterials, slug);
+  }
 
-      return next;
-    });
+  toggleDiameter(slug: string): void {
+    this.toggle(this.selectedDiameters, slug);
+  }
+
+  toggleWeight(slug: string): void {
+    this.toggle(this.selectedWeights, slug);
   }
 
   // ── Filter apply / reset ──────────────────────────────────────────────────
@@ -354,6 +363,7 @@ export class CatalogComponent implements OnInit {
     this.colorsDropOpen.set(false);
     this.navigate({
       page: '1',
+      category_id: [...this.selectedCategories()].join(',') || null,
       brand: [...this.selectedBrands()].join(',') || null,
       attribute_color: [...this.selectedColors()].join(',') || null,
       attribute_material: [...this.selectedMaterials()].join(',') || null,
@@ -365,8 +375,15 @@ export class CatalogComponent implements OnInit {
   resetFilters(): void {
     this.filtersOpen.set(false);
     this.colorsDropOpen.set(false);
+    this.selectedCategories.set(new Set());
+    this.selectedBrands.set(new Set());
+    this.selectedColors.set(new Set());
+    this.selectedMaterials.set(new Set());
+    this.selectedDiameters.set(new Set());
+    this.selectedWeights.set(new Set());
     this.navigate({
       page: '1',
+      category_id: null,
       brand: null,
       attribute_color: null,
       attribute_material: null,
@@ -383,6 +400,11 @@ export class CatalogComponent implements OnInit {
     if (!this.filtersOpen()) {
       this.colorsDropOpen.set(false);
     }
+  }
+
+  closeFilters(): void {
+    this.filtersOpen.set(false);
+    this.colorsDropOpen.set(false);
   }
 
   toggleColorsDrop(event: Event): void {
