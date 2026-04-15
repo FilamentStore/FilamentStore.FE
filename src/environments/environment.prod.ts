@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://filamentstore.com/wp-json/mystore/v1',
-  wpJsonUrl: 'https://filamentstore.com/wp-json',
+  apiUrl: 'https://filamentstore-demo.xo.je/wp-json/mystore/v1',
+  wpJsonUrl: 'https://filamentstore-demo.xo.je/wp-json',
 };
