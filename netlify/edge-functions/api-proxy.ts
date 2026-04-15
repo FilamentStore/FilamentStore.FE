@@ -10,48 +10,55 @@ export default async (request: Request) => {
     });
   }
 
-  const url = new URL(request.url);
-  const targetPath = url.pathname.replace('/api', '/wp-json');
-  const targetUrl = `https://filamentstore-demo.xo.je${targetPath}${url.search}`;
+  try {
+    const url = new URL(request.url);
+    const targetPath = url.pathname.replace('/api', '/wp-json');
+    const targetUrl = `https://filamentstore-demo.xo.je${targetPath}${url.search}`;
 
-  const browserHeaders = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'application/json, text/plain, */*',
-  };
+    const browserHeaders = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': 'application/json, text/plain, */*',
+    };
 
-  let response = await fetch(targetUrl, {
-    method: request.method,
-    headers: browserHeaders,
-    body: request.method !== 'GET' ? request.body : undefined,
-  });
+    let response = await fetch(targetUrl, {
+      method: request.method,
+      headers: browserHeaders,
+    });
 
-  const contentType = response.headers.get('content-type') || '';
+    const contentType = response.headers.get('content-type') || '';
+    let data = await response.text();
 
-  if (contentType.includes('text/html')) {
-    const html = await response.text();
-    const cookie = await solveInfinityFreeChallenge(html);
+    if (contentType.includes('text/html')) {
+      const cookie = await solveInfinityFreeChallenge(data);
 
-    if (cookie) {
-      response = await fetch(targetUrl, {
-        method: request.method,
-        headers: {
-          ...browserHeaders,
-          'Cookie': `__test=${cookie}`,
-        },
-        body: request.method !== 'GET' ? request.body : undefined,
-      });
+      if (cookie) {
+        response = await fetch(targetUrl, {
+          method: request.method,
+          headers: {
+            ...browserHeaders,
+            'Cookie': `__test=${cookie}`,
+          },
+        });
+        data = await response.text();
+      }
     }
+
+    return new Response(data, {
+      status: response.status,
+      headers: {
+        'Content-Type': response.headers.get('content-type') || 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: String(err) }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
   }
-
-  const data = await response.text();
-
-  return new Response(data, {
-    status: response.status,
-    headers: {
-      'Content-Type': response.headers.get('content-type') || 'application/json',
-      'Access-Control-Allow-Origin': '*',
-    },
-  });
 };
 
 async function solveInfinityFreeChallenge(html: string): Promise<string | null> {
