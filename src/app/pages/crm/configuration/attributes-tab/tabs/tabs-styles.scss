@@ -260,3 +260,62 @@
   padding-top: 4px;
   align-items: center;
 }
+
+.hex-pickers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.hex-pickers-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hex-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-hex-btn {
+  font-size: 12px;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 10px;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+  }
+}
+
+.hex-pickers-edit {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.hex-edit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hex-edit-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hex-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}

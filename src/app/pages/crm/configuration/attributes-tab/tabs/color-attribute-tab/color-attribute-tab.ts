@@ -1,6 +1,7 @@
-﻿import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import {
+  FormArray,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
@@ -58,12 +59,63 @@ export class ColorAttributeTabComponent {
 
   readonly addForm = new FormGroup({
     name: new FormControl('', [Validators.required]),
-    hex: new FormControl('#000000', [
-      Validators.required,
-      Validators.pattern(/^#[0-9a-fA-F]{6}$/),
-    ]),
+    hexes: new FormArray([this.newHexControl()]),
     slug: new FormControl('', [Validators.required]),
   });
+
+  get addHexes(): FormArray {
+    return this.addForm.get('hexes') as FormArray;
+  }
+
+  get editHexes(): FormArray | null {
+    const form = this.editingColor()?.form;
+
+    return form ? (form.get('hexes') as FormArray) : null;
+  }
+
+  addHexToForm(): void {
+    if (this.addHexes.length < 3) {
+      this.addHexes.push(this.newHexControl());
+    }
+  }
+
+  removeHexFromForm(index: number): void {
+    if (this.addHexes.length > 1) {
+      this.addHexes.removeAt(index);
+    }
+  }
+
+  addHexToEdit(): void {
+    const arr = this.editHexes;
+
+    if (arr && arr.length < 3) {
+      arr.push(this.newHexControl());
+    }
+  }
+
+  removeHexFromEdit(index: number): void {
+    const arr = this.editHexes;
+
+    if (arr && arr.length > 1) {
+      arr.removeAt(index);
+    }
+  }
+
+  swatchBackground(hex: string[]): string {
+    const colors = this.toHexArray(hex);
+
+    if (colors.length === 1) return colors[0];
+    const step = 100 / colors.length;
+    const stops = colors
+      .flatMap((h, i) => [`${h} ${i * step}%`, `${h} ${(i + 1) * step}%`])
+      .join(', ');
+
+    return `linear-gradient(to right, ${stops})`;
+  }
+
+  hexTooltip(hex: string[]): string {
+    return this.toHexArray(hex).join(' · ');
+  }
 
   colors(): ColorValue[] {
     return this.colorsList;
@@ -96,11 +148,7 @@ export class ColorAttributeTabComponent {
     this.showAddRow.set(true);
     this.editingColor.set(null);
     this.confirmDeleteColor.set(null);
-    this.addForm.reset({
-      name: '',
-      hex: '#000000',
-      slug: '',
-    });
+    this.resetAddForm();
   }
 
   cancelAdd(): void {
@@ -110,29 +158,25 @@ export class ColorAttributeTabComponent {
   submitAdd(): void {
     if (this.addForm.invalid) return;
 
-    const { name, hex, slug } = this.addForm.getRawValue();
+    const { name, hexes, slug } = this.addForm.getRawValue();
 
     this.addColor.emit({
       name: name!,
-      hex: hex!,
+      hex: hexes as string[],
       slug: slug!,
     });
 
     this.showAddRow.set(false);
-    this.addForm.reset({
-      name: '',
-      hex: '#000000',
-      slug: '',
-    });
+    this.resetAddForm();
   }
 
   startEdit(color: ColorValue): void {
+    const hexValues = this.toHexArray(color.hex);
+    const hexArray = new FormArray(hexValues.map(h => this.newHexControl(h)));
+
     const form = new FormGroup({
       name: new FormControl(color.name, [Validators.required]),
-      hex: new FormControl(color.hex, [
-        Validators.required,
-        Validators.pattern(/^#[0-9a-fA-F]{6}$/),
-      ]),
+      hexes: hexArray,
       slug: new FormControl(color.slug, [Validators.required]),
     });
 
@@ -158,7 +202,7 @@ export class ColorAttributeTabComponent {
 
     if (!editing || editing.form.invalid) return;
 
-    const { name, hex, slug } = editing.form.getRawValue();
+    const { name, hexes, slug } = editing.form.getRawValue();
     const currentColor = this.colorsList.find(
       color => color.slug === editing.oldSlug,
     );
@@ -167,7 +211,7 @@ export class ColorAttributeTabComponent {
       oldSlug: editing.oldSlug,
       color: {
         name: name!,
-        hex: hex!,
+        hex: hexes as string[],
         slug: slug!,
         usageCount: currentColor?.usageCount,
       },
@@ -230,5 +274,27 @@ export class ColorAttributeTabComponent {
     return this.isUsed(color)
       ? `Слаг заблоковано: ${this.usageLabel(color.usageCount)}`
       : 'Системна назва';
+  }
+
+  private newHexControl(value = '#000000'): FormControl {
+    return new FormControl(value, [
+      Validators.required,
+      Validators.pattern(/^#[0-9a-fA-F]{6}$/),
+    ]);
+  }
+
+  private toHexArray(hex: string | string[]): string[] {
+    return Array.isArray(hex) ? hex : [hex];
+  }
+
+  private resetAddForm(): void {
+    while (this.addHexes.length > 1) {
+      this.addHexes.removeAt(1);
+    }
+
+    this.addForm.patchValue({ name: '', slug: '' });
+    this.addHexes.at(0).setValue('#000000');
+    this.addForm.markAsPristine();
+    this.addForm.markAsUntouched();
   }
 }

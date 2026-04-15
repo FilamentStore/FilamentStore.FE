@@ -1,0 +1,28 @@
+@use 'index' as *;
+
+:host {
+  position: absolute;
+  top: 25%;
+  right: 25%;
+  pointer-events: none;
+
+  @include on-tablet {
+    top: 2px;
+    right: 2px;
+  }
+}
+
+.badge {
+  height: 14px;
+  min-width: 14px;
+  padding: 0 3px;
+  border-radius: 7px;
+  background: $color-error;
+  color: $color-bg;
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}

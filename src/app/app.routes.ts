@@ -27,6 +27,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: `${ROUTES.site.product}/:productId`,
+        loadComponent: () =>
+          import('./pages/site/product-detail/product-detail.component').then(
+            m => m.ProductDetailComponent,
+          ),
+      },
+      {
         path: ROUTES.site.about,
         loadComponent: () =>
           import('./pages/site/about/about.component').then(

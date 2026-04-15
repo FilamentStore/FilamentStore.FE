@@ -15,7 +15,7 @@ import { RouterLink } from '@angular/router';
   styles: [
     `
       .page-placeholder {
-        padding: 48px 16px;
+        padding-inline: 16px;
         text-align: center;
       }
       a {

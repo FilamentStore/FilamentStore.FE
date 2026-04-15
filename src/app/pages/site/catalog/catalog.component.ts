@@ -1,16 +1,457 @@
-import { Component } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  HostListener,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs/operators';
+import {
+  CatalogVariationItem,
+  Product,
+  ProductVariation,
+} from '@app/models/product.models';
+import {
+  ColorValue,
+  SimpleAttributeOption,
+  WcCategory,
+  Brand,
+} from '@app/models/config.models';
+import { VariationsService } from '@app/services/tempService/variations.service';
+import {
+  ProductCardComponent,
+  ProductCardEvent,
+} from '@app/components/product-card/product-card.component';
+import { BreadcrumbComponent } from '@app/components/breadcrumb/breadcrumb.component';
+import { SkeletonComponent } from '@app/components/skeleton/skeleton.component';
+import {
+  selectAttributeColors,
+  selectAttributeSimpleAttributes,
+} from '@store/attributes/attributes.selectors';
+import { selectFavoriteVariationIds } from '@store/favorites/favorites.selectors';
+import { FavoritesActions } from '@store/favorites/favorites.actions';
+import { selectBrands, selectCategories } from '@store/config/config.selectors';
+import { selectCartVariationIds } from '@store/cart/cart.selectors';
+import { CartActions } from '@store/cart/cart.actions';
+
+export interface ProductCardItem {
+  product: Product;
+  variation: ProductVariation;
+}
+
+export type SortOption = 'popular' | 'price-asc' | 'price-desc' | 'name';
+
+export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: 'popular', label: 'за популярністю' },
+  { value: 'price-asc', label: 'спочатку дешевше' },
+  { value: 'price-desc', label: 'спочатку дорожче' },
+  { value: 'name', label: 'за назвою' },
+];
+
+const SORT_MAP: Record<
+  SortOption,
+  'popularity' | 'name' | 'price_asc' | 'price_desc'
+> = {
+  popular: 'popularity',
+  name: 'name',
+  'price-asc': 'price_asc',
+  'price-desc': 'price_desc',
+};
+
+const VALID_SORTS = new Set<SortOption>([
+  'popular',
+  'price-asc',
+  'price-desc',
+  'name',
+]);
+
+const PER_PAGE = 24;
+
+function splitParam(value: string | null): string[] {
+  return value ? value.split(',').filter(Boolean) : [];
+}
+
+function mapToCardItem(v: CatalogVariationItem): ProductCardItem {
+  return {
+    product: {
+      id: v.product_id,
+      name: v.product_name,
+      brand: v.brand,
+      category_id: v.category_id,
+      short_description: '',
+      description: '',
+      images: v.product_images,
+      status: v.product_status,
+      slug: '',
+      type: 'variable',
+      attributes: [],
+    },
+    variation: {
+      id: v.id,
+      attributes: v.attributes.map(a => ({ name: a.name, option: a.option })),
+      image: v.image ?? undefined,
+      regular_price: v.regular_price,
+      sale_price: v.sale_price,
+      stock_quantity: v.stock_quantity,
+      manage_stock: true,
+      sku: v.sku,
+      status: 'publish',
+      weight: '',
+    },
+  };
+}
 
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  template: `<div class="page-placeholder"><h1>Каталог</h1></div>`,
-  styles: [
-    `
-      .page-placeholder {
-        padding: 48px 16px;
-        text-align: center;
-      }
-    `,
+  imports: [
+    CommonModule,
+    ProductCardComponent,
+    BreadcrumbComponent,
+    SkeletonComponent,
   ],
+  templateUrl: './catalog.component.html',
+  styleUrl: './catalog.component.scss',
 })
-export class CatalogComponent {}
+export class CatalogComponent implements OnInit {
+  private variationsService = inject(VariationsService);
+  private store = inject(Store);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
+
+  // ── Data ──────────────────────────────────────────────────────────────────
+
+  items: ProductCardItem[] = [];
+  readonly loading = signal(false);
+  readonly favoriteVariationIds = toSignal(
+    this.store.select(selectFavoriteVariationIds),
+    { initialValue: [] as number[] },
+  );
+  readonly cartVariationIds = toSignal(
+    this.store.select(selectCartVariationIds),
+    { initialValue: [] as number[] },
+  );
+
+  // ── Sort ──────────────────────────────────────────────────────────────────
+
+  readonly sortOptions = SORT_OPTIONS;
+  readonly activeSort = signal<SortOption>('popular');
+
+  // ── Pagination ────────────────────────────────────────────────────────────
+
+  readonly currentPage = signal(1);
+  readonly totalItems = signal(0);
+  readonly totalPages = signal(0);
+
+  readonly pageNumbers = computed<(number | null)[]>(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const delta = 2;
+    const pages: (number | null)[] = [];
+
+    for (let i = 1; i <= total; i++) {
+      if (
+        i === 1 ||
+        i === total ||
+        (i >= current - delta && i <= current + delta)
+      ) {
+        pages.push(i);
+      } else if (pages[pages.length - 1] !== null) {
+        pages.push(null);
+      }
+    }
+
+    return pages;
+  });
+
+  // ── Filter options from store ─────────────────────────────────────────────
+
+  readonly categoriesList = toSignal(this.store.select(selectCategories), {
+    initialValue: [] as WcCategory[],
+  });
+
+  readonly brandsList = toSignal(this.store.select(selectBrands), {
+    initialValue: [] as Brand[],
+  });
+
+  readonly colorsList = toSignal(this.store.select(selectAttributeColors), {
+    initialValue: [] as ColorValue[],
+  });
+
+  private readonly simpleAttributes = toSignal(
+    this.store.select(selectAttributeSimpleAttributes),
+    { initialValue: {} as Record<string, SimpleAttributeOption[]> },
+  );
+
+  readonly materialsList = computed(
+    () => this.simpleAttributes()['material'] ?? [],
+  );
+
+  readonly diametersList = computed(
+    () => this.simpleAttributes()['diameter'] ?? [],
+  );
+
+  readonly weightsList = computed(
+    () => this.simpleAttributes()['weight'] ?? [],
+  );
+
+  // ── Filter pending state ──────────────────────────────────────────────────
+
+  readonly selectedCategories = signal<Set<string>>(new Set());
+  readonly selectedBrands = signal<Set<string>>(new Set());
+  readonly selectedColors = signal<Set<string>>(new Set());
+  readonly selectedMaterials = signal<Set<string>>(new Set());
+  readonly selectedDiameters = signal<Set<string>>(new Set());
+  readonly selectedWeights = signal<Set<string>>(new Set());
+
+  readonly activeFiltersCount = computed(
+    () =>
+      this.selectedCategories().size +
+      this.selectedBrands().size +
+      this.selectedColors().size +
+      this.selectedMaterials().size +
+      this.selectedDiameters().size +
+      this.selectedWeights().size,
+  );
+
+  // ── UI state ──────────────────────────────────────────────────────────────
+
+  readonly filtersOpen = signal(false);
+  readonly colorsDropOpen = signal(false);
+
+  // ── Lifecycle ─────────────────────────────────────────────────────────────
+
+  @HostListener('document:click', ['$event.target'])
+  onDocumentClick(target: EventTarget | null): void {
+    const toolbar = document.querySelector('.catalog__toolbar');
+
+    if (toolbar && !toolbar.contains(target as Node)) {
+      this.filtersOpen.set(false);
+      this.colorsDropOpen.set(false);
+    }
+  }
+
+  ngOnInit(): void {
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        this.syncFromParams(params);
+        this.fetch();
+      });
+  }
+
+  // ── Private ───────────────────────────────────────────────────────────────
+
+  private syncFromParams(params: ParamMap): void {
+    const sortRaw = params.get('sort') as SortOption | null;
+
+    this.activeSort.set(
+      sortRaw && VALID_SORTS.has(sortRaw) ? sortRaw : 'popular',
+    );
+    this.currentPage.set(Math.max(1, Number(params.get('page') ?? 1)));
+    this.selectedCategories.set(new Set(splitParam(params.get('category_id'))));
+    this.selectedBrands.set(new Set(splitParam(params.get('brand'))));
+    this.selectedColors.set(new Set(splitParam(params.get('attribute_color'))));
+    this.selectedMaterials.set(
+      new Set(splitParam(params.get('attribute_material'))),
+    );
+    this.selectedDiameters.set(
+      new Set(splitParam(params.get('attribute_diameter'))),
+    );
+    this.selectedWeights.set(
+      new Set(splitParam(params.get('attribute_weight'))),
+    );
+  }
+
+  private fetch(): void {
+    this.loading.set(true);
+
+    const categoryId = [...this.selectedCategories()].join(',') || undefined;
+    const brand = [...this.selectedBrands()].join(',') || undefined;
+    const attrColor = [...this.selectedColors()].join(',') || undefined;
+    const attrMaterial = [...this.selectedMaterials()].join(',') || undefined;
+    const attrDiameter = [...this.selectedDiameters()].join(',') || undefined;
+    const attrWeight = [...this.selectedWeights()].join(',') || undefined;
+
+    this.variationsService
+      .getCatalogVariations({
+        page: this.currentPage(),
+        per_page: PER_PAGE,
+        sort: SORT_MAP[this.activeSort()],
+        ...(categoryId && { category_id: categoryId }),
+        ...(brand && { brand }),
+        ...(attrColor && { attribute_color: attrColor }),
+        ...(attrMaterial && { attribute_material: attrMaterial }),
+        ...(attrDiameter && { attribute_diameter: attrDiameter }),
+        ...(attrWeight && { attribute_weight: attrWeight }),
+      })
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: response => {
+          this.items = response.items.map(mapToCardItem);
+          this.totalItems.set(response.total);
+          this.totalPages.set(response.totalPages);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+        error: () => (this.items = []),
+      });
+  }
+
+  private navigate(queryParams: Record<string, string | null>): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  // ── Sort ──────────────────────────────────────────────────────────────────
+
+  setSort(sort: SortOption): void {
+    this.navigate({ sort, page: '1' });
+  }
+
+  // ── Pagination ────────────────────────────────────────────────────────────
+
+  goToPage(page: number | null): void {
+    if (page === null) return;
+
+    const p = Math.max(1, Math.min(page, this.totalPages()));
+
+    if (p === this.currentPage()) return;
+    this.navigate({ page: String(p) });
+  }
+
+  // ── Filter toggles ────────────────────────────────────────────────────────
+
+  private toggle(
+    sig: ReturnType<typeof signal<Set<string>>>,
+    value: string,
+  ): void {
+    sig.update(set => {
+      const next = new Set(set);
+
+      next.has(value) ? next.delete(value) : next.add(value);
+
+      return next;
+    });
+  }
+
+  toggleCategory(id: string): void {
+    this.toggle(this.selectedCategories, id);
+  }
+
+  toggleBrand(slug: string): void {
+    this.toggle(this.selectedBrands, slug);
+  }
+
+  toggleColor(slug: string): void {
+    this.toggle(this.selectedColors, slug);
+  }
+
+  toggleMaterial(slug: string): void {
+    this.toggle(this.selectedMaterials, slug);
+  }
+
+  toggleDiameter(slug: string): void {
+    this.toggle(this.selectedDiameters, slug);
+  }
+
+  toggleWeight(slug: string): void {
+    this.toggle(this.selectedWeights, slug);
+  }
+
+  // ── Filter apply / reset ──────────────────────────────────────────────────
+
+  applyFilters(): void {
+    this.filtersOpen.set(false);
+    this.colorsDropOpen.set(false);
+    this.navigate({
+      page: '1',
+      category_id: [...this.selectedCategories()].join(',') || null,
+      brand: [...this.selectedBrands()].join(',') || null,
+      attribute_color: [...this.selectedColors()].join(',') || null,
+      attribute_material: [...this.selectedMaterials()].join(',') || null,
+      attribute_diameter: [...this.selectedDiameters()].join(',') || null,
+      attribute_weight: [...this.selectedWeights()].join(',') || null,
+    });
+  }
+
+  resetFilters(): void {
+    this.filtersOpen.set(false);
+    this.colorsDropOpen.set(false);
+    this.selectedCategories.set(new Set());
+    this.selectedBrands.set(new Set());
+    this.selectedColors.set(new Set());
+    this.selectedMaterials.set(new Set());
+    this.selectedDiameters.set(new Set());
+    this.selectedWeights.set(new Set());
+    this.navigate({
+      page: '1',
+      category_id: null,
+      brand: null,
+      attribute_color: null,
+      attribute_material: null,
+      attribute_diameter: null,
+      attribute_weight: null,
+    });
+  }
+
+  // ── UI helpers ────────────────────────────────────────────────────────────
+
+  toggleFilters(): void {
+    this.filtersOpen.update(v => !v);
+
+    if (!this.filtersOpen()) {
+      this.colorsDropOpen.set(false);
+    }
+  }
+
+  closeFilters(): void {
+    this.filtersOpen.set(false);
+    this.colorsDropOpen.set(false);
+  }
+
+  toggleColorsDrop(event: Event): void {
+    event.stopPropagation();
+    this.colorsDropOpen.update(v => !v);
+  }
+
+  swatchBg(hex: string[]): string {
+    if (!hex?.length) return '#ccc';
+
+    if (hex.length === 1) return hex[0];
+
+    const step = 100 / hex.length;
+    const stops = hex
+      .flatMap((h, i) => [`${h} ${i * step}%`, `${h} ${(i + 1) * step}%`])
+      .join(', ');
+
+    return `linear-gradient(135deg, ${stops})`;
+  }
+
+  onAddToCart(event: ProductCardEvent): void {
+    this.store.dispatch(
+      CartActions.add({
+        productId: event.product.id,
+        variationId: event.variation.id,
+      }),
+    );
+  }
+
+  onToggleFavorite(event: ProductCardEvent): void {
+    this.store.dispatch(
+      FavoritesActions.toggle({
+        productId: event.product.id,
+        variationId: event.variation.id,
+      }),
+    );
+  }
+}

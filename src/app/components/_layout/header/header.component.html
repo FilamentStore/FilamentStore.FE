@@ -1,4 +1,4 @@
-<header class="header uppercase">
+<header class="header uppercase" [class.header--transparent]="isTransparent">
   <div class="header-left">
     <div class="header-logo">
       <a routerLink="/" class="logo-link">
@@ -43,24 +43,62 @@
   </div>
 
   <div class="header-icons">
-    <div class="header-search" [class.header-search--open]="isSearchOpen">
-      <div class="header-search__input-wrap">
-        <input
-          #searchInput
-          class="header-search__input input-field__control"
-          type="search"
-          placeholder="Пошук..."
-          aria-label="Глобальний пошук"
-          (blur)="onSearchBlur($event)"
-        />
+    <div class="header-search__wrap">
+      <div class="header-search" [class.header-search--open]="isSearchOpen">
+        <div class="header-search__input-wrap">
+          <input
+            #searchInput
+            class="header-search__input input-field__control"
+            type="search"
+            placeholder="Пошук..."
+            aria-label="Глобальний пошук"
+            (blur)="onSearchBlur($event)"
+            (input)="onSearchInput($event)"
+          />
+        </div>
+        <button
+          class="header-search__btn"
+          (click)="toggleSearch()"
+          [attr.aria-label]="isSearchOpen ? 'Закрити пошук' : 'Відкрити пошук'"
+        >
+          <span class="header-search__icon" aria-hidden="true"></span>
+        </button>
       </div>
-      <button
-        class="header-search__btn"
-        (click)="toggleSearch()"
-        [attr.aria-label]="isSearchOpen ? 'Закрити пошук' : 'Відкрити пошук'"
-      >
-        <span class="header-search__icon" aria-hidden="true"></span>
-      </button>
+
+      @if (isSearchOpen && (searchLoading() || searchQuery().length >= 2)) {
+        <div class="header-search__dropdown">
+          @if (searchLoading()) {
+            <app-skeleton variant="search-results" [count]="3" />
+          } @else if (searchResults().length === 0) {
+            <p class="header-search__drop-empty">Нічого не знайдено</p>
+          } @else {
+            @for (product of searchResults(); track product.id) {
+              <button
+                class="header-search__drop-item"
+                (mousedown)="goToProduct(product.id)"
+              >
+                @if (product.images[0]) {
+                  <img
+                    class="header-search__drop-img"
+                    [src]="product.images[0].src"
+                    [alt]="product.name"
+                  />
+                } @else {
+                  <div
+                    class="header-search__drop-img header-search__drop-img--empty"
+                  ></div>
+                }
+                <span class="header-search__drop-name">{{ product.name }}</span>
+                @if (product.brand) {
+                  <span class="header-search__drop-brand">{{
+                    product.brand
+                  }}</span>
+                }
+              </button>
+            }
+          }
+        </div>
+      }
     </div>
 
     <a
@@ -80,9 +118,7 @@
       aria-label="Go to Favorites"
     >
       <span class="icon-img icon-img--favorite" aria-hidden="true"></span>
-      @if (favoritesCount > 0) {
-        <span class="icon-counter">{{ favoritesCount }}</span>
-      }
+      <app-icon-badge [count]="favoritesCount()" />
     </a>
 
     <a
@@ -92,9 +128,7 @@
       aria-label="Go to Shopping Bag"
     >
       <span class="icon-img icon-img--bag" aria-hidden="true"></span>
-      @if (cartCount > 0) {
-        <span class="icon-counter">{{ cartCount }}</span>
-      }
+      <app-icon-badge [count]="cartCount()" />
     </a>
 
     <button

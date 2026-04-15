@@ -14,9 +14,101 @@
   justify-content: space-between;
   height: 48px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  transition:
+    background-color 0.4s ease,
+    box-shadow 0.4s ease;
 
   @include on-tablet {
     height: 70px;
+  }
+
+  // ── Transparent state (home page at top) ──────────────────────────────────
+
+  &--transparent {
+    background-color: transparent;
+    box-shadow: none;
+
+    .nav-link {
+      color: rgba(255, 255, 255, 0.75);
+
+      &::after {
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      &:hover {
+        color: #ffffff;
+      }
+    }
+
+    .is-active {
+      color: #ffffff;
+
+      &::after {
+        background: #ffffff;
+      }
+    }
+
+    .icon {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.75);
+
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.8);
+        color: #ffffff;
+      }
+
+      &.icon--active {
+        border-color: #ffffff;
+        color: #ffffff;
+      }
+    }
+
+    .icon-account {
+      border-color: rgba(255, 255, 255, 0.45);
+      color: rgba(255, 255, 255, 0.9);
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+      }
+
+      &.icon-account--active {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+      }
+    }
+
+    .header-search {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.75);
+
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.7);
+        color: #ffffff;
+      }
+
+      &--open {
+        border-color: rgba(255, 255, 255, 0.7);
+        color: #ffffff;
+      }
+    }
+
+    .header-search__icon {
+      background-color: rgba(255, 255, 255, 0.75);
+    }
+
+    .header-search__input {
+      color: #ffffff;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    .icon-burger-menu::before {
+      background-color: rgba(255, 255, 255, 0.85);
+    }
   }
 }
 
@@ -201,28 +293,6 @@
   }
 }
 
-.icon-counter {
-  position: absolute;
-  top: 10px;
-  right: 6px;
-  min-width: 14px;
-  height: 14px;
-  padding: 0 3px;
-  border-radius: 7px;
-  background: $color-text-main;
-  color: $color-bg;
-  font-size: 9px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  @include on-tablet {
-    top: 2px;
-    right: 2px;
-  }
-}
-
 .icon-burger-menu {
   display: flex;
   align-items: center;
@@ -232,7 +302,6 @@
   height: 100%;
   background-color: transparent;
   border: none;
-  box-shadow: -1px 0px 0px 0px $color-element;
   cursor: pointer;
 
   &::before {
@@ -296,6 +365,10 @@
 
 // ─── Search ────────────────────────────────────────────────────────────────
 
+.header-search__wrap {
+  position: relative;
+}
+
 .header-search {
   display: flex;
   align-items: center;
@@ -322,14 +395,14 @@
     color: $color-accent;
 
     .header-search__input-wrap {
-      width: 110px;
+      width: 150px;
 
       @include on-tablet {
-        width: 140px;
+        width: 200px;
       }
 
       @include on-desktop {
-        width: 190px;
+        width: 280px;
       }
     }
 
@@ -348,16 +421,104 @@
 
 .header-search__input {
   display: block;
-  width: 110px;
+  width: 150px;
   padding-left: 8px;
 
   @include on-tablet {
-    width: 140px;
+    width: 200px;
   }
 
   @include on-desktop {
-    width: 190px;
+    width: 280px;
   }
+}
+
+.header-search__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  max-height: 360px;
+  overflow-y: auto;
+  background: $color-card;
+  border: 1.5px solid $color-element;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  scrollbar-width: thin;
+  scrollbar-color: $color-element transparent;
+}
+
+.header-search__drop-empty {
+  margin: 0;
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: $color-text-secondary;
+}
+
+.header-search__drop-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s;
+
+  &:first-child {
+    border-radius: 14px 14px 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 14px 14px;
+  }
+
+  &:only-child {
+    border-radius: 14px;
+  }
+
+  &:hover {
+    background-color: $color-surface;
+  }
+}
+
+.header-search__drop-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: $color-surface;
+  flex-shrink: 0;
+
+  &--empty {
+    background: $color-surface;
+  }
+}
+
+.header-search__drop-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: $color-text-main;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-search__drop-brand {
+  font-size: 11px;
+  font-weight: 700;
+  color: $color-accent;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 // Same padding as .icon to make all icon buttons identical

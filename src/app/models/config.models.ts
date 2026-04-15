@@ -1,6 +1,6 @@
 ﻿export interface ColorValue {
   name: string;
-  hex: string;
+  hex: string[];
   slug: string;
   usageCount?: number;
 }
@@ -27,11 +27,18 @@ export interface ConfigState {
   error: string | null;
 }
 
+export interface WcCategoryImage {
+  id: number;
+  src: string;
+  alt: string;
+}
+
 export interface WcCategory {
   id: number;
   name: string;
   slug: string;
   count?: number;
+  image: WcCategoryImage | null;
 }
 
 export interface Brand {
