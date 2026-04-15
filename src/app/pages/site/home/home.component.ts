@@ -129,7 +129,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       .subscribe({
         next: items => {
           this.newArrivals = items;
-          this.saleItems = items;
+          this.saleItems = items.filter(
+            i =>
+              i.variation.sale_price &&
+              i.variation.sale_price !== '0' &&
+              i.variation.sale_price !== i.variation.regular_price,
+          );
         },
       });
   }

@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
+import { catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 import { ProductsService } from '@app/services/tempService/products.service';
 import { VariationsService } from '@app/services/tempService/variations.service';
 import {
@@ -92,13 +92,11 @@ export class FavoritesComponent implements OnInit {
             ),
           ).pipe(map(groups => (groups as FavoriteCard[][]).flat()));
         }),
+        finalize(() => this.loading.set(false)),
       )
       .subscribe({
-        next: cards => {
-          this.cards.set(cards);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
+        next: cards => this.cards.set(cards),
+        error: () => {},
       });
   }
 

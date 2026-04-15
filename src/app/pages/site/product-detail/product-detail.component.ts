@@ -130,6 +130,13 @@ export class ProductDetailComponent implements OnInit {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('productId'));
+
+    if (!id || isNaN(id)) {
+      void this.router.navigate(['/not-found']);
+
+      return;
+    }
+
     const queryVariationId = Number(
       this.route.snapshot.queryParamMap.get('variationId'),
     );
