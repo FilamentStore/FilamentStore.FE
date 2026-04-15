@@ -380,7 +380,10 @@
     margin-bottom: 4px;
   }
 
+  // ── Cart button ────────────────────────────────────────────────────────────
+
   &__btn-cart {
+    position: relative;
     flex: 1;
     height: 48px;
     padding-inline: 20px;
@@ -392,6 +395,7 @@
     font-weight: 700;
     cursor: pointer;
     transition: background-color 0.2s;
+    overflow: visible;
 
     &:disabled {
       background-color: $color-element;
@@ -402,10 +406,72 @@
     &:not(:disabled):hover {
       background-color: color-mix(in srgb, $color-accent 82%, black);
     }
+
+    &--animating {
+      animation: cart-btn-bounce 0.55s ease;
+    }
+  }
+
+  &__btn-cart-label {
+    pointer-events: none;
+  }
+
+  &__cart-fly-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: $color-text-buttons;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    animation: cart-icon-fly 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    z-index: 10;
+  }
+
+  @keyframes cart-btn-bounce {
+    0% {
+      transform: scale(1);
+    }
+    20% {
+      transform: scale(0.92);
+    }
+    55% {
+      transform: scale(1.06);
+    }
+    80% {
+      transform: scale(0.98);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes cart-icon-fly {
+    0% {
+      transform: translate(-50%, -50%) scale(1.1);
+      opacity: 1;
+    }
+    70% {
+      transform: translate(40px, -55px) scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(70px, -85px) scale(0.3);
+      opacity: 0;
+    }
+  }
+
+  // ── Favorite button ────────────────────────────────────────────────────────
+
+  &__fav-wrap {
+    position: relative;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
   }
 
   &__btn-fav {
-    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -430,6 +496,83 @@
       border-color: $color-accent;
       color: $color-accent;
       background-color: color-mix(in srgb, $color-accent 10%, transparent);
+    }
+
+    &--animating {
+      animation: fav-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+  }
+
+  &__heart {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 11px;
+    color: $color-accent;
+    pointer-events: none;
+    animation: heart-fly 0.85s ease-out forwards;
+    line-height: 1;
+    z-index: 10;
+
+    &--1 {
+      --tx: -24px;
+      --ty: -38px;
+      animation-delay: 0s;
+      font-size: 14px;
+    }
+    &--2 {
+      --tx: 20px;
+      --ty: -42px;
+      animation-delay: 0.06s;
+      font-size: 10px;
+    }
+    &--3 {
+      --tx: -32px;
+      --ty: -16px;
+      animation-delay: 0.12s;
+      font-size: 9px;
+    }
+    &--4 {
+      --tx: 30px;
+      --ty: -20px;
+      animation-delay: 0.08s;
+      font-size: 13px;
+    }
+    &--5 {
+      --tx: 2px;
+      --ty: -46px;
+      animation-delay: 0.03s;
+      font-size: 8px;
+    }
+  }
+
+  @keyframes fav-pop {
+    0% {
+      transform: scale(1);
+    }
+    35% {
+      transform: scale(0.78);
+    }
+    70% {
+      transform: scale(1.18);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes heart-fly {
+    0% {
+      transform: translate(-50%, -50%) scale(0.2);
+      opacity: 1;
+    }
+    25% {
+      opacity: 1;
+    }
+    100% {
+      transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty)))
+        scale(1.1);
+      opacity: 0;
     }
   }
 

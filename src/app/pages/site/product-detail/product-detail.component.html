@@ -138,51 +138,90 @@
           <button
             class="detail__btn-cart"
             [class.detail__btn-cart--in-cart]="isInCart()"
+            [class.detail__btn-cart--animating]="cartAnimating()"
             [disabled]="stockStatus() === 'out'"
             (click)="isInCart() ? goToCart() : addToCart()"
           >
-            @if (stockStatus() === 'out') {
-              Немає в наявності
-            } @else if (isInCart()) {
-              В кошику
-            } @else {
-              Додати в кошик
-            }
-          </button>
-          <button
-            class="detail__btn-fav"
-            [class.detail__btn-fav--active]="isFavorite()"
-            (click)="toggleFavorite()"
-            aria-label="Додати в обране"
-          >
-            @if (isFavorite()) {
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="20"
-                height="20"
-              >
-                <path
-                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+            @if (cartAnimating()) {
+              <span class="detail__cart-fly-icon" aria-hidden="true">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
                   fill="currentColor"
-                />
-              </svg>
-            } @else {
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="20"
-                height="20"
-              >
-                <path
-                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                />
-              </svg>
+                >
+                  <path
+                    d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM5.55 6H20l-1.68 8.39a2 2 0 0 1-1.97 1.61H8.76a2 2 0 0 1-1.97-1.67L5.55 6zM3 2h1.27l.94 2H21a1 1 0 0 1 .97 1.24l-.29 1H5.08L3.27 3H2V2h1z"
+                  />
+                </svg>
+              </span>
             }
+            <span class="detail__btn-cart-label">
+              @if (stockStatus() === 'out') {
+                Немає в наявності
+              } @else if (isInCart()) {
+                В кошику
+              } @else {
+                Додати в кошик
+              }
+            </span>
           </button>
+
+          <div class="detail__fav-wrap">
+            <button
+              class="detail__btn-fav"
+              [class.detail__btn-fav--active]="isFavorite()"
+              [class.detail__btn-fav--animating]="favAnimating()"
+              (click)="toggleFavorite()"
+              aria-label="Додати в обране"
+            >
+              @if (isFavorite()) {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                >
+                  <path
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                    fill="currentColor"
+                  />
+                </svg>
+              } @else {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                >
+                  <path
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  />
+                </svg>
+              }
+            </button>
+            @if (favAnimating()) {
+              <span class="detail__heart detail__heart--1" aria-hidden="true"
+                >♥</span
+              >
+              <span class="detail__heart detail__heart--2" aria-hidden="true"
+                >♥</span
+              >
+              <span class="detail__heart detail__heart--3" aria-hidden="true"
+                >♥</span
+              >
+              <span class="detail__heart detail__heart--4" aria-hidden="true"
+                >♥</span
+              >
+              <span class="detail__heart detail__heart--5" aria-hidden="true"
+                >♥</span
+              >
+            }
+          </div>
         </div>
 
         <!-- Quick specs -->

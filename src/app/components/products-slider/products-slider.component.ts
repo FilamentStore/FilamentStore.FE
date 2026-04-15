@@ -16,6 +16,7 @@ import {
 } from '@app/components/product-card/product-card.component';
 import { SkeletonComponent } from '@app/components/skeleton/skeleton.component';
 import { selectFavoriteVariationIds } from '@store/favorites/favorites.selectors';
+import { selectCartVariationIds } from '@store/cart/cart.selectors';
 import { FavoritesActions } from '@store/favorites/favorites.actions';
 
 export interface ProductSliderItem {
@@ -44,6 +45,10 @@ export class ProductsSliderComponent {
 
   readonly favoriteVariationIds = toSignal(
     this.store.select(selectFavoriteVariationIds),
+    { initialValue: [] as number[] },
+  );
+  readonly cartVariationIds = toSignal(
+    this.store.select(selectCartVariationIds),
     { initialValue: [] as number[] },
   );
 

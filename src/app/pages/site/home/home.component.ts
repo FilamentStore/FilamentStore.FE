@@ -7,6 +7,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { RouterLink } from '@angular/router';
 import { catchError, forkJoin, map, of, switchMap, finalize } from 'rxjs';
 import { ProductsService } from '@app/services/tempService/products.service';
@@ -19,6 +20,8 @@ import {
   ProductSliderItem,
 } from '@app/components/products-slider/products-slider.component';
 import { CategoriesCarouselComponent } from './components/categories-carousel/categories-carousel.component';
+import { FavoritesActions } from '@store/favorites/favorites.actions';
+import { CartActions } from '@store/cart/cart.actions';
 
 interface HeroSlide {
   material: string;
@@ -37,6 +40,7 @@ interface HeroSlide {
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  private store = inject(Store);
   private productsService = inject(ProductsService);
   private variationsService = inject(VariationsService);
   private categoriesService = inject(CategoriesService);
@@ -177,11 +181,21 @@ export class HomeComponent implements OnInit, OnDestroy {
   // ── Event passthrough ─────────────────────────────────────────────────────
 
   onAddToCart(event: ProductCardEvent): void {
-    void event;
+    this.store.dispatch(
+      CartActions.add({
+        productId: event.product.id,
+        variationId: event.variation.id,
+      }),
+    );
   }
 
   onToggleFavorite(event: ProductCardEvent): void {
-    void event;
+    this.store.dispatch(
+      FavoritesActions.toggle({
+        productId: event.product.id,
+        variationId: event.variation.id,
+      }),
+    );
   }
 
   // ── Mouse spotlight ───────────────────────────────────────────────────────

@@ -1,4 +1,11 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -30,6 +37,8 @@ export class ProductCardComponent {
 
   addToCart = output<ProductCardEvent>();
   toggleFavorite = output<ProductCardEvent>();
+  readonly cartAnimating = signal(false);
+  readonly favAnimating = signal(false);
 
   private store = inject(Store);
   private router = inject(Router);
@@ -161,6 +170,8 @@ export class ProductCardComponent {
     if (this.isInCart()) {
       void this.router.navigate(['/cart']);
     } else {
+      this.cartAnimating.set(true);
+      setTimeout(() => this.cartAnimating.set(false), 650);
       this.addToCart.emit({
         product: this.product(),
         variation: this.variation(),
@@ -169,6 +180,8 @@ export class ProductCardComponent {
   }
 
   onAddToCart(): void {
+    this.cartAnimating.set(true);
+    setTimeout(() => this.cartAnimating.set(false), 650);
     this.addToCart.emit({
       product: this.product(),
       variation: this.variation(),
@@ -176,6 +189,8 @@ export class ProductCardComponent {
   }
 
   onToggleFavorite(): void {
+    this.favAnimating.set(true);
+    setTimeout(() => this.favAnimating.set(false), 850);
     this.toggleFavorite.emit({
       product: this.product(),
       variation: this.variation(),

@@ -43,6 +43,8 @@ export class ProductDetailComponent implements OnInit {
   readonly variations = signal<ProductVariation[]>([]);
   readonly activeVariation = signal<ProductVariation | null>(null);
   readonly loading = signal(true);
+  readonly cartAnimating = signal(false);
+  readonly favAnimating = signal(false);
   private readonly favoriteVariationIds = toSignal(
     this.store.select(selectFavoriteVariationIds),
     { initialValue: [] as number[] },
@@ -220,12 +222,19 @@ export class ProductDetailComponent implements OnInit {
     const variation = this.activeVariation();
 
     if (product && variation) {
+      const willFavorite = !this.isFavorite();
+
       this.store.dispatch(
         FavoritesActions.toggle({
           productId: product.id,
           variationId: variation.id,
         }),
       );
+
+      if (willFavorite) {
+        this.favAnimating.set(true);
+        setTimeout(() => this.favAnimating.set(false), 900);
+      }
     }
   }
 
@@ -234,12 +243,14 @@ export class ProductDetailComponent implements OnInit {
     const variation = this.activeVariation();
 
     if (product && variation) {
+      this.cartAnimating.set(true);
       this.store.dispatch(
         CartActions.add({
           productId: product.id,
           variationId: variation.id,
         }),
       );
+      setTimeout(() => this.cartAnimating.set(false), 650);
     }
   }
 
