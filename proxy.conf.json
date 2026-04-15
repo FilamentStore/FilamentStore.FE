@@ -1,0 +1,8 @@
+{
+  "/wp-json": {
+    "target": "http://filamentstore.local",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  }
+}

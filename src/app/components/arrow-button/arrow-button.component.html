@@ -1,0 +1,11 @@
+<button
+  [class]="
+    'arrow arrowButton arrow' +
+    direction() +
+    (isDisabled() ? ' arrowDisabled arrowButtonDisabled' : '')
+  "
+  [disabled]="isDisabled()"
+  (click)="!isDisabled() && click.emit()"
+>
+  <span class="arrowIcon" aria-hidden="true"></span>
+</button>

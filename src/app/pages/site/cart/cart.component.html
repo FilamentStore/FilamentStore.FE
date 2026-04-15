@@ -1,0 +1,167 @@
+<section class="cart">
+  <app-breadcrumb [items]="[{ label: 'Кошик' }]" />
+
+  <button class="cart__back" type="button" (click)="goBack()">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <polyline points="15 18 9 12 15 6" />
+    </svg>
+    Назад
+  </button>
+
+  <h1 class="cart__title">Кошик</h1>
+
+  @if (loading()) {
+    <div class="cart__loading">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="cart__item-skeleton"></div>
+      }
+    </div>
+  } @else if (cards().length === 0) {
+    <div class="cart__empty">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="48"
+        height="48"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <path d="M16 10a4 4 0 0 1-8 0" />
+      </svg>
+      <p>Кошик порожній</p>
+      <a class="cart__empty-cta" routerLink="/catalog">Перейти до каталогу</a>
+    </div>
+  } @else {
+    <div class="cart__layout">
+      <!-- Items list -->
+      <div class="cart__items">
+        @for (card of cards(); track card.variation.id) {
+          <div class="cart__item">
+            <button
+              class="cart__item-remove"
+              type="button"
+              aria-label="Видалити товар"
+              (click)="remove(card.variation.id)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+
+            <div class="cart__item-image">
+              @if (card.variation.image?.src; as imgSrc) {
+                <img [src]="imgSrc" [alt]="card.product.name" />
+              } @else if (card.product.images[0]?.src; as imgSrc) {
+                <img [src]="imgSrc" [alt]="card.product.name" />
+              } @else {
+                <div class="cart__item-image-placeholder"></div>
+              }
+            </div>
+
+            <div class="cart__item-info">
+              <p class="cart__item-name">{{ card.product.name }}</p>
+              @if (getAttrLabel(card.variation)) {
+                <p class="cart__item-attrs">
+                  {{ getAttrLabel(card.variation) }}
+                </p>
+              }
+            </div>
+
+            <div class="cart__item-qty">
+              <button
+                class="cart__qty-btn"
+                type="button"
+                [disabled]="card.quantity <= 1"
+                (click)="decrement(card.variation.id)"
+              >
+                −
+              </button>
+              <input
+                class="cart__qty-value"
+                type="number"
+                min="1"
+                [max]="card.variation.stock_quantity"
+                [value]="card.quantity"
+                (change)="setQuantity(card.variation.id, $event)"
+                (blur)="setQuantity(card.variation.id, $event)"
+              />
+              <span
+                class="cart__qty-btn-wrap"
+                [class.cart__qty-btn-wrap--limit]="isAtLimit(card)"
+                [matTooltip]="
+                  isAtLimit(card) ? 'Більшої кількості немає в наявності' : ''
+                "
+                matTooltipPosition="above"
+              >
+                <button
+                  class="cart__qty-btn"
+                  type="button"
+                  [disabled]="isAtLimit(card)"
+                  (click)="increment(card.variation.id)"
+                >
+                  +
+                </button>
+              </span>
+            </div>
+            <div class="cart__item-price">
+              <p>
+                {{
+                  getPrice(card.variation) * card.quantity | number: '1.0-0'
+                }}
+                ₴
+              </p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Summary panel -->
+      <aside class="cart__aside">
+        <div class="cart__summary">
+          <p class="cart__summary-total">
+            {{ totalPrice() | number: '1.0-0' }} ₴
+          </p>
+          <p class="cart__summary-count">
+            Разом за {{ totalCount() }}
+            {{
+              totalCount() === 1
+                ? 'товар'
+                : totalCount() < 5
+                  ? 'товари'
+                  : 'товарів'
+            }}
+          </p>
+          <button class="cart__checkout-btn" type="button">
+            Оформити замовлення
+          </button>
+        </div>
+      </aside>
+    </div>
+  }
+</section>

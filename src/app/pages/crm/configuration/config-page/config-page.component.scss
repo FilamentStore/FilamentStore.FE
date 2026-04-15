@@ -1,0 +1,47 @@
+.config-page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  > mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: var(--accent-color, #22a794);
+    flex-shrink: 0;
+  }
+
+  h1 {
+    margin: 0 0 2px;
+    font-size: 24px;
+    font-weight: 600;
+  }
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-secondary, #888);
+  }
+}
+
+.config-tabs {
+  flex: 1;
+}
+
+.tab-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.tab-content {
+  padding: 24px 0;
+}

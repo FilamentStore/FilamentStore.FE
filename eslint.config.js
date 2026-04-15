@@ -32,6 +32,14 @@ module.exports = defineConfig([
       '@angular-eslint': angularPlugin,
       import: importPlugin,
     },
+    settings: {
+      'import/resolver': {
+        typescript: {
+          alwaysTryTypes: true,
+          project: './tsconfig.json',
+        },
+      },
+    },
     rules: {
       // JS rules
       semi: ['error', 'always'],

@@ -1,0 +1,553 @@
+@use 'variables' as *;
+@use 'mixins/mixins' as *;
+
+:host {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header {
+  background-color: $color-bg;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  transition:
+    background-color 0.4s ease,
+    box-shadow 0.4s ease;
+
+  @include on-tablet {
+    height: 70px;
+  }
+
+  // ── Transparent state (home page at top) ──────────────────────────────────
+
+  &--transparent {
+    background-color: transparent;
+    box-shadow: none;
+
+    .nav-link {
+      color: rgba(255, 255, 255, 0.75);
+
+      &::after {
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      &:hover {
+        color: #ffffff;
+      }
+    }
+
+    .is-active {
+      color: #ffffff;
+
+      &::after {
+        background: #ffffff;
+      }
+    }
+
+    .icon {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.75);
+
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.8);
+        color: #ffffff;
+      }
+
+      &.icon--active {
+        border-color: #ffffff;
+        color: #ffffff;
+      }
+    }
+
+    .icon-account {
+      border-color: rgba(255, 255, 255, 0.45);
+      color: rgba(255, 255, 255, 0.9);
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+      }
+
+      &.icon-account--active {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+      }
+    }
+
+    .header-search {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.75);
+
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.7);
+        color: #ffffff;
+      }
+
+      &--open {
+        border-color: rgba(255, 255, 255, 0.7);
+        color: #ffffff;
+      }
+    }
+
+    .header-search__icon {
+      background-color: rgba(255, 255, 255, 0.75);
+    }
+
+    .header-search__input {
+      color: #ffffff;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    .icon-burger-menu::before {
+      background-color: rgba(255, 255, 255, 0.85);
+    }
+  }
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1 1 auto;
+  min-width: 0;
+
+  @include on-desktop {
+    gap: 24px;
+  }
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  padding-inline: 16px;
+
+  @include on-desktop {
+    padding-inline: 24px;
+  }
+
+  @include img-hover-scale(1.1);
+}
+
+.header-nav {
+  flex: 2 1 auto;
+}
+
+.header-icons {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+
+  @include on-tablet {
+    gap: 8px;
+    padding-inline: 16px;
+  }
+
+  @include on-desktop {
+    padding-inline: 24px;
+  }
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+
+  .nav-img {
+    width: 64px;
+    height: auto;
+
+    @include on-desktop {
+      width: 80px;
+    }
+  }
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+}
+
+.nav-list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  column-gap: 32px;
+
+  @include on-desktop {
+    column-gap: 64px;
+  }
+}
+
+.nav-link {
+  display: none;
+  align-items: center;
+  position: relative;
+  color: $color-text-secondary;
+  text-decoration: none;
+  font-weight: 600;
+
+  @include on-tablet {
+    display: flex;
+    height: 70px;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: $color-text-secondary;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.25s ease;
+  }
+
+  &:hover::after {
+    transform: scaleX(1);
+  }
+}
+
+.is-active {
+  position: relative;
+  color: $color-accent;
+
+  &::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    left: 0;
+    bottom: 0;
+    background: $color-accent;
+    transform: scaleX(1);
+  }
+}
+
+.icon {
+  display: none;
+  position: relative;
+
+  @include on-tablet {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    order: 1;
+    width: auto;
+    height: 36px;
+    padding-inline: 14px;
+    border: 1.5px solid $color-element;
+    border-radius: 100px;
+    text-decoration: none;
+    color: $color-text-secondary;
+    transition:
+      border-color 0.25s ease,
+      color 0.25s ease;
+
+    &:hover {
+      border-color: $color-accent;
+      color: $color-accent;
+    }
+  }
+
+  @include on-desktop {
+    padding-inline: 16px;
+  }
+
+  &.icon--active {
+    color: $color-accent;
+    border-color: $color-accent;
+  }
+}
+
+.icon-img {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-color: currentColor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+
+  &--favorite {
+    mask-image: url('../../../../assets/icons/icon-favorite.svg');
+  }
+
+  &--bag {
+    mask-image: url('../../../../assets/icons/icon-shopping-bag.svg');
+  }
+
+  &--account {
+    mask-image: url('../../../../assets/icons/user-account.svg');
+  }
+}
+
+.icon-burger-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  order: 99;
+  width: 48px;
+  height: 100%;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 14px;
+    height: 9px;
+    background-color: $color-text-secondary;
+    mask-image: url('../../../../assets/icons/icon-burger-menu.svg');
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+  }
+
+  @include on-tablet {
+    display: none;
+  }
+}
+
+// Account button — hidden on mobile (navbar handles auth there)
+.icon-account {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding-inline: 14px;
+  text-decoration: none;
+  border: 1.5px solid $color-accent;
+  border-radius: 100px;
+  background-color: transparent;
+  color: $color-accent;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+
+  @include on-tablet {
+    display: flex;
+    order: 3;
+    padding-inline: 14px;
+  }
+
+  @include on-desktop {
+    padding-inline: 16px;
+  }
+
+  &:hover {
+    background-color: $color-accent;
+    color: $color-text-buttons;
+  }
+
+  &.icon-account--active {
+    background-color: $color-accent;
+    color: $color-text-buttons;
+  }
+}
+
+.icon-account__label {
+  display: block;
+}
+
+// ─── Search ────────────────────────────────────────────────────────────────
+
+.header-search__wrap {
+  position: relative;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  border: 1.5px solid $color-element;
+  border-radius: 100px;
+  overflow: hidden;
+  color: $color-text-secondary;
+  transition:
+    border-color 0.25s ease,
+    color 0.25s ease;
+
+  &:hover {
+    border-color: $color-accent;
+    color: $color-accent;
+
+    .header-search__icon {
+      background-color: $color-accent;
+    }
+  }
+
+  &--open {
+    border-color: $color-accent;
+    color: $color-accent;
+
+    .header-search__input-wrap {
+      width: 150px;
+
+      @include on-tablet {
+        width: 200px;
+      }
+
+      @include on-desktop {
+        width: 280px;
+      }
+    }
+
+    .header-search__icon {
+      transform: rotate(360deg);
+      background-color: $color-accent;
+    }
+  }
+}
+
+.header-search__input-wrap {
+  width: 0;
+  overflow: hidden;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-search__input {
+  display: block;
+  width: 150px;
+  padding-left: 8px;
+
+  @include on-tablet {
+    width: 200px;
+  }
+
+  @include on-desktop {
+    width: 280px;
+  }
+}
+
+.header-search__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  max-height: 360px;
+  overflow-y: auto;
+  background: $color-card;
+  border: 1.5px solid $color-element;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  scrollbar-width: thin;
+  scrollbar-color: $color-element transparent;
+}
+
+.header-search__drop-empty {
+  margin: 0;
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: $color-text-secondary;
+}
+
+.header-search__drop-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s;
+
+  &:first-child {
+    border-radius: 14px 14px 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 14px 14px;
+  }
+
+  &:only-child {
+    border-radius: 14px;
+  }
+
+  &:hover {
+    background-color: $color-surface;
+  }
+}
+
+.header-search__drop-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: $color-surface;
+  flex-shrink: 0;
+
+  &--empty {
+    background: $color-surface;
+  }
+}
+
+.header-search__drop-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: $color-text-main;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-search__drop-brand {
+  font-size: 11px;
+  font-weight: 700;
+  color: $color-accent;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+// Same padding as .icon to make all icon buttons identical
+.header-search__btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding-inline: 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  @include on-desktop {
+    padding-inline: 16px;
+  }
+}
+
+.header-search__icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-color: $color-text-secondary;
+  mask-image: url('../../../../assets/icons/icon-search.svg');
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  transition:
+    transform 0.45s ease,
+    background-color 0.25s ease;
+}

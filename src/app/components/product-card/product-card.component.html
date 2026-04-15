@@ -1,0 +1,160 @@
+<article class="card" (click)="navigateToDetail()">
+  <!-- ── Image ──────────────────────────────────────────────────────────── -->
+  <div class="card__image-wrapper">
+    @if (image(); as img) {
+      <img
+        class="card__image"
+        [src]="img.src"
+        [alt]="img.alt || product().name"
+        loading="lazy"
+      />
+    } @else {
+      <div class="card__image-placeholder">
+        <svg viewBox="0 0 48 48" width="44" height="44" fill="none">
+          <circle
+            cx="24"
+            cy="24"
+            r="18"
+            stroke="currentColor"
+            stroke-width="2.5"
+          />
+          <circle
+            cx="24"
+            cy="24"
+            r="7"
+            stroke="currentColor"
+            stroke-width="2"
+          />
+          <path
+            d="M6 24 Q10 12 24 12"
+            stroke="currentColor"
+            stroke-width="1.5"
+            fill="none"
+          />
+        </svg>
+        <span>Немає фото</span>
+      </div>
+    }
+
+    <!-- Color strip at bottom of image -->
+    @if (colorSwatchBg()) {
+      <div class="card__color-strip" [style.background]="colorSwatchBg()"></div>
+    }
+
+    <!-- Stock badge -->
+    @if (stockStatus() !== 'in') {
+      <span
+        class="card__stock-badge"
+        [class.card__stock-badge--out]="stockStatus() === 'out'"
+      >
+        {{ stockStatus() === 'out' ? 'Немає' : 'Закінчується' }}
+      </span>
+    }
+
+    <!-- Discount badge -->
+    @if (discountPercent()) {
+      <span class="card__sale-badge">-{{ discountPercent() }}%</span>
+    }
+  </div>
+
+  <!-- ── Body ───────────────────────────────────────────────────────────── -->
+  <div class="card__body">
+    @if (product().brand) {
+      <p class="card__brand">{{ product().brand }}</p>
+    }
+    <h4 class="card__name">{{ displayName() }}</h4>
+
+    <!-- Specs: color swatch + diameter + weight -->
+    <div class="card__specs">
+      @if (colorSwatchBg()) {
+        <span
+          class="card__swatch"
+          [style.background]="colorSwatchBg()"
+          [title]="colorAttr()?.name ?? ''"
+        ></span>
+      }
+      @if (diameterAttr()) {
+        <span class="card__spec-tag">{{ diameterAttr() }}</span>
+      }
+      @if (weightAttr()) {
+        <span class="card__spec-tag">{{ weightAttr() }}</span>
+      }
+    </div>
+
+    <!-- Price -->
+    <div class="card__prices">
+      <span class="card__price-current">{{ currentPrice() }} грн</span>
+      @if (oldPrice()) {
+        <span class="card__price-old">{{ oldPrice() }} грн</span>
+      }
+    </div>
+
+    <!-- Actions -->
+    <div class="card__actions">
+      <button
+        class="card__btn-cart"
+        [class.card__btn-cart--in-cart]="isInCart()"
+        [disabled]="stockStatus() === 'out'"
+        (click)="onCartClick(); $event.stopPropagation()"
+      >
+        @if (stockStatus() === 'out') {
+          Немає в наявності
+        } @else if (isInCart()) {
+          <svg
+            viewBox="0 0 24 24"
+            width="15"
+            height="15"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          В кошику
+        } @else {
+          <svg
+            viewBox="0 0 24 24"
+            width="15"
+            height="15"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 0 1-8 0" />
+          </svg>
+          До кошика
+        }
+      </button>
+      <button
+        class="card__btn-fav"
+        [class.card__btn-fav--active]="isFavorite()"
+        (click)="onToggleFavorite(); $event.stopPropagation()"
+        aria-label="Додати в обране"
+      >
+        @if (isFavorite()) {
+          <svg viewBox="0 0 24 24" width="17" height="17">
+            <path
+              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+              fill="currentColor"
+            />
+          </svg>
+        } @else {
+          <svg viewBox="0 0 24 24" width="17" height="17">
+            <path
+              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            />
+          </svg>
+        }
+      </button>
+    </div>
+  </div>
+</article>

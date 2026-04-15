@@ -1,0 +1,252 @@
+<article class="detail">
+  <app-breadcrumb [items]="breadcrumbs()" />
+
+  <button class="detail__back" (click)="goBack()">
+    <span class="detail__back-icon"></span>
+    Назад
+  </button>
+
+  @if (loading()) {
+    <app-skeleton variant="product-detail" />
+  } @else if (product(); as p) {
+    <div class="detail__title-row">
+      <div>
+        <p class="detail__brand"></p>
+        <h1 class="detail__name">{{ p.name + ' - ' + p.brand }}</h1>
+      </div>
+      <span class="detail__id">ID: {{ p.id }}</span>
+    </div>
+
+    <div class="detail__layout">
+      <div class="detail__image-col">
+        <div class="detail__image-wrap">
+          @if (activeImage()) {
+            <img
+              class="detail__image"
+              [src]="activeImage()!.src"
+              [alt]="activeImage()!.alt || p.name"
+            />
+          } @else {
+            <div class="detail__image-placeholder">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="64"
+                height="64"
+              >
+                <path
+                  fill="currentColor"
+                  d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"
+                />
+              </svg>
+              <span>Немає фото</span>
+            </div>
+          }
+
+          @if (stockStatus() !== 'in') {
+            <span
+              class="detail__stock-badge"
+              [class.detail__stock-badge--out]="stockStatus() === 'out'"
+            >
+              {{
+                stockStatus() === 'out' ? 'Немає в наявності' : 'Закінчується'
+              }}
+            </span>
+          }
+          @if (oldPrice()) {
+            <span class="detail__sale-badge">Акція</span>
+          }
+        </div>
+
+        @if (p.short_description) {
+          <div
+            class="detail__short-desc"
+            [innerHTML]="p.short_description"
+          ></div>
+        }
+      </div>
+
+      <div class="detail__info-col">
+        @for (attr of p.attributes; track attr.name) {
+          <div class="detail__attr-group">
+            <p class="detail__attr-label">{{ attr.name }}</p>
+            <div class="detail__attr-options">
+              @if (isColorAttr(attr.name)) {
+                @for (opt of attr.options; track opt) {
+                  <button
+                    class="detail__swatch"
+                    [class.detail__swatch--active]="
+                      selectedAttrs().get(attr.name) === opt
+                    "
+                    [class.detail__swatch--multi]="getColorHex(opt).length > 1"
+                    [style.background]="swatchBg(getColorHex(opt))"
+                    [attr.data-label]="resolveOptionName(attr.name, opt)"
+                    (click)="selectOption(attr.name, opt)"
+                  ></button>
+                }
+              } @else {
+                @for (opt of attr.options; track opt) {
+                  <button
+                    class="detail__pill"
+                    [class.detail__pill--active]="
+                      selectedAttrs().get(attr.name) === opt
+                    "
+                    (click)="selectOption(attr.name, opt)"
+                  >
+                    {{ resolveOptionName(attr.name, opt) }}
+                  </button>
+                }
+              }
+            </div>
+          </div>
+        }
+
+        <hr class="detail__divider" />
+
+        <div class="detail__prices">
+          <span class="detail__price">{{ currentPrice() }} грн</span>
+          @if (oldPrice()) {
+            <span class="detail__price-old">{{ oldPrice() }} грн</span>
+          }
+        </div>
+
+        @if (activeVariation(); as v) {
+          <div class="detail__stock-info">
+            <span
+              class="detail__stock-dot"
+              [class.detail__stock-dot--low]="stockStatus() === 'low'"
+              [class.detail__stock-dot--out]="stockStatus() === 'out'"
+            ></span>
+            @if (stockStatus() === 'out') {
+              <span class="detail__stock-label detail__stock-label--out"
+                >Немає в наявності</span
+              >
+            } @else if (stockStatus() === 'low') {
+              <span class="detail__stock-label detail__stock-label--low"
+                >Залишилось: {{ v.stock_quantity }} шт.</span
+              >
+            } @else {
+              <span class="detail__stock-label"
+                >В наявності: {{ v.stock_quantity }} шт.</span
+              >
+            }
+          </div>
+        }
+
+        <!-- Actions -->
+        <div class="detail__actions">
+          <button
+            class="detail__btn-cart"
+            [class.detail__btn-cart--in-cart]="isInCart()"
+            [class.detail__btn-cart--animating]="cartAnimating()"
+            [disabled]="stockStatus() === 'out'"
+            (click)="isInCart() ? goToCart() : addToCart()"
+          >
+            @if (cartAnimating()) {
+              <span class="detail__cart-fly-icon" aria-hidden="true">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM5.55 6H20l-1.68 8.39a2 2 0 0 1-1.97 1.61H8.76a2 2 0 0 1-1.97-1.67L5.55 6zM3 2h1.27l.94 2H21a1 1 0 0 1 .97 1.24l-.29 1H5.08L3.27 3H2V2h1z"
+                  />
+                </svg>
+              </span>
+            }
+            <span class="detail__btn-cart-label">
+              @if (stockStatus() === 'out') {
+                Немає в наявності
+              } @else if (isInCart()) {
+                В кошику
+              } @else {
+                Додати в кошик
+              }
+            </span>
+          </button>
+
+          <div class="detail__fav-wrap">
+            <button
+              class="detail__btn-fav"
+              [class.detail__btn-fav--active]="isFavorite()"
+              [class.detail__btn-fav--animating]="favAnimating()"
+              (click)="toggleFavorite()"
+              aria-label="Додати в обране"
+            >
+              @if (isFavorite()) {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                >
+                  <path
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                    fill="currentColor"
+                  />
+                </svg>
+              } @else {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                >
+                  <path
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  />
+                </svg>
+              }
+            </button>
+            @if (favAnimating()) {
+              <span class="detail__heart detail__heart--1" aria-hidden="true"
+                >♥</span
+              >
+              <span class="detail__heart detail__heart--2" aria-hidden="true"
+                >♥</span
+              >
+              <span class="detail__heart detail__heart--3" aria-hidden="true"
+                >♥</span
+              >
+              <span class="detail__heart detail__heart--4" aria-hidden="true"
+                >♥</span
+              >
+              <span class="detail__heart detail__heart--5" aria-hidden="true"
+                >♥</span
+              >
+            }
+          </div>
+        </div>
+
+        <!-- Quick specs -->
+        @if (activeVariation(); as v) {
+          <hr class="detail__divider" />
+          <table class="detail__specs">
+            @for (attr of v.attributes; track attr.name) {
+              <tr class="detail__specs-row">
+                <td class="detail__specs-key">{{ attr.name }}</td>
+                <td class="detail__specs-val">
+                  {{ resolveOptionName(attr.name, attr.option) }}
+                </td>
+              </tr>
+            }
+          </table>
+        }
+      </div>
+    </div>
+
+    <!-- Full description -->
+    @if (p.description) {
+      <section class="detail__description">
+        <h2 class="detail__description-title">Опис</h2>
+        <div class="detail__description-body" [innerHTML]="p.description"></div>
+      </section>
+    }
+  }
+</article>

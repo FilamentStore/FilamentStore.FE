@@ -1,0 +1,182 @@
+:host {
+  display: block;
+  height: 100vh;
+}
+
+.crm-container {
+  height: 100%;
+}
+
+.crm-sidenav {
+  width: 240px;
+  background: #1a1f36;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+
+  .sidenav-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 16px;
+
+    .sidenav-logo-icon {
+      color: #22a794;
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+
+    .sidenav-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  mat-divider {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .sidenav-nav {
+    flex: 1;
+    padding-top: 8px;
+  }
+
+  .nav-item {
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    margin: 2px 8px;
+    width: calc(100% - 16px);
+    transition:
+      background 0.2s,
+      color 0.2s;
+
+    mat-icon {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+
+      mat-icon {
+        color: #22a794;
+      }
+    }
+
+    &.active-link {
+      background: rgba(34, 167, 148, 0.2);
+      color: #22a794 !important;
+
+      mat-icon {
+        color: #22a794;
+      }
+    }
+
+    .mdc-list-item__primary-text {
+      color: inherit;
+    }
+  }
+
+  .sidenav-footer {
+    .exit-link {
+      color: rgba(255, 255, 255, 0.5);
+      margin: 4px 8px 8px;
+      border-radius: 8px;
+
+      mat-icon {
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+      }
+    }
+  }
+}
+
+.crm-content {
+  display: flex;
+  flex-direction: column;
+  background: #f5f6fa;
+  min-height: 100vh;
+  min-width: 0;
+}
+
+// Гарантуємо правильний margin до того як Angular CDK обрахує його після рендеру
+:host ::ng-deep .sidenav-open .mat-drawer-content {
+  margin-left: 240px !important;
+}
+
+:host ::ng-deep .mat-drawer-content {
+  transition: margin-left 300ms ease;
+}
+
+.crm-toolbar {
+  background: #fff;
+  border-bottom: 1px solid #e8e9f0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  .toolbar-spacer {
+    flex: 1;
+  }
+
+  .toolbar-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #5e7470;
+    font-size: 14px;
+
+    mat-icon {
+      color: #22a794;
+    }
+  }
+}
+
+.crm-page-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
+}
+
+:host ::ng-deep .nav-item--list {
+  max-height: 55px;
+
+  .mdc-list-item__content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .mdc-list-item__secondary-text {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+}
+
+.nav-submenu {
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  margin: 4px 8px;
+  padding: 10px 0;
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nav-subitem {
+  margin-left: 24px;
+  width: calc(100% - 40px);
+  font-size: 14px;
+}

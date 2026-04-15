@@ -1,0 +1,61 @@
+@use 'index' as *;
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  padding-block: 14px;
+
+  &__home {
+    display: flex;
+    align-items: center;
+    color: $color-text-secondary;
+    text-decoration: none;
+    transition: color 0.15s;
+
+    &:hover {
+      color: $color-accent;
+    }
+  }
+
+  &__home-icon {
+    display: block;
+    width: 18px;
+    height: 18px;
+    background-color: currentColor;
+    mask-image: url('../../../assets/icons/icon-home.svg');
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+  }
+
+  &__sep {
+    display: block;
+    width: 10px;
+    height: 10px;
+    background-color: $color-element;
+    mask-image: url('../../../assets/icons/icon-arrow-up.svg');
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    transform: rotate(90deg);
+    flex-shrink: 0;
+  }
+
+  &__link {
+    color: $color-text-secondary;
+    text-decoration: none;
+    transition: color 0.15s;
+
+    &:hover {
+      color: $color-accent;
+      text-decoration: underline;
+    }
+  }
+
+  &__current {
+    color: $color-text-main;
+    font-weight: 500;
+  }
+}

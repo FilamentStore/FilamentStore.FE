@@ -1,0 +1,99 @@
+@use 'index' as *;
+
+:host {
+  display: block;
+}
+
+.products-slider {
+  padding-block: 40px 56px;
+  @include content-padding-in-line;
+
+  @include on-tablet {
+    padding-block: 52px 64px;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    color: $color-text-main;
+
+    @include on-tablet {
+      font-size: 26px;
+    }
+  }
+
+  &__arrows {
+    display: flex;
+    gap: 8px;
+
+    @media (max-width: 767px) {
+      display: none;
+    }
+  }
+
+  &__arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid $color-element;
+    background: transparent;
+    color: $color-text-main;
+    cursor: pointer;
+    transition:
+      border-color 0.2s,
+      color 0.2s,
+      background-color 0.2s;
+
+    &:hover {
+      border-color: $color-accent;
+      color: $color-accent;
+      background-color: color-mix(in srgb, $color-accent 8%, transparent);
+    }
+  }
+
+  &__viewport {
+    position: relative;
+    margin-block: -8px;
+  }
+
+  &__track {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-block: 8px;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &__card {
+    flex: 0 0 calc(25% - 15px);
+    scroll-snap-align: start;
+    min-width: 0;
+    -webkit-box-reflect: below 4px
+      linear-gradient(transparent 75%, rgba(0, 0, 0, 0.06) 100%);
+
+    @media (min-width: 768px) and (max-width: 1023px) {
+      flex: 0 0 calc(33.333% - 14px);
+    }
+
+    @media (max-width: 767px) {
+      flex: 0 0 calc(75vw - 24px);
+    }
+  }
+}

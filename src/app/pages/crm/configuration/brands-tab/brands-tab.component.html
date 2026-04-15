@@ -1,0 +1,201 @@
+<div class="brands-tab">
+  <div class="tab-header">
+    <div class="tab-header-info">
+      <h3>Бренди</h3>
+      <p>Бренди виробників філаменту (eSUN, Bambu, Polymaker…)</p>
+    </div>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="openAdd()"
+      [disabled]="showAddRow()"
+    >
+      <mat-icon>add</mat-icon>
+      Новий бренд
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-row">
+      <mat-spinner diameter="36" />
+      <span>Завантаження...</span>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table mat-table [dataSource]="brands()" class="config-table">
+        <!-- Name column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Назва</th>
+          <td mat-cell *matCellDef="let brand">
+            @if (editingId() === brand.id) {
+              <mat-form-field appearance="outline" class="inline-edit-field">
+                <input
+                  matInput
+                  [formControl]="editForm.controls.name"
+                  (input)="onEditNameInput($any($event.target).value)"
+                  (keyup.enter)="submitEdit(brand.id)"
+                  (keyup.escape)="cancelEdit()"
+                  autofocus
+                />
+              </mat-form-field>
+            } @else {
+              <span class="brand-name">{{ brand.name }}</span>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Slug column -->
+        <ng-container matColumnDef="slug">
+          <th mat-header-cell *matHeaderCellDef>Slug</th>
+          <td mat-cell *matCellDef="let brand">
+            @if (editingId() === brand.id) {
+              <mat-form-field appearance="outline" class="inline-edit-field">
+                <input
+                  matInput
+                  [formControl]="editForm.controls.slug"
+                  (keyup.enter)="submitEdit(brand.id)"
+                  (keyup.escape)="cancelEdit()"
+                />
+              </mat-form-field>
+            } @else {
+              <code class="slug-badge">{{ brand.slug }}</code>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Usage column -->
+        <ng-container matColumnDef="usage">
+          <th mat-header-cell *matHeaderCellDef>Товарів</th>
+          <td mat-cell *matCellDef="let brand">
+            <mat-chip>{{ brand.usageCount ?? 0 }}</mat-chip>
+          </td>
+        </ng-container>
+
+        <!-- Actions column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let brand">
+            @if (editingId() === brand.id) {
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="submitEdit(brand.id)"
+                [disabled]="editForm.invalid || saving()"
+                matTooltip="Зберегти"
+              >
+                <mat-icon>check</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                (click)="cancelEdit()"
+                matTooltip="Скасувати"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            } @else if (confirmDeleteId() === brand.id) {
+              <span class="confirm-delete">
+                <span class="confirm-text">Видалити?</span>
+                <button
+                  mat-icon-button
+                  color="warn"
+                  (click)="confirmDelete(brand.id)"
+                  matTooltip="Так"
+                >
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  (click)="cancelDelete()"
+                  matTooltip="Ні"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </span>
+            } @else {
+              <button
+                mat-icon-button
+                (click)="startEdit(brand)"
+                matTooltip="Редагувати"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="onDeleteClick(brand.id)"
+                matTooltip="Видалити"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          class="table-row"
+        ></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td
+            class="mat-cell empty-state"
+            [attr.colspan]="displayedColumns.length"
+          >
+            <mat-icon>storefront</mat-icon>
+            <p>Брендів ще немає. Натисніть "Новий бренд".</p>
+          </td>
+        </tr>
+      </table>
+
+      @if (showAddRow()) {
+        <div class="add-row" [formGroup]="addForm">
+          <mat-form-field appearance="outline" class="add-field">
+            <mat-label>Назва</mat-label>
+            <input
+              matInput
+              formControlName="name"
+              placeholder="Наприклад: eSUN"
+              (input)="onAddNameInput($any($event.target).value)"
+              (keyup.enter)="submitAdd()"
+              (keyup.escape)="cancelAdd()"
+              autofocus
+            />
+            @if (addForm.controls.name.hasError('minlength')) {
+              <mat-error>Мінімум 2 символи</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="add-field add-field--sm">
+            <mat-label>Slug</mat-label>
+            <input
+              matInput
+              formControlName="slug"
+              placeholder="esun"
+              (keyup.enter)="submitAdd()"
+              (keyup.escape)="cancelAdd()"
+            />
+          </mat-form-field>
+
+          <div class="add-row-actions">
+            <button
+              mat-flat-button
+              color="primary"
+              (click)="submitAdd()"
+              [disabled]="addForm.invalid || saving()"
+            >
+              @if (saving()) {
+                <mat-spinner diameter="18" />
+              } @else {
+                <mat-icon>add</mat-icon>
+              }
+              Додати
+            </button>
+            <button mat-stroked-button (click)="cancelAdd()">Скасувати</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

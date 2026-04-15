@@ -1,17 +1,19 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { AttributesActions } from '@store/attributes/attributes.actions';
+import { ConfigActions } from '@store/config/config.actions';
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.scss',
+  template: '<router-outlet />',
 })
 export class App {
-  protected readonly title = signal('FilamentStore.FE');
-  public func() {
-    const res = 'hello';
+  constructor() {
+    const store = inject(Store);
 
-    console.log(res);
+    store.dispatch(AttributesActions.loadAttributes());
+    store.dispatch(ConfigActions.load());
   }
 }

@@ -1,0 +1,94 @@
+@use 'variables' as *;
+@use 'mixins/mixins' as *;
+
+.footer {
+  border-top: 1px solid $color-element;
+  background-color: $color-bg;
+  padding-block: 32px;
+  box-sizing: border-box;
+  width: 100%;
+
+  &-container {
+    @include content-padding-in-line();
+    @include grid-layout;
+    row-gap: 24px;
+    align-items: center;
+  }
+
+  &-logo {
+    display: flex;
+    grid-column: 1 / -1;
+
+    @include on-tablet {
+      grid-column: 1 / 4;
+    }
+
+    @include on-desktop {
+      grid-column: 1 / 8;
+    }
+
+    &-icon {
+      width: 80px;
+      height: auto;
+      @include img-hover-scale(1.1);
+    }
+  }
+
+  &-nav-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    grid-column: 1 / -1;
+
+    @include on-tablet {
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      grid-column: 4 / 10;
+    }
+
+    @include on-desktop {
+      grid-column: 8 / 17;
+      justify-content: space-between;
+    }
+
+    &-link {
+      color: $color-text-secondary;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: $color-accent;
+      }
+    }
+  }
+
+  &-back-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+    grid-column: 1 / -1;
+
+    @include on-tablet {
+      grid-column: 10 / -1;
+      justify-content: flex-end;
+    }
+
+    @include on-desktop {
+      grid-column: 17 / -1;
+    }
+
+    &-text {
+      color: $color-text-secondary;
+    }
+
+    &-button {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+    }
+  }
+}
