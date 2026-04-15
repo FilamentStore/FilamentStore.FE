@@ -12,6 +12,13 @@
 [context.branch-deploy]
   command = "ng build --configuration development"
 
+# Netlify proxy — обходить CORS на рівні InfinityFree
+[[redirects]]
+  from = "/api/*"
+  to = "https://filamentstore-demo.xo.je/wp-json/:splat"
+  status = 200
+  force = true
+
 # SPA routing
 [[redirects]]
   from = "/*"
