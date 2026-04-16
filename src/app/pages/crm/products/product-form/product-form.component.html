@@ -41,7 +41,7 @@
         animationDuration="200ms"
         color="primary"
         style="width: 100%"
-        [class.tabs-hidden]="loading && isEditMode()"
+        [class.tabs-hidden]="loading() && isEditMode()"
       >
         <mat-tab>
           <ng-template mat-tab-label>
