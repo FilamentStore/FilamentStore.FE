@@ -259,7 +259,41 @@
     }
 
     &--animating {
-      animation: card-cart-bounce 0.55s ease;
+      animation:
+        card-cart-bounce 0.55s ease,
+        card-cart-glow 0.55s ease;
+    }
+  }
+
+  &__sparkle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 10px;
+    font-weight: 800;
+    color: $color-text-buttons;
+    pointer-events: none;
+    line-height: 1;
+    animation: card-sparkle-fly 0.65s ease-out forwards;
+
+    &--1 {
+      --tx: -16px;
+      --ty: -22px;
+      font-size: 13px;
+    }
+
+    &--2 {
+      --tx: 4px;
+      --ty: -28px;
+      font-size: 10px;
+      animation-delay: 0.04s;
+    }
+
+    &--3 {
+      --tx: 20px;
+      --ty: -18px;
+      font-size: 11px;
+      animation-delay: 0.08s;
     }
   }
 
@@ -350,6 +384,35 @@
   }
   100% {
     transform: scale(1);
+  }
+}
+
+@keyframes card-cart-glow {
+  0% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  50% {
+    box-shadow: 0 4px 22px color-mix(in srgb, $color-accent 65%, transparent);
+  }
+  100% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+@keyframes card-sparkle-fly {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 1;
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty)))
+      scale(1);
+    opacity: 0;
   }
 }
 

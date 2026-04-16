@@ -40,6 +40,7 @@
     height: 160px;
     perspective: 1100px;
     perspective-origin: center center;
+    touch-action: pan-y;
 
     @include on-tablet {
       height: 200px;

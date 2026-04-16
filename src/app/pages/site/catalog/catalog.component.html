@@ -9,6 +9,19 @@
   </header>
 
   <div class="catalog__toolbar">
+    <!-- Mobile: select dropdown -->
+    <select
+      class="catalog__sort-select"
+      [value]="activeSort()"
+      (change)="setSort($any($event.target).value)"
+      aria-label="Сортування"
+    >
+      @for (opt of sortOptions; track opt.value) {
+        <option [value]="opt.value">{{ opt.label }}</option>
+      }
+    </select>
+
+    <!-- Desktop: pill buttons -->
     <div class="catalog__sort-scroll">
       <div class="catalog__sort">
         <span class="catalog__sort-label">Сортування:</span>

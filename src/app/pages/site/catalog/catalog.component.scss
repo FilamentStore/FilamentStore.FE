@@ -44,7 +44,34 @@
 
   // ── Sort ──────────────────────────────────────────────────────────────────
 
-  // Обгортка для горизонтального скролу на мобільному
+  // Mobile select (< 520px)
+  &__sort-select {
+    display: none;
+
+    @media (max-width: 519px) {
+      display: block;
+      flex: 1;
+      min-width: 0;
+      height: 36px;
+      padding: 0 12px;
+      border-radius: 100px;
+      border: 1.5px solid $color-element;
+      background: transparent;
+      font-family: Mont, sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: $color-text-main;
+      cursor: pointer;
+      appearance: auto;
+      outline: none;
+
+      &:focus {
+        border-color: $color-accent;
+      }
+    }
+  }
+
+  // Обгортка для горизонтального скролу на desktop/tablet
   &__sort-scroll {
     overflow-x: auto;
     flex: 1;
@@ -54,6 +81,10 @@
     scrollbar-width: none;
 
     &::-webkit-scrollbar {
+      display: none;
+    }
+
+    @media (max-width: 519px) {
       display: none;
     }
   }
