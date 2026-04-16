@@ -17,21 +17,21 @@
         color="primary"
         type="button"
         (click)="save()"
-        [disabled]="saving"
+        [disabled]="saving()"
       >
-        @if (saving) {
+        @if (saving()) {
           <mat-spinner diameter="18" />
         } @else {
           <mat-icon>save</mat-icon>
         }
-        {{ saving ? 'Збереження...' : 'Зберегти' }}
+        {{ saving() ? 'Збереження...' : 'Зберегти' }}
       </button>
     </div>
   </div>
 
   <mat-card class="form-card">
     <mat-card-content>
-      @if (loading && isEditMode()) {
+      @if (loading() && isEditMode()) {
         <div class="loading-overlay">
           <mat-spinner diameter="48" />
           <p>Завантаження...</p>

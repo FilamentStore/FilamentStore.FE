@@ -104,7 +104,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       .getProducts({ status: 'publish', page: 1 })
       .pipe(
         switchMap(response => {
-          const products = response.products;
+          const products = response?.products ?? [];
 
           if (!products.length) return of([]);
 

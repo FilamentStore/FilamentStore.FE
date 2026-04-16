@@ -83,8 +83,8 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
   readonly productId = signal<number | null>(null);
   readonly isEditMode = computed(() => this.productId() !== null);
 
-  loading = false;
-  saving = false;
+  readonly loading = signal(false);
+  readonly saving = signal(false);
   categories: WcCategory[] = [];
   brands: Brand[] = [];
   readonly colors = toSignal(this.store.select(selectAttributeColors), {
@@ -186,13 +186,13 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
       })),
     };
 
-    this.saving = true;
+    this.saving.set(true);
 
     const request$ = this.isEditMode()
       ? this.productsService.updateProduct(this.productId()!, productData)
       : this.productsService.createProduct(productData);
 
-    request$.pipe(finalize(() => (this.saving = false))).subscribe({
+    request$.pipe(finalize(() => this.saving.set(false))).subscribe({
       next: product => {
         if (this.isEditMode()) {
           this.patchForm(product);
@@ -241,10 +241,10 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
   }
 
   private loadProduct(id: number): void {
-    this.loading = true;
+    this.loading.set(true);
     this.productsService
       .getProduct(id)
-      .pipe(finalize(() => (this.loading = false)))
+      .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: product => this.patchForm(product),
         error: error => {

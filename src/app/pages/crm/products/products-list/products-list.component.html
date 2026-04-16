@@ -62,7 +62,7 @@
 
   <mat-card class="table-card">
     <mat-card-content>
-      @if (loading) {
+      @if (loading()) {
         <div class="loading-container">
           <mat-spinner diameter="48" />
           <p>Завантаження продуктів...</p>

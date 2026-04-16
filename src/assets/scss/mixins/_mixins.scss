@@ -6,6 +6,12 @@
   }
 }
 
+@mixin on-wide {
+  @media (min-width: $breakpoint-wide) {
+    @content;
+  }
+}
+
 @mixin on-desktop {
   @media (min-width: $breakpoint-desktop) {
     @content;
