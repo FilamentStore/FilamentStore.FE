@@ -14,7 +14,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBadgeModule } from '@angular/material/badge';
-import { finalize } from 'rxjs/operators';
+import { finalize, switchMap } from 'rxjs/operators';
 import { ROUTES } from '@constants/app.routes.const';
 import {
   Product,
@@ -51,7 +51,7 @@ export class ProductsListComponent implements OnInit {
   private productsService = inject(ProductsService);
 
   products: Product[] = [];
-  loading = false;
+  readonly loading = signal(false);
   categories: WcCategory[] = [];
   pagination: ProductsPagination = { total: 0, totalPages: 0 };
   filters: ProductFilters = {
@@ -137,19 +137,30 @@ export class ProductsListComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
+    this.confirmDeleteId.set(null);
+
+    if (this.products.length === 1 && this.filters.page > 1) {
+      this.filters = { ...this.filters, page: this.filters.page - 1 };
+    }
+
+    this.loading.set(true);
     this.productsService
       .deleteProduct(id)
-      .pipe(finalize(() => (this.loading = false)))
+      .pipe(
+        switchMap(() => this.productsService.getProducts(this.filters)),
+        finalize(() => this.loading.set(false)),
+      )
       .subscribe({
-        next: () => {
-          this.confirmDeleteId.set(null);
-
-          if (this.products.length === 1 && this.filters.page > 1) {
-            this.filters = { ...this.filters, page: this.filters.page - 1 };
-          }
-
-          this.loadProducts();
+        next: response => {
+          this.products = response.products;
+          this.pagination = {
+            total: response.total,
+            totalPages: response.total_pages,
+          };
+        },
+        error: () => {
+          this.products = [];
+          this.pagination = { total: 0, totalPages: 0 };
         },
       });
   }
@@ -190,11 +201,11 @@ export class ProductsListComponent implements OnInit {
   }
 
   private loadProducts(): void {
-    this.loading = true;
+    this.loading.set(true);
 
     this.productsService
       .getProducts(this.filters)
-      .pipe(finalize(() => (this.loading = false)))
+      .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: response => {
           this.products = response.products;

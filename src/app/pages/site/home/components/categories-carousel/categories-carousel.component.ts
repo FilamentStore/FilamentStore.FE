@@ -1,4 +1,12 @@
-import { Component, Input } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  NgZone,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { WcCategory } from '@app/models/config.models';
 import { SkeletonComponent } from '@app/components/skeleton/skeleton.component';
@@ -10,13 +18,35 @@ import { SkeletonComponent } from '@app/components/skeleton/skeleton.component';
   templateUrl: './categories-carousel.component.html',
   styleUrl: './categories-carousel.component.scss',
 })
-export class CategoriesCarouselComponent {
+export class CategoriesCarouselComponent implements AfterViewInit {
   @Input() categories: WcCategory[] = [];
   @Input() loading = false;
+
+  @ViewChild('stage') stageRef!: ElementRef<HTMLElement>;
 
   activeCategory = 0;
 
   private catTouchX = 0;
+  private catTouchY = 0;
+
+  private ngZone = inject(NgZone);
+
+  ngAfterViewInit(): void {
+    this.ngZone.runOutsideAngular(() => {
+      this.stageRef.nativeElement.addEventListener(
+        'touchmove',
+        (e: TouchEvent) => {
+          const dx = Math.abs(e.touches[0].clientX - this.catTouchX);
+          const dy = Math.abs(e.touches[0].clientY - this.catTouchY);
+
+          if (dx > dy && dx > 8) {
+            e.preventDefault();
+          }
+        },
+        { passive: false },
+      );
+    });
+  }
 
   getCategoryOffset(index: number): number {
     const total = this.categories.length;
@@ -54,14 +84,17 @@ export class CategoriesCarouselComponent {
 
   onCatTouchStart(e: TouchEvent): void {
     this.catTouchX = e.touches[0].clientX;
+    this.catTouchY = e.touches[0].clientY;
   }
 
   onCatTouchEnd(e: TouchEvent): void {
-    const delta = this.catTouchX - e.changedTouches[0].clientX;
+    const deltaX = this.catTouchX - e.changedTouches[0].clientX;
+    const deltaY = Math.abs(this.catTouchY - e.changedTouches[0].clientY);
 
-    if (Math.abs(delta) < 40) return;
+    // Ігноруємо якщо рух занадто малий або вертикальний домінує
+    if (Math.abs(deltaX) < 40 || Math.abs(deltaX) < deltaY) return;
 
-    if (delta > 0) this.nextCategory();
+    if (deltaX > 0) this.nextCategory();
     else this.prevCategory();
   }
 

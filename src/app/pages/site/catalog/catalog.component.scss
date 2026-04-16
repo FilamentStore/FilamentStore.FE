@@ -30,31 +30,130 @@
 
   &__toolbar {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
     gap: 10px;
     margin-bottom: 20px;
 
-    // На мобільному — колонка: сортування зверху, фільтри знизу праворуч
-    @media (max-width: 519px) {
-      flex-direction: column;
-      align-items: stretch;
+    @include on-wide {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
     }
   }
 
   // ── Sort ──────────────────────────────────────────────────────────────────
 
-  // Обгортка для горизонтального скролу на мобільному
-  &__sort-scroll {
-    overflow-x: auto;
-    flex: 1;
-    min-width: 0;
+  // Mobile/tablet: custom sort dropdown (default, < 880px)
+  &__sort-drop-wrap {
+    position: relative;
+    width: 200px;
 
-    // Прибираємо смугу прокрутки візуально
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
+    @include on-wide {
       display: none;
+    }
+  }
+
+  &__sort-drop-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    height: 38px;
+    padding: 0 14px;
+    border-radius: 100px;
+    border: 1.5px solid $color-element;
+    background: $color-card;
+    font-family: Mont, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-text-main;
+    cursor: pointer;
+    outline: none;
+    transition:
+      border-color 0.2s,
+      color 0.2s;
+
+    &:hover,
+    &--open {
+      border-color: $color-accent;
+      color: $color-accent;
+    }
+  }
+
+  &__sort-drop-chevron {
+    flex-shrink: 0;
+    transition: transform 0.2s;
+    color: $color-text-secondary;
+
+    &--open {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__sort-drop-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 100%;
+    background: $color-card;
+    border: 1.5px solid $color-element;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    z-index: 7;
+    display: flex;
+    flex-direction: column;
+    padding: 6px;
+    gap: 2px;
+  }
+
+  &__sort-drop-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    font-family: Mont, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-text-secondary;
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+    transition:
+      background-color 0.15s,
+      color 0.15s;
+
+    &:hover {
+      background: $color-surface;
+      color: $color-text-main;
+    }
+
+    &--active {
+      color: $color-accent;
+      background: color-mix(in srgb, $color-accent 8%, transparent);
+    }
+  }
+
+  // Wide/desktop: pill buttons (≥ 880px)
+  &__sort-scroll {
+    display: none;
+
+    @include on-wide {
+      display: block;
+      overflow-x: auto;
+      flex: 1;
+      min-width: 0;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
     }
   }
 
@@ -63,10 +162,6 @@
     align-items: center;
     gap: 6px;
     white-space: nowrap;
-
-    @media (max-width: 519px) {
-      justify-content: flex-start;
-    }
   }
 
   &__sort-label {
@@ -112,9 +207,10 @@
     position: relative;
     flex-shrink: 0;
     z-index: 6;
+    align-self: flex-end;
 
-    @media (max-width: 519px) {
-      align-self: flex-end;
+    @include on-wide {
+      align-self: auto;
     }
   }
 
@@ -180,8 +276,8 @@
     overflow: hidden;
     max-height: min(72vh, 720px);
 
-    // На мобільному — розтягуємо на всю ширину екрану
-    @media (max-width: 519px) {
+    // На мобільному/планшеті — bottom sheet на всю ширину
+    @media (max-width: #{$breakpoint-tablet - 1px}) {
       position: fixed;
       top: auto;
       bottom: 0;

@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { Product, ProductVariation } from '@app/models/product.models';
 import { ColorValue, SimpleAttributeOption } from '@app/models/config.models';
 import { ProductsService } from '@app/services/tempService/products.service';
@@ -144,23 +145,24 @@ export class ProductDetailComponent implements OnInit {
     forkJoin({
       product: this.productsService.getProduct(id),
       variations: this.variationsService.getVariations(id),
-    }).subscribe({
-      next: ({ product, variations }) => {
-        const published = variations.filter(v => v.status === 'publish');
-        const initial =
-          (queryVariationId
-            ? published.find(v => v.id === queryVariationId)
-            : null) ??
-          published[0] ??
-          null;
+    })
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: ({ product, variations }) => {
+          const varList = Array.isArray(variations) ? variations : [];
+          const published = varList.filter(v => v.status === 'publish');
+          const initial =
+            (queryVariationId
+              ? published.find(v => v.id === queryVariationId)
+              : null) ??
+            published[0] ??
+            null;
 
-        this.product.set(product);
-        this.variations.set(published);
-        this.activeVariation.set(initial);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
+          this.product.set(product);
+          this.variations.set(published);
+          this.activeVariation.set(initial);
+        },
+      });
   }
 
   selectOption(attrName: string, option: string): void {
