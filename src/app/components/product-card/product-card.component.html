@@ -69,6 +69,7 @@
       @if (colorSwatchBg()) {
         <span
           class="card__swatch"
+          [class.card__swatch--multi]="(colorAttr()?.hex?.length ?? 0) > 1"
           [style.background]="colorSwatchBg()"
           [title]="colorAttr()?.name ?? ''"
         ></span>
@@ -88,6 +89,26 @@
         <span class="card__price-old">{{ oldPrice() }} грн</span>
       }
     </div>
+
+    @if (isOnRate()) {
+      <div class="card__rating" aria-label="Відгуків: 5">
+        <span class="card__rating-stars" aria-hidden="true">
+          @for (active of [true, true, true, true, false]; track $index) {
+            <img
+              class="card__rating-star"
+              [class.card__rating-star--muted]="!active"
+              [src]="
+                active
+                  ? 'assets/icons/icon-star-active.svg'
+                  : 'assets/icons/icon-star.svg'
+              "
+              alt=""
+            />
+          }
+        </span>
+        <span class="card__rating-reviews">Відгуків: 5</span>
+      </div>
+    }
 
     <!-- Actions -->
     <div class="card__actions">

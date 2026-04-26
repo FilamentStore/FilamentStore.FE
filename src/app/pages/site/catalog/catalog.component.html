@@ -1,6 +1,4 @@
 <section class="catalog">
-  <app-breadcrumb [items]="[{ label: 'Каталог' }]" />
-
   <header class="catalog__header">
     <h2 class="catalog__title">Каталог філаменту</h2>
     <p class="catalog__subtitle">
@@ -8,126 +6,397 @@
     </p>
   </header>
 
-  <div class="catalog__toolbar">
-    <!-- Mobile/tablet: custom sort dropdown -->
-    <div class="catalog__sort-drop-wrap" (click)="$event.stopPropagation()">
+  <div class="catalog__body">
+    @if (filtersOpen()) {
       <button
-        class="catalog__sort-drop-btn"
+        class="catalog__filters-backdrop"
         type="button"
-        (click)="toggleSortDrop()"
-        [class.catalog__sort-drop-btn--open]="sortDropOpen()"
-      >
-        <span>{{ activeSortLabel() }}</span>
-        <svg
-          class="catalog__sort-drop-chevron"
-          [class.catalog__sort-drop-chevron--open]="sortDropOpen()"
-          xmlns="http://www.w3.org/2000/svg"
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </button>
+        aria-label="Закрити фільтри"
+        (click)="closeFilters()"
+      ></button>
+    }
 
-      @if (sortDropOpen()) {
-        <div class="catalog__sort-drop-list">
-          @for (opt of sortOptions; track opt.value) {
-            <button
-              class="catalog__sort-drop-item"
-              type="button"
-              [class.catalog__sort-drop-item--active]="
-                activeSort() === opt.value
-              "
-              (click)="setSort(opt.value); sortDropOpen.set(false)"
+    <div
+      class="catalog__filters-drop"
+      [class.catalog__filters-drop--open]="filtersOpen()"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="catalog__filters-top">
+        <div class="catalog__filters-head">
+          <div>
+            <p class="catalog__filters-eyebrow">Підбір параметрів</p>
+            <h3 class="catalog__filters-title">Фільтри</h3>
+          </div>
+          <button
+            class="catalog__filters-close"
+            type="button"
+            aria-label="Закрити фільтри"
+            (click)="closeFilters()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
             >
-              @if (activeSort() === opt.value) {
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        @if (activeFiltersCount() > 0) {
+          <div class="catalog__filters-summary">
+            <span>Обрано фільтрів</span>
+            <strong>{{ activeFiltersCount() }}</strong>
+          </div>
+        }
+
+        <div class="catalog__filters-actions">
+          <button
+            class="catalog__filters-apply"
+            type="button"
+            (click)="applyFilters()"
+          >
+            Застосувати
+          </button>
+          <button
+            class="catalog__filters-reset"
+            type="button"
+            (click)="resetFilters()"
+          >
+            Скинути
+          </button>
+        </div>
+      </div>
+
+      <div class="catalog__filters-scroll">
+        @if (categoriesList().length > 0) {
+          <div class="catalog__filters-group">
+            <p class="catalog__filters-group-title">Категорія</p>
+            @for (cat of categoriesList(); track cat.id) {
+              <label
+                class="catalog__filters-check"
+                (click)="toggleCategory(cat.id.toString())"
+              >
+                <span
+                  class="catalog__check-box"
+                  [class.catalog__check-box--checked]="
+                    selectedCategories().has(cat.id.toString())
+                  "
+                ></span>
+                {{ cat.name }}
+                @if (cat.count) {
+                  <span class="catalog__filters-count">{{ cat.count }}</span>
+                }
+              </label>
+            }
+          </div>
+        }
+
+        @if (brandsList().length > 0) {
+          <div class="catalog__filters-group">
+            <p class="catalog__filters-group-title">Бренд</p>
+            @for (brand of brandsList(); track brand.id) {
+              <label
+                class="catalog__filters-check"
+                (click)="toggleBrand(brand.name)"
+              >
+                <span
+                  class="catalog__check-box"
+                  [class.catalog__check-box--checked]="
+                    selectedBrands().has(brand.name)
+                  "
+                ></span>
+                {{ brand.name }}
+                @if (brand.usageCount) {
+                  <span class="catalog__filters-count">{{
+                    brand.usageCount
+                  }}</span>
+                }
+              </label>
+            }
+          </div>
+        }
+
+        @if (colorsList().length > 0) {
+          <div class="catalog__filters-group">
+            <p class="catalog__filters-group-title">Колір</p>
+            <div class="catalog__color-select">
+              <button
+                class="catalog__color-select-btn"
+                type="button"
+                (click)="toggleColorsDrop($event)"
+              >
+                <span class="catalog__color-select-preview">
+                  @if (selectedColors().size === 0) {
+                    <span class="catalog__color-placeholder"
+                      >Оберіть кольори</span
+                    >
+                  } @else {
+                    @for (color of colorsList(); track color.slug) {
+                      @if (selectedColors().has(color.slug)) {
+                        <span
+                          class="catalog__color-dot"
+                          [style.background]="swatchBg(color.hex)"
+                        ></span>
+                      }
+                    }
+                    <span class="catalog__color-count"
+                      >{{ selectedColors().size }} обрано</span
+                    >
+                  }
+                </span>
                 <svg
-                  width="13"
-                  height="13"
+                  class="catalog__color-chevron"
+                  [class.catalog__color-chevron--open]="colorsDropOpen()"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="3"
+                  stroke-width="2.5"
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
-                  <polyline points="20 6 9 17 4 12" />
+                  <polyline points="6 9 12 15 18 9" />
                 </svg>
-              }
-              {{ opt.label }}
-            </button>
-          }
-        </div>
-      }
-    </div>
+              </button>
 
-    <!-- Desktop: pill buttons -->
-    <div class="catalog__sort-scroll">
-      <div class="catalog__sort">
-        <span class="catalog__sort-label">Сортування:</span>
-        @for (opt of sortOptions; track opt.value) {
-          <button
-            class="catalog__sort-btn"
-            [class.catalog__sort-btn--active]="activeSort() === opt.value"
-            (click)="setSort(opt.value)"
-          >
-            {{ opt.label }}
-          </button>
+              @if (colorsDropOpen()) {
+                <div class="catalog__color-drop">
+                  @for (color of colorsList(); track color.slug) {
+                    <button
+                      class="catalog__color-swatch"
+                      type="button"
+                      [class.catalog__color-swatch--selected]="
+                        selectedColors().has(color.slug)
+                      "
+                      [style.background]="swatchBg(color.hex)"
+                      [attr.data-label]="color.name"
+                      (click)="toggleColor(color.slug)"
+                    ></button>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (materialsList().length > 0) {
+          <div class="catalog__filters-group">
+            <p class="catalog__filters-group-title">Матеріал</p>
+            @for (mat of materialsList(); track mat.slug) {
+              <label
+                class="catalog__filters-check"
+                (click)="toggleMaterial(mat.slug)"
+              >
+                <span
+                  class="catalog__check-box"
+                  [class.catalog__check-box--checked]="
+                    selectedMaterials().has(mat.slug)
+                  "
+                ></span>
+                {{ mat.name }}
+                @if (mat.usageCount) {
+                  <span class="catalog__filters-count">{{
+                    mat.usageCount
+                  }}</span>
+                }
+              </label>
+            }
+          </div>
+        }
+
+        @if (diametersList().length > 0) {
+          <div class="catalog__filters-group">
+            <p class="catalog__filters-group-title">Діаметр</p>
+            @for (d of diametersList(); track d.slug) {
+              <label
+                class="catalog__filters-check"
+                (click)="toggleDiameter(d.slug)"
+              >
+                <span
+                  class="catalog__check-box"
+                  [class.catalog__check-box--checked]="
+                    selectedDiameters().has(d.slug)
+                  "
+                ></span>
+                {{ d.name }}
+              </label>
+            }
+          </div>
+        }
+
+        @if (weightsList().length > 0) {
+          <div class="catalog__filters-group">
+            <p class="catalog__filters-group-title">Вага</p>
+            @for (w of weightsList(); track w.slug) {
+              <label
+                class="catalog__filters-check"
+                (click)="toggleWeight(w.slug)"
+              >
+                <span
+                  class="catalog__check-box"
+                  [class.catalog__check-box--checked]="
+                    selectedWeights().has(w.slug)
+                  "
+                ></span>
+                {{ w.name }}
+              </label>
+            }
+          </div>
         }
       </div>
     </div>
 
-    <div class="catalog__filters-wrap">
-      <button
-        class="catalog__filters-btn"
-        type="button"
-        (click)="toggleFilters()"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <line x1="4" y1="6" x2="20" y2="6" />
-          <line x1="8" y1="12" x2="16" y2="12" />
-          <line x1="11" y1="18" x2="13" y2="18" />
-        </svg>
-        Фільтри
-        @if (activeFiltersCount() > 0) {
-          <span class="catalog__filters-badge">{{ activeFiltersCount() }}</span>
-        }
-      </button>
+    <div class="catalog__main">
+      <app-breadcrumb [items]="[{ label: 'Каталог' }]" />
 
-      @if (filtersOpen()) {
-        <button
-          class="catalog__filters-backdrop"
-          type="button"
-          aria-label="Закрити фільтри"
-          (click)="closeFilters()"
-        ></button>
-        <div class="catalog__filters-drop" (click)="$event.stopPropagation()">
-          <div class="catalog__filters-head">
-            <div>
-              <p class="catalog__filters-eyebrow">Підбір параметрів</p>
-              <h3 class="catalog__filters-title">Фільтри</h3>
+      <div class="catalog__toolbar">
+        <!-- Mobile/tablet: custom sort dropdown -->
+        <div class="catalog__sort-drop-wrap" (click)="$event.stopPropagation()">
+          <button
+            class="catalog__sort-drop-btn"
+            type="button"
+            (click)="toggleSortDrop()"
+            [class.catalog__sort-drop-btn--open]="sortDropOpen()"
+          >
+            <span>{{ activeSortLabel() }}</span>
+            <svg
+              class="catalog__sort-drop-chevron"
+              [class.catalog__sort-drop-chevron--open]="sortDropOpen()"
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+
+          @if (sortDropOpen()) {
+            <div class="catalog__sort-drop-list">
+              @for (opt of sortOptions; track opt.value) {
+                <button
+                  class="catalog__sort-drop-item"
+                  type="button"
+                  [class.catalog__sort-drop-item--active]="
+                    activeSort() === opt.value
+                  "
+                  (click)="setSort(opt.value); sortDropOpen.set(false)"
+                >
+                  @if (activeSort() === opt.value) {
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="3"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  }
+                  {{ opt.label }}
+                </button>
+              }
             </div>
+          }
+        </div>
+
+        <!-- Desktop: pill buttons -->
+        <div class="catalog__sort-scroll">
+          <div class="catalog__sort">
+            <span class="catalog__sort-label">Сортування:</span>
+            @for (opt of sortOptions; track opt.value) {
+              <button
+                class="catalog__sort-btn"
+                [class.catalog__sort-btn--active]="activeSort() === opt.value"
+                (click)="setSort(opt.value)"
+              >
+                {{ opt.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="catalog__filters-wrap">
+          <button
+            class="catalog__filters-btn"
+            type="button"
+            (click)="toggleFilters()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="4" y1="6" x2="20" y2="6" />
+              <line x1="8" y1="12" x2="16" y2="12" />
+              <line x1="11" y1="18" x2="13" y2="18" />
+            </svg>
+            Фільтри
+            @if (activeFiltersCount() > 0) {
+              <span class="catalog__filters-badge">{{
+                activeFiltersCount()
+              }}</span>
+            }
+          </button>
+        </div>
+      </div>
+
+      @if (loading()) {
+        <app-skeleton variant="product-grid" [count]="8" />
+      }
+
+      @if (!loading() && items.length === 0) {
+        <div class="catalog__empty">
+          <p>Товари не знайдено</p>
+        </div>
+      }
+
+      @if (!loading() && items.length > 0) {
+        <div class="catalog__grid">
+          @for (item of items; track item.variation.id) {
+            <app-product-card
+              [product]="item.product"
+              [variation]="item.variation"
+              [isFavorite]="favoriteVariationIds().includes(item.variation.id)"
+              [isInCart]="cartVariationIds().includes(item.variation.id)"
+              [isOnRate]="true"
+              (addToCart)="onAddToCart($event)"
+              (toggleFavorite)="onToggleFavorite($event)"
+            />
+          }
+        </div>
+
+        @if (totalPages() > 1) {
+          <nav class="catalog__pagination">
             <button
-              class="catalog__filters-close"
-              type="button"
-              aria-label="Закрити фільтри"
-              (click)="closeFilters()"
+              class="catalog__page-btn catalog__page-btn--nav"
+              [disabled]="currentPage() === 1"
+              (click)="goToPage(currentPage() - 1)"
+              aria-label="Попередня сторінка"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -140,304 +409,47 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
+                <polyline points="15 18 9 12 15 6" />
               </svg>
             </button>
-          </div>
 
-          @if (activeFiltersCount() > 0) {
-            <div class="catalog__filters-summary">
-              <span>Обрано фільтрів</span>
-              <strong>{{ activeFiltersCount() }}</strong>
-            </div>
-          }
+            @for (page of pageNumbers(); track $index) {
+              @if (page === null) {
+                <span class="catalog__page-ellipsis">…</span>
+              } @else {
+                <button
+                  class="catalog__page-btn"
+                  [class.catalog__page-btn--active]="page === currentPage()"
+                  (click)="goToPage(page)"
+                >
+                  {{ page }}
+                </button>
+              }
+            }
 
-          <div class="catalog__filters-actions">
             <button
-              class="catalog__filters-apply"
-              type="button"
-              (click)="applyFilters()"
+              class="catalog__page-btn catalog__page-btn--nav"
+              [disabled]="currentPage() === totalPages()"
+              (click)="goToPage(currentPage() + 1)"
+              aria-label="Наступна сторінка"
             >
-              Застосувати
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
             </button>
-            <button
-              class="catalog__filters-reset"
-              type="button"
-              (click)="resetFilters()"
-            >
-              Скинути
-            </button>
-          </div>
-
-          <div class="catalog__filters-scroll">
-            @if (categoriesList().length > 0) {
-              <div class="catalog__filters-group">
-                <p class="catalog__filters-group-title">Категорія</p>
-                @for (cat of categoriesList(); track cat.id) {
-                  <label
-                    class="catalog__filters-check"
-                    (click)="toggleCategory(cat.id.toString())"
-                  >
-                    <span
-                      class="catalog__check-box"
-                      [class.catalog__check-box--checked]="
-                        selectedCategories().has(cat.id.toString())
-                      "
-                    ></span>
-                    {{ cat.name }}
-                    @if (cat.count) {
-                      <span class="catalog__filters-count">{{
-                        cat.count
-                      }}</span>
-                    }
-                  </label>
-                }
-              </div>
-            }
-
-            @if (brandsList().length > 0) {
-              <div class="catalog__filters-group">
-                <p class="catalog__filters-group-title">Бренд</p>
-                @for (brand of brandsList(); track brand.id) {
-                  <label
-                    class="catalog__filters-check"
-                    (click)="toggleBrand(brand.name)"
-                  >
-                    <span
-                      class="catalog__check-box"
-                      [class.catalog__check-box--checked]="
-                        selectedBrands().has(brand.name)
-                      "
-                    ></span>
-                    {{ brand.name }}
-                    @if (brand.usageCount) {
-                      <span class="catalog__filters-count">{{
-                        brand.usageCount
-                      }}</span>
-                    }
-                  </label>
-                }
-              </div>
-            }
-
-            @if (colorsList().length > 0) {
-              <div class="catalog__filters-group">
-                <p class="catalog__filters-group-title">Колір</p>
-                <div class="catalog__color-select">
-                  <button
-                    class="catalog__color-select-btn"
-                    type="button"
-                    (click)="toggleColorsDrop($event)"
-                  >
-                    <span class="catalog__color-select-preview">
-                      @if (selectedColors().size === 0) {
-                        <span class="catalog__color-placeholder"
-                          >Оберіть кольори</span
-                        >
-                      } @else {
-                        @for (color of colorsList(); track color.slug) {
-                          @if (selectedColors().has(color.slug)) {
-                            <span
-                              class="catalog__color-dot"
-                              [style.background]="swatchBg(color.hex)"
-                            ></span>
-                          }
-                        }
-                        <span class="catalog__color-count"
-                          >{{ selectedColors().size }} обрано</span
-                        >
-                      }
-                    </span>
-                    <svg
-                      class="catalog__color-chevron"
-                      [class.catalog__color-chevron--open]="colorsDropOpen()"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                  </button>
-
-                  @if (colorsDropOpen()) {
-                    <div class="catalog__color-drop">
-                      @for (color of colorsList(); track color.slug) {
-                        <button
-                          class="catalog__color-swatch"
-                          type="button"
-                          [class.catalog__color-swatch--selected]="
-                            selectedColors().has(color.slug)
-                          "
-                          [style.background]="swatchBg(color.hex)"
-                          [attr.data-label]="color.name"
-                          (click)="toggleColor(color.slug)"
-                        ></button>
-                      }
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-
-            @if (materialsList().length > 0) {
-              <div class="catalog__filters-group">
-                <p class="catalog__filters-group-title">Матеріал</p>
-                @for (mat of materialsList(); track mat.slug) {
-                  <label
-                    class="catalog__filters-check"
-                    (click)="toggleMaterial(mat.slug)"
-                  >
-                    <span
-                      class="catalog__check-box"
-                      [class.catalog__check-box--checked]="
-                        selectedMaterials().has(mat.slug)
-                      "
-                    ></span>
-                    {{ mat.name }}
-                    @if (mat.usageCount) {
-                      <span class="catalog__filters-count">{{
-                        mat.usageCount
-                      }}</span>
-                    }
-                  </label>
-                }
-              </div>
-            }
-
-            @if (diametersList().length > 0) {
-              <div class="catalog__filters-group">
-                <p class="catalog__filters-group-title">Діаметр</p>
-                @for (d of diametersList(); track d.slug) {
-                  <label
-                    class="catalog__filters-check"
-                    (click)="toggleDiameter(d.slug)"
-                  >
-                    <span
-                      class="catalog__check-box"
-                      [class.catalog__check-box--checked]="
-                        selectedDiameters().has(d.slug)
-                      "
-                    ></span>
-                    {{ d.name }}
-                  </label>
-                }
-              </div>
-            }
-
-            @if (weightsList().length > 0) {
-              <div class="catalog__filters-group">
-                <p class="catalog__filters-group-title">Вага</p>
-                @for (w of weightsList(); track w.slug) {
-                  <label
-                    class="catalog__filters-check"
-                    (click)="toggleWeight(w.slug)"
-                  >
-                    <span
-                      class="catalog__check-box"
-                      [class.catalog__check-box--checked]="
-                        selectedWeights().has(w.slug)
-                      "
-                    ></span>
-                    {{ w.name }}
-                  </label>
-                }
-              </div>
-            }
-          </div>
-        </div>
+          </nav>
+        }
       }
     </div>
   </div>
-
-  @if (loading()) {
-    <app-skeleton variant="product-grid" [count]="8" />
-  }
-
-  @if (!loading() && items.length === 0) {
-    <div class="catalog__empty">
-      <p>Товари не знайдено</p>
-    </div>
-  }
-
-  @if (!loading() && items.length > 0) {
-    <div class="catalog__grid">
-      @for (item of items; track item.variation.id) {
-        <app-product-card
-          [product]="item.product"
-          [variation]="item.variation"
-          [isFavorite]="favoriteVariationIds().includes(item.variation.id)"
-          [isInCart]="cartVariationIds().includes(item.variation.id)"
-          (addToCart)="onAddToCart($event)"
-          (toggleFavorite)="onToggleFavorite($event)"
-        />
-      }
-    </div>
-
-    @if (totalPages() > 1) {
-      <nav class="catalog__pagination">
-        <button
-          class="catalog__page-btn catalog__page-btn--nav"
-          [disabled]="currentPage() === 1"
-          (click)="goToPage(currentPage() - 1)"
-          aria-label="Попередня сторінка"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
-
-        @for (page of pageNumbers(); track $index) {
-          @if (page === null) {
-            <span class="catalog__page-ellipsis">…</span>
-          } @else {
-            <button
-              class="catalog__page-btn"
-              [class.catalog__page-btn--active]="page === currentPage()"
-              (click)="goToPage(page)"
-            >
-              {{ page }}
-            </button>
-          }
-        }
-
-        <button
-          class="catalog__page-btn catalog__page-btn--nav"
-          [disabled]="currentPage() === totalPages()"
-          (click)="goToPage(currentPage() + 1)"
-          aria-label="Наступна сторінка"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </button>
-      </nav>
-    }
-  }
 </section>

@@ -37,6 +37,7 @@ export class ProductsSliderComponent {
   @Input() title = '';
   @Input() items: ProductSliderItem[] = [];
   @Input() loading = false;
+  @Input() isOnRate = false;
 
   @Output() addToCart = new EventEmitter<ProductCardEvent>();
   @Output() toggleFavorite = new EventEmitter<ProductCardEvent>();
