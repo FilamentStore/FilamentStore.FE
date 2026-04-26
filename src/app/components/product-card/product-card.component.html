@@ -95,6 +95,7 @@
           @for (active of [true, true, true, true, false]; track $index) {
             <img
               class="card__rating-star"
+              [class.card__rating-star--muted]="!active"
               [src]="
                 active
                   ? 'assets/icons/icon-star-active.svg'

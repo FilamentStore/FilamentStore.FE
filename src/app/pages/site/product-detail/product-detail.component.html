@@ -14,7 +14,23 @@
         <p class="detail__brand"></p>
         <h1 class="detail__name">{{ p.name + ' - ' + p.brand }}</h1>
       </div>
-      <span class="detail__id">ID: {{ p.id }}</span>
+      <div class="detail__title-meta">
+        <div class="detail__rating" aria-label="Відгуків: 5">
+          @for (active of [true, true, true, true, false]; track $index) {
+            <img
+              class="detail__rating-star"
+              [class.detail__rating-star--muted]="!active"
+              [src]="
+                active
+                  ? 'assets/icons/icon-star-active.svg'
+                  : 'assets/icons/icon-star.svg'
+              "
+              alt=""
+            />
+          }
+        </div>
+        <span class="detail__id">ID: {{ p.id }}</span>
+      </div>
     </div>
 
     <div class="detail__layout">

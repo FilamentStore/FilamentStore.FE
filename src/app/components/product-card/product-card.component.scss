@@ -226,6 +226,10 @@
     width: 16px;
     height: 16px;
     object-fit: contain;
+
+    &--muted {
+      filter: brightness(0.88) contrast(1.12);
+    }
   }
 
   &__rating-reviews {
