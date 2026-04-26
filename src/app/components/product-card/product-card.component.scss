@@ -205,6 +205,37 @@
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
+  &__rating {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 18px;
+    margin-top: 2px;
+  }
+
+  &__rating-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  &__rating-star {
+    display: block;
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+  }
+
+  &__rating-reviews {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: $color-text-main;
+    white-space: nowrap;
+  }
+
   &__actions {
     display: flex;
     align-items: center;

@@ -34,6 +34,7 @@ export class ProductCardComponent {
   variation = input.required<ProductVariation>();
   isFavorite = input<boolean>(false);
   isInCart = input<boolean>(false);
+  isOnRate = input<boolean>(false);
 
   addToCart = output<ProductCardEvent>();
   toggleFavorite = output<ProductCardEvent>();

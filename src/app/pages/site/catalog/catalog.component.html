@@ -374,6 +374,7 @@
           [variation]="item.variation"
           [isFavorite]="favoriteVariationIds().includes(item.variation.id)"
           [isInCart]="cartVariationIds().includes(item.variation.id)"
+          [isOnRate]="true"
           (addToCart)="onAddToCart($event)"
           (toggleFavorite)="onToggleFavorite($event)"
         />
