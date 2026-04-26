@@ -1,0 +1,18 @@
+@if (!isHome() && categories().length) {
+  <nav class="cat-nav" aria-label="Категорії товарів">
+    <div class="cat-nav__track">
+      @for (cat of categories(); track cat.id) {
+        <a
+          class="cat-nav__pill"
+          [class.cat-nav__pill--active]="
+            activeCategoryId() === cat.id.toString()
+          "
+          [routerLink]="['/catalog']"
+          [queryParams]="{ category_id: cat.id }"
+        >
+          {{ cat.name }}
+        </a>
+      }
+    </div>
+  </nav>
+}

@@ -213,15 +213,11 @@ export class CartComponent implements OnInit {
         input.value = String(card.quantity);
       }
 
-      this.snackBar.open(
-        `Кількість ${qty} недоступна. У наявності: ${card.variation.stock_quantity}`,
-        'OK',
-        {
-          duration: 3000,
-          horizontalPosition: 'center',
-          verticalPosition: 'top',
-        },
-      );
+      this.snackBar.open('Обрана кількість недоступна', 'OK', {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'top',
+      });
 
       return;
     }

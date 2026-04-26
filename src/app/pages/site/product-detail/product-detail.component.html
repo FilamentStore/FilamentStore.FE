@@ -110,7 +110,7 @@
           }
         </div>
 
-        @if (activeVariation(); as v) {
+        @if (activeVariation()) {
           <div class="detail__stock-info">
             <span
               class="detail__stock-dot"
@@ -123,12 +123,10 @@
               >
             } @else if (stockStatus() === 'low') {
               <span class="detail__stock-label detail__stock-label--low"
-                >Залишилось: {{ v.stock_quantity }} шт.</span
+                >Закінчується</span
               >
             } @else {
-              <span class="detail__stock-label"
-                >В наявності: {{ v.stock_quantity }} шт.</span
-              >
+              <span class="detail__stock-label">В наявності</span>
             }
           </div>
         }
