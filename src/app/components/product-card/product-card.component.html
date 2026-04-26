@@ -69,6 +69,7 @@
       @if (colorSwatchBg()) {
         <span
           class="card__swatch"
+          [class.card__swatch--multi]="(colorAttr()?.hex?.length ?? 0) > 1"
           [style.background]="colorSwatchBg()"
           [title]="colorAttr()?.name ?? ''"
         ></span>
