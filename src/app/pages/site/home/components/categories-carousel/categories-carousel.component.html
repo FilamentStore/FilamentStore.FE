@@ -2,38 +2,30 @@
   <h2 class="categories__title">Категорії</h2>
 
   @if (loading) {
-    <app-skeleton variant="categories" [count]="3" />
+    <app-skeleton variant="categories" [count]="6" />
   } @else {
-    <div
-      class="categories__stage"
-      #stage
-      (touchstart)="onCatTouchStart($event)"
-      (touchend)="onCatTouchEnd($event)"
-    >
-      @for (cat of categories; track cat.id; let i = $index) {
+    <div class="categories__grid">
+      @for (cat of categories; track cat.id) {
         <a
           class="categories__card"
-          [style]="getCardStyle(i)"
-          [routerLink]="getCategoryOffset(i) === 0 ? ['/catalog'] : null"
-          [queryParams]="
-            getCategoryOffset(i) === 0 ? { category_id: cat.id } : null
-          "
-          (click)="onCategoryCardClick(i, $event)"
+          [routerLink]="['/catalog']"
+          [queryParams]="{ category_id: cat.id }"
         >
-          <div class="categories__img-wrap">
-            @if (cat.image) {
+          <div class="categories__info">
+            <span class="categories__name">{{ cat.name }}</span>
+            <span class="categories__cta">Переглянути</span>
+          </div>
+
+          @if (cat.image) {
+            <div class="categories__media">
               <img
                 class="categories__img"
                 [src]="cat.image.src"
                 [alt]="cat.name"
                 loading="lazy"
               />
-            }
-          </div>
-          <div class="categories__info">
-            <span class="categories__name">{{ cat.name }}</span>
-            <span class="categories__count">{{ cat.count ?? 0 }} товарів</span>
-          </div>
+            </div>
+          }
         </a>
       }
     </div>

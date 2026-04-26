@@ -59,8 +59,11 @@
     <div class="skeleton skeleton--categories" aria-hidden="true">
       @for (_ of items; track $index) {
         <div class="skeleton__category-card">
-          <span class="skeleton__category-badge"></span>
-          <span class="skeleton__category-count"></span>
+          <div class="skeleton__category-body">
+            <span class="skeleton__category-name"></span>
+            <span class="skeleton__category-link"></span>
+          </div>
+          <div class="skeleton__category-media"></div>
         </div>
       }
     </div>
