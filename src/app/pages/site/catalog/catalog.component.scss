@@ -3,7 +3,7 @@
 .catalog {
   @include content-padding-in-line;
 
-  padding-block-start: 24px;
+  padding-block-start: 10px;
   padding-block-end: 32px;
 
   @include on-tablet {
@@ -18,7 +18,6 @@
   }
 
   &__header {
-    margin-bottom: 24px;
     text-align: center;
   }
 
