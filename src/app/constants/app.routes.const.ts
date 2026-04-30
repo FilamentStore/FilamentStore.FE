@@ -7,6 +7,7 @@ export const ROUTES = {
     account: 'account',
     favorites: 'favorites',
     cart: 'cart',
+    checkout: 'checkout',
   },
   crm: {
     root: 'crm',

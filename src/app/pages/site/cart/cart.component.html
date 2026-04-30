@@ -131,9 +131,7 @@
             </div>
             <div class="cart__item-price">
               <p>
-                {{
-                  getPrice(card.variation) * card.quantity | number: '1.0-0'
-                }}
+                {{ getPrice(card.variation) * card.quantity | number: '1.0-0' }}
                 ₴
               </p>
             </div>
@@ -157,7 +155,11 @@
                   : 'товарів'
             }}
           </p>
-          <button class="cart__checkout-btn" type="button">
+          <button
+            class="cart__checkout-btn"
+            type="button"
+            routerLink="/checkout"
+          >
             Оформити замовлення
           </button>
         </div>
