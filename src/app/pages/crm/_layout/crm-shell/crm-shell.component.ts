@@ -55,6 +55,11 @@ export class CrmShellComponent {
       route: `/${ROUTES.crm.root}/${ROUTES.crm.dashboard}`,
     },
     {
+      label: 'Замовлення',
+      icon: 'receipt_long',
+      route: `/${ROUTES.crm.root}/${ROUTES.crm.orders}`,
+    },
+    {
       label: 'Продукти',
       icon: 'inventory_2',
       route: `/${ROUTES.crm.root}/${ROUTES.crm.products.root}`,

@@ -141,16 +141,25 @@
                 <label class="checkout__label" for="contactHandle">
                   Номер Viber <span class="checkout__required">*</span>
                 </label>
-                <input
-                  id="contactHandle"
-                  class="checkout__input"
-                  [class.checkout__input--error]="isInvalid('contactHandle')"
-                  type="tel"
-                  placeholder="+380501234567"
-                  formControlName="contactHandle"
-                />
+                <div
+                  class="checkout__input-prefix-wrap"
+                  [class.checkout__input-prefix-wrap--error]="
+                    isInvalid('contactHandle')
+                  "
+                >
+                  <span class="checkout__input-prefix">+380</span>
+                  <input
+                    id="contactHandle"
+                    class="checkout__input checkout__input--prefixed"
+                    type="tel"
+                    placeholder="XXXXXXXXX"
+                    formControlName="contactHandle"
+                    maxlength="9"
+                    (input)="onViberInput($event)"
+                  />
+                </div>
                 @if (isInvalid('contactHandle')) {
-                  <span class="checkout__error">Введіть коректний номер</span>
+                  <span class="checkout__error">Введіть 9 цифр після +380</span>
                 }
               </div>
             }
@@ -346,6 +355,9 @@
           </section>
 
           <!-- Submit (mobile — below summary on desktop) -->
+          @if (orderError()) {
+            <p class="checkout__order-error">{{ orderError() }}</p>
+          }
           <div class="checkout__submit-wrap">
             <button
               class="checkout__submit"

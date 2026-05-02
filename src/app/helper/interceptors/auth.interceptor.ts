@@ -21,9 +21,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     auth.logout();
   }
 
-  const authReq = validToken
-    ? req.clone({ setHeaders: { Authorization: `Bearer ${validToken}` } })
-    : req;
+  const isExternal = req.url.startsWith('http') || req.url.startsWith('//');
+
+  const authReq =
+    validToken && !isExternal
+      ? req.clone({ setHeaders: { Authorization: `Bearer ${validToken}` } })
+      : req;
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {

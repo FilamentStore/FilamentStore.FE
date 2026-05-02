@@ -79,6 +79,43 @@
     color: var(--color-text-secondary);
   }
 
+  &__input-prefix-wrap {
+    display: flex;
+    align-items: stretch;
+    border-radius: 10px;
+    border: 1.5px solid var(--color-element);
+    background: var(--color-bg);
+    transition: border-color 0.2s;
+
+    &:focus-within {
+      border-color: var(--color-accent);
+    }
+
+    &--error {
+      border-color: var(--color-error);
+    }
+  }
+
+  &__input-prefix {
+    padding: 11px 10px 11px 14px;
+    font-size: 14px;
+    color: var(--color-text-main);
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  &__input--prefixed {
+    border: none !important;
+    border-radius: 0 10px 10px 0 !important;
+    padding-left: 2px !important;
+    flex: 1;
+    min-width: 0;
+
+    &:focus {
+      border-color: transparent;
+    }
+  }
+
   &__input,
   &__textarea {
     width: 100%;
@@ -359,6 +396,12 @@
   }
 
   // ── Submit ────────────────────────────────────────────────────────────────
+
+  &__order-error {
+    color: var(--color-error, #e53e3e);
+    font-size: 14px;
+    margin-block-end: 8px;
+  }
 
   &__submit-wrap {
     padding-block-start: 4px;

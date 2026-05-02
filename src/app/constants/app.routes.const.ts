@@ -20,6 +20,7 @@ export const ROUTES = {
       root: 'products',
       create: 'create',
     },
+    orders: 'orders',
     configuration: {
       root: 'config',
       attributes: 'attributes',

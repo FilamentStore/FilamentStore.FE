@@ -22,7 +22,9 @@ import {
 } from '@app/services/nova-poshta.service';
 import { ProductsService } from '@app/services/tempService/products.service';
 import { VariationsService } from '@app/services/tempService/variations.service';
+import { OrdersService } from '@app/services/orders.service';
 import { selectCartEntries } from '@store/cart/cart.selectors';
+import { CartActions } from '@store/cart/cart.actions';
 import { Product, ProductVariation } from '@app/models/product.models';
 
 interface CartItem {
@@ -50,6 +52,7 @@ export class CheckoutComponent implements OnInit {
   private readonly np = inject(NovaPoshtaService);
   private readonly productsService = inject(ProductsService);
   private readonly variationsService = inject(VariationsService);
+  private readonly ordersService = inject(OrdersService);
 
   private readonly entries = toSignal(this.store.select(selectCartEntries), {
     initialValue: [],
@@ -105,6 +108,7 @@ export class CheckoutComponent implements OnInit {
 
   readonly submitted = signal(false);
   readonly submitting = signal(false);
+  readonly orderError = signal<string | null>(null);
   readonly contactMethod = signal<'telegram' | 'viber'>('telegram');
 
   readonly form = this.fb.group({
@@ -246,9 +250,26 @@ export class CheckoutComponent implements OnInit {
     this.showMapModal.set(false);
   }
 
+  onViberInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const digits = input.value.replace(/\D/g, '').slice(0, 9);
+
+    input.value = digits;
+    this.form.get('contactHandle')!.setValue(digits, { emitEvent: false });
+  }
+
   setContactMethod(method: 'telegram' | 'viber'): void {
     this.contactMethod.set(method);
-    this.form.patchValue({ contactHandle: '' });
+    const ctrl = this.form.get('contactHandle')!;
+
+    if (method === 'viber') {
+      ctrl.setValidators([Validators.required, Validators.pattern(/^\d{9}$/)]);
+    } else {
+      ctrl.setValidators([Validators.required]);
+    }
+
+    ctrl.setValue('');
+    ctrl.updateValueAndValidity();
   }
 
   hideCitiesDrop(): void {
@@ -288,29 +309,37 @@ export class CheckoutComponent implements OnInit {
     if (this.form.invalid || !city || !warehouseOk) return;
 
     this.submitting.set(true);
+    this.orderError.set(null);
 
-    const order = {
-      name: this.form.value.name,
-      contactMethod: this.contactMethod(),
-      contactHandle: this.form.value.contactHandle,
-      city: city.Present,
-      warehouse: this.selectedWarehouse()!.Description,
-      printerCertificate: this.form.value.printerCertificate || null,
-      comment: this.form.value.comment || null,
-      items: this.cartItems().map(i => ({
-        name: i.product.name,
-        qty: i.quantity,
-        price: this.getItemPrice(i),
-      })),
-      total: this.totalPrice(),
-    };
-
-    console.log('Order ready:', order);
-
-    // TODO: надіслати на backend
-    setTimeout(() => {
-      this.submitting.set(false);
-      this.submitted.set(true);
-    }, 600);
+    this.ordersService
+      .create({
+        customer_name: this.form.value.name!,
+        contact_type: this.contactMethod(),
+        contact_value:
+          this.contactMethod() === 'viber'
+            ? `+380${this.form.value.contactHandle!}`
+            : this.form.value.contactHandle!,
+        city: city.Present,
+        warehouse: this.selectedWarehouse()!.Description,
+        items: this.cartItems().map(i => ({
+          variation_id: i.variation.id,
+          quantity: i.quantity,
+        })),
+        certificate: this.form.value.printerCertificate || null,
+        comment: this.form.value.comment || null,
+      })
+      .subscribe({
+        next: () => {
+          this.store.dispatch(CartActions.clear({}));
+          this.submitting.set(false);
+          this.submitted.set(true);
+        },
+        error: () => {
+          this.submitting.set(false);
+          this.orderError.set(
+            'Не вдалося оформити замовлення. Спробуйте ще раз.',
+          );
+        },
+      });
   }
 }
