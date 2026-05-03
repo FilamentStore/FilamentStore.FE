@@ -1,6 +1,53 @@
 <div class="orders">
   <div class="orders__header">
     <h1 class="orders__title">Замовлення</h1>
+    <div class="orders__search-wrap">
+      <mat-icon class="orders__search-icon">search</mat-icon>
+      <input
+        class="orders__search"
+        type="text"
+        placeholder="Пошук по імені або номеру..."
+        [value]="searchValue()"
+        (input)="onSearchInput($event)"
+      />
+    </div>
+  </div>
+
+  <div class="orders__tabs">
+    <button
+      class="orders__tab"
+      [class.orders__tab--active]="tab() === 'active'"
+      (click)="setTab('active')"
+    >
+      Замовлення
+      @if (activeCount()) {
+        <span class="orders__tab-count">{{ activeCount() }}</span>
+      }
+    </button>
+    <button
+      class="orders__tab"
+      [class.orders__tab--active]="tab() === 'history'"
+      (click)="setTab('history')"
+    >
+      Історія
+      @if (historyCount()) {
+        <span class="orders__tab-count orders__tab-count--muted">{{
+          historyCount()
+        }}</span>
+      }
+    </button>
+  </div>
+
+  <div class="orders__filters">
+    @for (opt of statusOptions(); track opt.value) {
+      <button
+        class="orders__filter-chip"
+        [class.orders__filter-chip--active]="statusFilter() === opt.value"
+        (click)="setStatusFilter(opt.value)"
+      >
+        {{ opt.label }}
+      </button>
+    }
   </div>
 
   @if (loading()) {
@@ -12,14 +59,14 @@
       <mat-icon>error_outline</mat-icon>
       <p>{{ error() }}</p>
     </div>
-  } @else if (orders().length === 0) {
+  } @else if (filteredOrders().length === 0) {
     <div class="orders__center orders__empty">
       <mat-icon>inbox</mat-icon>
-      <p>Замовлень ще немає</p>
+      <p>Замовлень не знайдено</p>
     </div>
   } @else {
     <div class="orders__list">
-      @for (order of orders(); track order.id) {
+      @for (order of pagedOrders(); track order.id) {
         <div
           class="orders__card"
           [class.orders__card--expanded]="isExpanded(order.id)"
@@ -266,5 +313,45 @@
         </div>
       }
     </div>
+
+    @if (totalPages() > 1) {
+      <div class="orders__pagination">
+        <button
+          class="orders__page-btn"
+          [disabled]="currentPage() === 1"
+          (click)="setPage(currentPage() - 1)"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        @for (p of visiblePages(); track p; let i = $index) {
+          @if (isGap(visiblePages(), i)) {
+            <span class="orders__page-gap">…</span>
+          }
+          <button
+            class="orders__page-btn"
+            [class.orders__page-btn--active]="currentPage() === p"
+            (click)="setPage(p)"
+          >
+            {{ p }}
+          </button>
+        }
+
+        <button
+          class="orders__page-btn"
+          [disabled]="currentPage() === totalPages()"
+          (click)="setPage(currentPage() + 1)"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+
+        <span class="orders__page-info">
+          {{ (currentPage() - 1) * 10 + 1 }}–{{
+            min(currentPage() * 10, filteredOrders().length)
+          }}
+          з {{ filteredOrders().length }}
+        </span>
+      </div>
+    }
   }
 </div>

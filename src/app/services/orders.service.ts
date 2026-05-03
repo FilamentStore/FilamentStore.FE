@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -32,6 +32,19 @@ export interface Order {
   items: OrderItem[];
 }
 
+export interface OrdersFilters {
+  search?: string;
+  status?: string;
+  page?: number;
+  per_page?: number;
+}
+
+export interface OrdersResponse {
+  orders: Order[];
+  total: number;
+  totalPages: number;
+}
+
 export interface CreateOrderDto {
   customer_name: string;
   contact_type: 'telegram' | 'viber' | 'phone';
@@ -48,8 +61,17 @@ export class OrdersService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
 
-  getAll(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.baseUrl}/orders`);
+  getAll(filters: OrdersFilters = {}): Observable<OrdersResponse> {
+    let params = new HttpParams().set(
+      'per_page',
+      String(filters.per_page ?? 100),
+    );
+
+    if (filters.page) params = params.set('page', String(filters.page));
+    if (filters.status) params = params.set('status', filters.status);
+    if (filters.search) params = params.set('search', filters.search);
+
+    return this.http.get<OrdersResponse>(`${this.baseUrl}/orders`, { params });
   }
 
   create(order: CreateOrderDto): Observable<Order> {

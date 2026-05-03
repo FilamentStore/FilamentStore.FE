@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,6 +18,11 @@ interface Transition {
   label: string;
   next: string;
   kind: 'primary' | 'danger';
+}
+
+interface StatusOption {
+  value: string;
+  label: string;
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -49,8 +54,31 @@ const STATUS_TRANSITIONS: Record<string, Transition[]> = {
 };
 
 const CANCELLABLE = new Set(['pending', 'on-hold', 'processing']);
+const ACTIVE_STATUSES = new Set(['pending', 'on-hold', 'processing']);
+const HISTORY_STATUSES = new Set([
+  'completed',
+  'cancelled',
+  'failed',
+  'refunded',
+]);
 
 const TTN_RE = /^\d{14}$/;
+const PAGE_SIZE = 10;
+
+const ACTIVE_STATUS_OPTIONS: StatusOption[] = [
+  { value: '', label: 'Всі' },
+  { value: 'pending', label: 'Нове' },
+  { value: 'on-hold', label: 'Очікує оплати' },
+  { value: 'processing', label: 'Оплачено' },
+];
+
+const HISTORY_STATUS_OPTIONS: StatusOption[] = [
+  { value: '', label: 'Всі' },
+  { value: 'completed', label: 'Відправлено' },
+  { value: 'cancelled', label: 'Скасовано' },
+  { value: 'refunded', label: 'Повернення' },
+  { value: 'failed', label: 'Помилка' },
+];
 
 @Component({
   selector: 'app-orders-list',
@@ -78,7 +106,7 @@ export class OrdersListComponent implements OnInit {
     { initialValue: {} as Record<string, SimpleAttributeOption[]> },
   );
 
-  readonly orders = signal<Order[]>([]);
+  readonly allOrders = signal<Order[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly expanded = signal<Set<number>>(new Set());
@@ -88,14 +116,85 @@ export class OrdersListComponent implements OnInit {
   readonly cancelPending = signal<Set<number>>(new Set());
   readonly cancelReasons = signal<Record<number, string>>({});
 
-  ngOnInit(): void {
-    this.ordersService.getAll().subscribe({
-      next: (res: any) => {
-        const list: Order[] = Array.isArray(res)
-          ? res
-          : (res?.orders ?? res?.data ?? []);
+  readonly tab = signal<'active' | 'history'>('active');
+  readonly statusFilter = signal('');
+  readonly searchValue = signal('');
+  readonly currentPage = signal(1);
 
-        this.orders.set(list);
+  readonly statusOptions = computed(() =>
+    this.tab() === 'active' ? ACTIVE_STATUS_OPTIONS : HISTORY_STATUS_OPTIONS,
+  );
+
+  readonly tabOrders = computed(() => {
+    const set = this.tab() === 'active' ? ACTIVE_STATUSES : HISTORY_STATUSES;
+
+    return this.allOrders().filter(o => set.has(o.status));
+  });
+
+  readonly filteredOrders = computed(() => {
+    const q = this.searchValue().trim().toLowerCase();
+    const sf = this.statusFilter();
+
+    let list = this.tabOrders();
+
+    if (sf) list = list.filter(o => o.status === sf);
+
+    if (q) {
+      list = list.filter(
+        o =>
+          o.id.toString().includes(q) ||
+          o.customer_name.toLowerCase().includes(q) ||
+          o.contact_value.toLowerCase().includes(q),
+      );
+    }
+
+    return list;
+  });
+
+  readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.filteredOrders().length / PAGE_SIZE)),
+  );
+
+  readonly pagedOrders = computed(() => {
+    const start = (this.currentPage() - 1) * PAGE_SIZE;
+
+    return this.filteredOrders().slice(start, start + PAGE_SIZE);
+  });
+
+  readonly visiblePages = computed(() => {
+    const total = this.totalPages();
+    const cur = this.currentPage();
+
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+    const set = new Set([1, 2, cur - 1, cur, cur + 1, total - 1, total]);
+
+    return [...set].filter(p => p >= 1 && p <= total).sort((a, b) => a - b);
+  });
+
+  readonly activeCount = computed(
+    () => this.allOrders().filter(o => ACTIVE_STATUSES.has(o.status)).length,
+  );
+
+  readonly historyCount = computed(
+    () => this.allOrders().filter(o => HISTORY_STATUSES.has(o.status)).length,
+  );
+
+  ngOnInit(): void {
+    this.fetchOrders();
+  }
+
+  private fetchOrders(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    const search = this.searchValue().trim() || undefined;
+
+    this.ordersService.getAll({ search, per_page: 100 }).subscribe({
+      next: res => {
+        const list = Array.isArray(res) ? res : (res?.orders ?? []);
+
+        this.allOrders.set(list);
         this.loading.set(false);
       },
       error: err => {
@@ -104,6 +203,33 @@ export class OrdersListComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  setTab(tab: 'active' | 'history'): void {
+    this.tab.set(tab);
+    this.statusFilter.set('');
+    this.currentPage.set(1);
+  }
+
+  setStatusFilter(value: string): void {
+    this.statusFilter.set(value);
+    this.currentPage.set(1);
+  }
+
+  onSearchInput(event: Event): void {
+    const val = (event.target as HTMLInputElement).value;
+
+    this.searchValue.set(val);
+    this.currentPage.set(1);
+  }
+
+  setPage(p: number): void {
+    if (p < 1 || p > this.totalPages()) return;
+    this.currentPage.set(p);
+  }
+
+  isGap(pages: number[], i: number): boolean {
+    return i > 0 && pages[i] - pages[i - 1] > 1;
   }
 
   statusLabel(status: string): string {
@@ -120,6 +246,21 @@ export class OrdersListComponent implements OnInit {
 
   canCancel(status: string): boolean {
     return CANCELLABLE.has(status);
+  }
+
+  isExpanded(id: number): boolean {
+    return this.expanded().has(id);
+  }
+
+  toggle(id: number): void {
+    const next = new Set(this.expanded());
+
+    next.has(id) ? next.delete(id) : next.add(id);
+    this.expanded.set(next);
+  }
+
+  isUpdating(id: number): boolean {
+    return this.updating().has(id);
   }
 
   isCancelPending(id: number): boolean {
@@ -165,7 +306,7 @@ export class OrdersListComponent implements OnInit {
 
     this.ordersService.updateStatus(order.id, payload).subscribe({
       next: updated => {
-        this.orders.update(list =>
+        this.allOrders.update(list =>
           list.map(o =>
             o.id === order.id
               ? {
@@ -181,21 +322,6 @@ export class OrdersListComponent implements OnInit {
       },
       error: () => this.setUpdating(order.id, false),
     });
-  }
-
-  isExpanded(id: number): boolean {
-    return this.expanded().has(id);
-  }
-
-  toggle(id: number): void {
-    const next = new Set(this.expanded());
-
-    next.has(id) ? next.delete(id) : next.add(id);
-    this.expanded.set(next);
-  }
-
-  isUpdating(id: number): boolean {
-    return this.updating().has(id);
   }
 
   getTtn(id: number): string {
@@ -222,7 +348,7 @@ export class OrdersListComponent implements OnInit {
     this.setUpdating(order.id, true);
     this.ordersService.updateStatus(order.id, { status: toStatus }).subscribe({
       next: updated => {
-        this.orders.update(list =>
+        this.allOrders.update(list =>
           list.map(o =>
             o.id === order.id ? { ...o, status: updated.status } : o,
           ),
@@ -252,7 +378,7 @@ export class OrdersListComponent implements OnInit {
       .updateStatus(order.id, { status: 'completed', ttn })
       .subscribe({
         next: updated => {
-          this.orders.update(list =>
+          this.allOrders.update(list =>
             list.map(o =>
               o.id === order.id
                 ? { ...o, status: updated.status, ttn: updated.ttn }
@@ -310,6 +436,10 @@ export class OrdersListComponent implements OnInit {
     if (order.contact_type === 'viber') return 'Відкрити Viber';
 
     return 'Зателефонувати';
+  }
+
+  min(a: number, b: number): number {
+    return Math.min(a, b);
   }
 
   private setUpdating(id: number, on: boolean): void {

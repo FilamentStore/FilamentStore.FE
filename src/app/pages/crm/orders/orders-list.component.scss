@@ -2,13 +2,202 @@
   padding: 24px;
 
   &__header {
-    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
   }
 
   &__title {
     font-size: 22px;
     font-weight: 600;
     margin: 0;
+    flex-shrink: 0;
+  }
+
+  &__search-wrap {
+    position: relative;
+    flex: 0 0 280px;
+  }
+
+  &__search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #aaa;
+    pointer-events: none;
+  }
+
+  &__search {
+    width: 100%;
+    height: 36px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0 12px 0 34px;
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+    background: #fff;
+
+    &:focus {
+      border-color: #22a794;
+    }
+  }
+
+  &__tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 16px;
+  }
+
+  &__tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 28px;
+    height: 48px;
+    border: none;
+    background: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #777;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition:
+      color 0.15s,
+      border-color 0.15s;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+
+    &:hover {
+      color: #333;
+    }
+
+    &--active {
+      color: #22a794;
+      border-bottom-color: #22a794;
+      font-weight: 600;
+    }
+  }
+
+  &__tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: #22a794;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+
+    &--muted {
+      background: #e0e0e0;
+      color: #666;
+    }
+  }
+
+  &__filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  &__filter-chip {
+    padding: 6px 18px;
+    border-radius: 20px;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover {
+      border-color: #22a794;
+      color: #22a794;
+    }
+
+    &--active {
+      background: #22a794;
+      border-color: #22a794;
+      color: #fff;
+
+      &:hover {
+        color: #fff;
+      }
+    }
+  }
+
+  &__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 16px;
+  }
+
+  &__page-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 6px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover:not(:disabled) {
+      border-color: #22a794;
+      color: #22a794;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &--active {
+      background: #22a794;
+      border-color: #22a794;
+      color: #fff;
+    }
+  }
+
+  &__page-gap {
+    font-size: 13px;
+    color: #aaa;
+    padding: 0 4px;
+  }
+
+  &__page-info {
+    font-size: 12px;
+    color: #888;
+    margin-left: 8px;
+    white-space: nowrap;
   }
 
   &__center {
@@ -147,11 +336,11 @@
     }
 
     &--primary {
-      background: #e3f2fd;
-      color: #1565c0;
+      background: #e0f5f3;
+      color: #1a8c7e;
 
       &:hover:not(:disabled) {
-        background: #bbdefb;
+        background: #b3ede8;
       }
     }
 
@@ -267,7 +456,7 @@
     align-items: center;
     gap: 12px;
     padding: 10px 16px;
-    background: #f0f7ff;
+    background: #e8f8f6;
     border-top: 1px solid #e0e0e0;
     flex-wrap: wrap;
 
@@ -304,7 +493,7 @@
     transition: border-color 0.15s;
 
     &:focus {
-      border-color: #1976d2;
+      border-color: #22a794;
     }
 
     &--error {
@@ -320,7 +509,7 @@
     padding: 0 14px;
     border: none;
     border-radius: 8px;
-    background: #1976d2;
+    background: #22a794;
     color: #fff;
     font-size: 13px;
     font-weight: 600;
@@ -335,7 +524,7 @@
     }
 
     &:hover:not(:disabled) {
-      background: #1565c0;
+      background: #1a8c7e;
     }
 
     &:disabled {
@@ -452,7 +641,7 @@
   }
 
   &__chat-btn {
-    color: #1976d2;
+    color: #22a794;
   }
 
   &__chat-icon {
