@@ -60,6 +60,13 @@ export const routes: Routes = [
           import('./pages/site/cart/cart.component').then(m => m.CartComponent),
       },
       {
+        path: ROUTES.site.checkout,
+        loadComponent: () =>
+          import('./pages/site/checkout/checkout.component').then(
+            m => m.CheckoutComponent,
+          ),
+      },
+      {
         path: '**',
         loadComponent: () =>
           import('./pages/site/not-found/not-found.component').then(

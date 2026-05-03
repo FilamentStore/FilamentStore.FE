@@ -1,0 +1,88 @@
+<div class="about">
+  <div class="about__breadcrumb">
+    <app-breadcrumb [items]="[{ label: 'Про нас' }]" />
+  </div>
+
+  <!-- Hero -->
+  <section class="about__hero">
+    <div class="about__hero-inner">
+      <span class="about__hero-tag">FilamentStore</span>
+      <h1 class="about__hero-title">
+        Тільки той пластик,<br />якому можна довіряти
+      </h1>
+      <p class="about__hero-sub">
+        Надійний постачальник матеріалів для 3D-друку
+      </p>
+      <a class="about__hero-cta" routerLink="/catalog">Переглянути каталог</a>
+    </div>
+    <div class="about__hero-blob about__hero-blob--1" aria-hidden="true"></div>
+    <div class="about__hero-blob about__hero-blob--2" aria-hidden="true"></div>
+  </section>
+
+  <!-- Story -->
+  <section class="about__story">
+    <div class="about__story-inner">
+      <div class="about__story-label">Хто ми</div>
+      <div class="about__story-body">
+        <p>
+          filamentstore.com.ua — надійний постачальник пластику для 3D-друку. Ми
+          спеціалізуємося на продажі якісних матеріалів, які забезпечують
+          стабільний результат і комфортну роботу як для початківців, так і для
+          професіоналів.
+        </p>
+        <p>
+          Ми розуміємо, наскільки важливо використовувати перевірений пластик,
+          тому пропонуємо тільки ті матеріали, які відповідають сучасним вимогам
+          якості та друку.
+        </p>
+        <p class="about__story-highlight">
+          filamentstore.com.ua — місце, де легко знайти правильний матеріал для
+          будь-якої задачі.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Carousel -->
+  <section class="about__carousel">
+    <div class="about__carousel-wrap">
+      <div class="about__track">
+        @for (photo of photos; track photo) {
+          <figure class="about__slide">
+            <img
+              [src]="photo"
+              alt="FilamentStore матеріал"
+              class="about__slide-img"
+            />
+          </figure>
+        }
+        @for (photo of photos; track photo) {
+          <figure class="about__slide" aria-hidden="true">
+            <img [src]="photo" alt="" class="about__slide-img" />
+          </figure>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission -->
+  <section class="about__mission">
+    <div class="about__mission-inner">
+      <div class="about__mission-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none">
+          <path
+            d="M24 4L30 18H44L33 27L37 41L24 32L11 41L15 27L4 18H18L24 4Z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+      <h2 class="about__mission-title">Наша мета</h2>
+      <p class="about__mission-text">
+        Зробити якісний пластик доступним і допомогти вам отримувати ідеальний
+        результат у кожному проєкті.
+      </p>
+    </div>
+  </section>
+</div>

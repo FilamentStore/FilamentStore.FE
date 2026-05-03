@@ -1,0 +1,103 @@
+<div class="np-modal__backdrop" (click)="close()"></div>
+
+<div class="np-modal">
+  <!-- Header -->
+  <div class="np-modal__header">
+    <div>
+      <p class="np-modal__eyebrow">Нова Пошта</p>
+      <h3 class="np-modal__title">Відділення — {{ cityName }}</h3>
+    </div>
+    <button
+      class="np-modal__close"
+      type="button"
+      (click)="close()"
+      aria-label="Закрити"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="np-modal__body">
+    <!-- Left panel -->
+    <div class="np-modal__list-panel">
+      <div class="np-modal__search">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          type="text"
+          placeholder="Введіть вулицю або номер..."
+          class="np-modal__search-input"
+          (input)="onSearch($event)"
+        />
+      </div>
+
+      @if (loading()) {
+        <div class="np-modal__loading">
+          <span class="np-modal__spinner"></span>
+          Завантаження відділень...
+        </div>
+      } @else if (filtered().length === 0) {
+        <div class="np-modal__empty">Відділень не знайдено</div>
+      } @else {
+        <ul class="np-modal__list">
+          @for (w of filtered(); track w.Ref) {
+            <li
+              class="np-modal__item"
+              [class.np-modal__item--active]="activeWarehouse()?.Ref === w.Ref"
+              (click)="highlightWarehouse(w)"
+            >
+              <div class="np-modal__item-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+              </div>
+              <div class="np-modal__item-info">
+                <span class="np-modal__item-name"
+                  >Нова Пошта №{{ w.Number }}</span
+                >
+                <span class="np-modal__item-addr">{{ w.Description }}</span>
+              </div>
+              <button
+                class="np-modal__item-select"
+                type="button"
+                (click)="$event.stopPropagation(); selectWarehouse(w)"
+              >
+                Обрати
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <!-- Map -->
+    <div class="np-modal__map" #mapEl></div>
+  </div>
+</div>
