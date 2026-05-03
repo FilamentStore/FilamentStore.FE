@@ -27,6 +27,8 @@ export interface Order {
   warehouse: string;
   comment: string | null;
   certificate: string | null;
+  ttn: string | null;
+  cancel_reason: string | null;
   items: OrderItem[];
 }
 
@@ -54,7 +56,10 @@ export class OrdersService {
     return this.http.post<Order>(`${this.baseUrl}/orders`, order);
   }
 
-  updateStatus(id: number, status: string): Observable<Order> {
-    return this.http.patch<Order>(`${this.baseUrl}/orders/${id}`, { status });
+  updateStatus(
+    id: number,
+    payload: Record<string, unknown>,
+  ): Observable<Order> {
+    return this.http.patch<Order>(`${this.baseUrl}/orders/${id}`, payload);
   }
 }

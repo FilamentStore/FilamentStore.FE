@@ -24,6 +24,7 @@
           class="orders__card"
           [class.orders__card--expanded]="isExpanded(order.id)"
         >
+          <!-- ── Main row ──────────────────────────────────────── -->
           <div class="orders__row" (click)="toggle(order.id)">
             <div class="orders__cell orders__cell--info">
               <span class="orders__id">#{{ order.id }}</span>
@@ -53,6 +54,31 @@
               <span class="orders__badge {{ statusClass(order.status) }}">
                 {{ statusLabel(order.status) }}
               </span>
+              <div
+                class="orders__transitions"
+                (click)="$event.stopPropagation()"
+              >
+                @for (t of transitions(order.status); track t.next) {
+                  <button
+                    class="orders__transition-btn orders__transition-btn--{{
+                      t.kind
+                    }}"
+                    [disabled]="isUpdating(order.id)"
+                    (click)="changeStatus(order, t.next)"
+                  >
+                    {{ t.label }}
+                  </button>
+                }
+                @if (canCancel(order.status)) {
+                  <button
+                    class="orders__transition-btn orders__transition-btn--danger"
+                    [disabled]="isUpdating(order.id)"
+                    (click)="requestCancel(order.id, $event)"
+                  >
+                    Скасувати
+                  </button>
+                }
+              </div>
             </div>
 
             <div class="orders__cell orders__cell--total">
@@ -95,8 +121,119 @@
             </div>
           </div>
 
+          <!-- ── Cancel confirmation ───────────────────────────── -->
+          @if (isCancelPending(order.id)) {
+            <div class="orders__cancel-row" (click)="$event.stopPropagation()">
+              <div class="orders__cancel-header">
+                <mat-icon class="orders__cancel-icon">warning_amber</mat-icon>
+                <span
+                  >Ви впевнені, що хочете скасувати замовлення #{{
+                    order.id
+                  }}?</span
+                >
+              </div>
+              <textarea
+                class="orders__cancel-reason"
+                rows="2"
+                placeholder="Причина скасування (необов'язково)..."
+                [value]="getCancelReason(order.id)"
+                (input)="onCancelReasonInput(order.id, $event)"
+              ></textarea>
+              <div class="orders__cancel-actions">
+                <button
+                  class="orders__cancel-confirm"
+                  [disabled]="isUpdating(order.id)"
+                  (click)="confirmCancel(order)"
+                >
+                  @if (isUpdating(order.id)) {
+                    <mat-spinner diameter="14" />
+                  } @else {
+                    Так, скасувати
+                  }
+                </button>
+                <button
+                  class="orders__cancel-dismiss"
+                  [disabled]="isUpdating(order.id)"
+                  (click)="dismissCancel(order.id)"
+                >
+                  Ні, залишити
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- ── TTN row (processing only) ─────────────────────── -->
+          @if (order.status === 'processing') {
+            <div class="orders__ttn-row" (click)="$event.stopPropagation()">
+              <span class="orders__ttn-label">ТТН Нової Пошти</span>
+              <div class="orders__ttn-field">
+                <input
+                  class="orders__ttn-input"
+                  [class.orders__ttn-input--error]="getTtnError(order.id)"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="59000000000000"
+                  maxlength="14"
+                  [value]="getTtn(order.id)"
+                  (input)="onTtnInput(order.id, $event)"
+                />
+                <button
+                  class="orders__ttn-btn"
+                  [disabled]="isUpdating(order.id)"
+                  (click)="ship(order)"
+                >
+                  @if (isUpdating(order.id)) {
+                    <mat-spinner diameter="14" />
+                  } @else {
+                    <mat-icon>local_shipping</mat-icon>
+                    Відправити
+                  }
+                </button>
+              </div>
+              @if (getTtnError(order.id)) {
+                <span class="orders__ttn-error">{{
+                  getTtnError(order.id)
+                }}</span>
+              }
+              @if (order.ttn) {
+                <span class="orders__ttn-saved">ТТН: {{ order.ttn }}</span>
+              }
+            </div>
+          }
+
+          <!-- ── Completed: show saved TTN ─────────────────────── -->
+          @if (order.status === 'completed' && order.ttn) {
+            <div class="orders__ttn-row orders__ttn-row--readonly">
+              <span class="orders__ttn-label">ТТН</span>
+              <span class="orders__ttn-saved">{{ order.ttn }}</span>
+            </div>
+          }
+
+          <!-- ── Expanded items ─────────────────────────────────── -->
           @if (isExpanded(order.id)) {
             <div class="orders__items">
+              @if (order.certificate || order.comment || order.cancel_reason) {
+                <div class="orders__meta-info">
+                  @if (order.certificate) {
+                    <div class="orders__meta-chip orders__meta-chip--cert">
+                      <mat-icon>badge</mat-icon>
+                      <span>Посвідчення: {{ order.certificate }}</span>
+                    </div>
+                  }
+                  @if (order.comment) {
+                    <div class="orders__meta-chip orders__meta-chip--note">
+                      <mat-icon>sticky_note_2</mat-icon>
+                      <span>{{ order.comment }}</span>
+                    </div>
+                  }
+                  @if (order.cancel_reason) {
+                    <div class="orders__meta-chip orders__meta-chip--cancel">
+                      <mat-icon>cancel</mat-icon>
+                      <span>Причина скасування: {{ order.cancel_reason }}</span>
+                    </div>
+                  }
+                </div>
+              }
               @for (item of order.items; track item.variation_id) {
                 <div class="orders__item">
                   <div class="orders__item-img">

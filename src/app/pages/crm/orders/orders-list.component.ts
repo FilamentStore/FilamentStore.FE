@@ -14,19 +14,43 @@ import {
   selectAttributeSimpleAttributes,
 } from '@store/attributes/attributes.selectors';
 
+interface Transition {
+  label: string;
+  next: string;
+  kind: 'primary' | 'danger';
+}
+
 const STATUS_LABELS: Record<string, string> = {
   pending: 'Нове',
-  processing: 'В обробці',
-  completed: 'Виконано',
+  'on-hold': 'Очікує оплати',
+  processing: 'Оплачено',
+  completed: 'Відправлено',
   cancelled: 'Скасовано',
+  refunded: 'Повернення',
+  failed: 'Помилка оплати',
 };
 
 const STATUS_CLASSES: Record<string, string> = {
   pending: 'badge--pending',
+  'on-hold': 'badge--onhold',
   processing: 'badge--processing',
   completed: 'badge--completed',
   cancelled: 'badge--cancelled',
+  refunded: 'badge--refunded',
+  failed: 'badge--failed',
 };
+
+const STATUS_TRANSITIONS: Record<string, Transition[]> = {
+  pending: [{ label: 'Реквізити надіслано', next: 'on-hold', kind: 'primary' }],
+  'on-hold': [
+    { label: 'Оплата отримана', next: 'processing', kind: 'primary' },
+  ],
+  processing: [],
+};
+
+const CANCELLABLE = new Set(['pending', 'on-hold', 'processing']);
+
+const TTN_RE = /^\d{14}$/;
 
 @Component({
   selector: 'app-orders-list',
@@ -58,6 +82,11 @@ export class OrdersListComponent implements OnInit {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly expanded = signal<Set<number>>(new Set());
+  readonly updating = signal<Set<number>>(new Set());
+  readonly ttnValues = signal<Record<number, string>>({});
+  readonly ttnErrors = signal<Record<number, string>>({});
+  readonly cancelPending = signal<Set<number>>(new Set());
+  readonly cancelReasons = signal<Record<number, string>>({});
 
   ngOnInit(): void {
     this.ordersService.getAll().subscribe({
@@ -85,6 +114,75 @@ export class OrdersListComponent implements OnInit {
     return STATUS_CLASSES[status] ?? '';
   }
 
+  transitions(status: string): Transition[] {
+    return STATUS_TRANSITIONS[status] ?? [];
+  }
+
+  canCancel(status: string): boolean {
+    return CANCELLABLE.has(status);
+  }
+
+  isCancelPending(id: number): boolean {
+    return this.cancelPending().has(id);
+  }
+
+  requestCancel(id: number, event: Event): void {
+    event.stopPropagation();
+    this.cancelPending.update(s => new Set(s).add(id));
+  }
+
+  dismissCancel(id: number): void {
+    this.cancelPending.update(s => {
+      const next = new Set(s);
+
+      next.delete(id);
+
+      return next;
+    });
+    this.cancelReasons.update(m => ({ ...m, [id]: '' }));
+  }
+
+  getCancelReason(id: number): string {
+    return this.cancelReasons()[id] ?? '';
+  }
+
+  onCancelReasonInput(id: number, event: Event): void {
+    const val = (event.target as HTMLTextAreaElement).value;
+
+    this.cancelReasons.update(m => ({ ...m, [id]: val }));
+  }
+
+  confirmCancel(order: Order): void {
+    if (this.isUpdating(order.id)) return;
+
+    const reason = this.getCancelReason(order.id).trim();
+
+    this.setUpdating(order.id, true);
+
+    const payload: Record<string, unknown> = { status: 'cancelled' };
+
+    if (reason) payload['cancel_reason'] = reason;
+
+    this.ordersService.updateStatus(order.id, payload).subscribe({
+      next: updated => {
+        this.orders.update(list =>
+          list.map(o =>
+            o.id === order.id
+              ? {
+                  ...o,
+                  status: updated.status,
+                  cancel_reason: updated.cancel_reason,
+                }
+              : o,
+          ),
+        );
+        this.dismissCancel(order.id);
+        this.setUpdating(order.id, false);
+      },
+      error: () => this.setUpdating(order.id, false),
+    });
+  }
+
   isExpanded(id: number): boolean {
     return this.expanded().has(id);
   }
@@ -94,6 +192,78 @@ export class OrdersListComponent implements OnInit {
 
     next.has(id) ? next.delete(id) : next.add(id);
     this.expanded.set(next);
+  }
+
+  isUpdating(id: number): boolean {
+    return this.updating().has(id);
+  }
+
+  getTtn(id: number): string {
+    return this.ttnValues()[id] ?? '';
+  }
+
+  getTtnError(id: number): string {
+    return this.ttnErrors()[id] ?? '';
+  }
+
+  onTtnInput(id: number, event: Event): void {
+    const raw = (event.target as HTMLInputElement).value;
+    const val = raw.replace(/\D/g, '').slice(0, 14);
+
+    this.ttnValues.update(m => ({ ...m, [id]: val }));
+    if (this.ttnErrors()[id]) {
+      this.ttnErrors.update(m => ({ ...m, [id]: '' }));
+    }
+  }
+
+  changeStatus(order: Order, toStatus: string): void {
+    if (this.isUpdating(order.id)) return;
+
+    this.setUpdating(order.id, true);
+    this.ordersService.updateStatus(order.id, { status: toStatus }).subscribe({
+      next: updated => {
+        this.orders.update(list =>
+          list.map(o =>
+            o.id === order.id ? { ...o, status: updated.status } : o,
+          ),
+        );
+        this.setUpdating(order.id, false);
+      },
+      error: () => this.setUpdating(order.id, false),
+    });
+  }
+
+  ship(order: Order): void {
+    if (this.isUpdating(order.id)) return;
+
+    const ttn = this.getTtn(order.id).trim();
+
+    if (!TTN_RE.test(ttn)) {
+      this.ttnErrors.update(m => ({
+        ...m,
+        [order.id]: 'ТТН має містити рівно 14 цифр',
+      }));
+
+      return;
+    }
+
+    this.setUpdating(order.id, true);
+    this.ordersService
+      .updateStatus(order.id, { status: 'completed', ttn })
+      .subscribe({
+        next: updated => {
+          this.orders.update(list =>
+            list.map(o =>
+              o.id === order.id
+                ? { ...o, status: updated.status, ttn: updated.ttn }
+                : o,
+            ),
+          );
+          this.ttnValues.update(m => ({ ...m, [order.id]: '' }));
+          this.setUpdating(order.id, false);
+        },
+        error: () => this.setUpdating(order.id, false),
+      });
   }
 
   attrLabel(attrs: Record<string, string>): string {
@@ -140,5 +310,15 @@ export class OrdersListComponent implements OnInit {
     if (order.contact_type === 'viber') return 'Відкрити Viber';
 
     return 'Зателефонувати';
+  }
+
+  private setUpdating(id: number, on: boolean): void {
+    this.updating.update(s => {
+      const next = new Set(s);
+
+      on ? next.add(id) : next.delete(id);
+
+      return next;
+    });
   }
 }
