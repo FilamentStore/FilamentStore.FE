@@ -78,7 +78,7 @@
       <div class="catalog__filters-scroll">
         @if (categoriesList().length > 0) {
           <div class="catalog__filters-group">
-            <p class="catalog__filters-group-title">Категорія</p>
+            <p class="catalog__filters-group-title">Матеріал</p>
             @for (cat of categoriesList(); track cat.id) {
               <label
                 class="catalog__filters-check"
@@ -119,6 +119,26 @@
                     brand.usageCount
                   }}</span>
                 }
+              </label>
+            }
+          </div>
+        }
+
+        @if (weightsList().length > 0) {
+          <div class="catalog__filters-group">
+            <p class="catalog__filters-group-title">Вага</p>
+            @for (w of weightsList(); track w.slug) {
+              <label
+                class="catalog__filters-check"
+                (click)="toggleWeight(w.slug)"
+              >
+                <span
+                  class="catalog__check-box"
+                  [class.catalog__check-box--checked]="
+                    selectedWeights().has(w.slug)
+                  "
+                ></span>
+                {{ w.name }}
               </label>
             }
           </div>
@@ -186,71 +206,6 @@
                 </div>
               }
             </div>
-          </div>
-        }
-
-        @if (materialsList().length > 0) {
-          <div class="catalog__filters-group">
-            <p class="catalog__filters-group-title">Матеріал</p>
-            @for (mat of materialsList(); track mat.slug) {
-              <label
-                class="catalog__filters-check"
-                (click)="toggleMaterial(mat.slug)"
-              >
-                <span
-                  class="catalog__check-box"
-                  [class.catalog__check-box--checked]="
-                    selectedMaterials().has(mat.slug)
-                  "
-                ></span>
-                {{ mat.name }}
-                @if (mat.usageCount) {
-                  <span class="catalog__filters-count">{{
-                    mat.usageCount
-                  }}</span>
-                }
-              </label>
-            }
-          </div>
-        }
-
-        @if (diametersList().length > 0) {
-          <div class="catalog__filters-group">
-            <p class="catalog__filters-group-title">Діаметр</p>
-            @for (d of diametersList(); track d.slug) {
-              <label
-                class="catalog__filters-check"
-                (click)="toggleDiameter(d.slug)"
-              >
-                <span
-                  class="catalog__check-box"
-                  [class.catalog__check-box--checked]="
-                    selectedDiameters().has(d.slug)
-                  "
-                ></span>
-                {{ d.name }}
-              </label>
-            }
-          </div>
-        }
-
-        @if (weightsList().length > 0) {
-          <div class="catalog__filters-group">
-            <p class="catalog__filters-group-title">Вага</p>
-            @for (w of weightsList(); track w.slug) {
-              <label
-                class="catalog__filters-check"
-                (click)="toggleWeight(w.slug)"
-              >
-                <span
-                  class="catalog__check-box"
-                  [class.catalog__check-box--checked]="
-                    selectedWeights().has(w.slug)
-                  "
-                ></span>
-                {{ w.name }}
-              </label>
-            }
           </div>
         }
       </div>
