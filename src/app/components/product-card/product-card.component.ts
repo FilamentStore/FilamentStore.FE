@@ -16,6 +16,7 @@ import {
   selectAttributeColors,
   selectAttributeSimpleAttributes,
 } from '@store/attributes/attributes.selectors';
+import { selectBrands } from '@store/config/config.selectors';
 
 export interface ProductCardEvent {
   product: Product;
@@ -51,6 +52,17 @@ export class ProductCardComponent {
     this.store.select(selectAttributeSimpleAttributes),
     { initialValue: {} as Record<string, SimpleAttributeOption[]> },
   );
+  private brands = toSignal(this.store.select(selectBrands), {
+    initialValue: [],
+  });
+
+  readonly brandName = computed(() => {
+    const slug = this.product().brand;
+
+    if (!slug) return null;
+
+    return this.brands().find(b => b.slug === slug)?.name ?? slug;
+  });
 
   readonly image = computed(() => {
     const v = this.variation();
