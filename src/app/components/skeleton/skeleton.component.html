@@ -79,25 +79,20 @@
           <span
             class="skeleton__detail-line skeleton__detail-line--title"
           ></span>
-          <span
-            class="skeleton__detail-line skeleton__detail-line--title-short"
-          ></span>
         </div>
-        <span class="skeleton__detail-pill"></span>
+        <div class="skeleton__detail-meta">
+          <div class="skeleton__detail-stars">
+            @for (_ of [1, 2, 3, 4, 5]; track $index) {
+              <span class="skeleton__detail-star"></span>
+            }
+          </div>
+          <span class="skeleton__detail-line skeleton__detail-line--id"></span>
+        </div>
       </div>
 
       <div class="skeleton__detail-layout">
         <div class="skeleton__detail-image-col">
           <div class="skeleton__detail-image"></div>
-          <div class="skeleton__detail-copy">
-            <span class="skeleton__detail-line"></span>
-            <span
-              class="skeleton__detail-line skeleton__detail-line--medium"
-            ></span>
-            <span
-              class="skeleton__detail-line skeleton__detail-line--short"
-            ></span>
-          </div>
         </div>
 
         <div class="skeleton__detail-info-col">
@@ -130,6 +125,30 @@
             ></span>
           </div>
         </div>
+      </div>
+
+      <div class="skeleton__detail-specs">
+        @for (_ of [1, 2, 3, 4]; track $index) {
+          <div class="skeleton__detail-spec-row">
+            <span
+              class="skeleton__detail-line skeleton__detail-line--spec-key"
+            ></span>
+            <span
+              class="skeleton__detail-line skeleton__detail-line--spec-val"
+            ></span>
+          </div>
+        }
+      </div>
+
+      <div class="skeleton__detail-desc">
+        <span
+          class="skeleton__detail-line skeleton__detail-line--desc-title"
+        ></span>
+        <span class="skeleton__detail-line skeleton__detail-line--title"></span>
+        <span
+          class="skeleton__detail-line skeleton__detail-line--medium"
+        ></span>
+        <span class="skeleton__detail-line skeleton__detail-line--short"></span>
       </div>
     </div>
   }
