@@ -62,6 +62,22 @@
         border-color: #ffffff;
         color: #ffffff;
       }
+
+      &--primary {
+        border-color: rgba(255, 255, 255, 0.45);
+        color: rgba(255, 255, 255, 0.9);
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.15);
+          border-color: rgba(255, 255, 255, 0.45);
+          color: #ffffff;
+        }
+
+        &.icon--active {
+          background-color: rgba(255, 255, 255, 0.2);
+          color: #ffffff;
+        }
+      }
     }
 
     .icon-account {
@@ -269,6 +285,22 @@
     color: $color-accent;
     border-color: $color-accent;
   }
+
+  &--primary {
+    border-color: $color-accent;
+    color: $color-accent;
+    gap: 6px;
+
+    &:hover {
+      background-color: $color-accent;
+      color: $color-text-buttons;
+    }
+
+    &.icon--active {
+      background-color: $color-accent;
+      color: $color-text-buttons;
+    }
+  }
 }
 
 .icon-img {
@@ -361,6 +393,14 @@
 
 .icon-account__label {
   display: block;
+}
+
+.icon-cart__label {
+  display: none;
+
+  @media (min-width: 751px) {
+    display: block;
+  }
 }
 
 // ─── Search ────────────────────────────────────────────────────────────────

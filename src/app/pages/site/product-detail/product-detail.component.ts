@@ -6,7 +6,11 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { Product, ProductVariation } from '@app/models/product.models';
-import { ColorValue, SimpleAttributeOption } from '@app/models/config.models';
+import {
+  Brand,
+  ColorValue,
+  SimpleAttributeOption,
+} from '@app/models/config.models';
 import { ProductsService } from '@app/services/tempService/products.service';
 import { VariationsService } from '@app/services/tempService/variations.service';
 import {
@@ -19,6 +23,7 @@ import {
   selectAttributeColors,
   selectAttributeSimpleAttributes,
 } from '@store/attributes/attributes.selectors';
+import { selectBrands } from '@store/config/config.selectors';
 import { selectFavoriteVariationIds } from '@store/favorites/favorites.selectors';
 import { FavoritesActions } from '@store/favorites/favorites.actions';
 import { selectCartVariationIds } from '@store/cart/cart.selectors';
@@ -69,6 +74,30 @@ export class ProductDetailComponent implements OnInit {
     this.store.select(selectAttributeSimpleAttributes),
     { initialValue: {} as Record<string, SimpleAttributeOption[]> },
   );
+  private brands = toSignal(this.store.select(selectBrands), {
+    initialValue: [] as Brand[],
+  });
+
+  readonly brandName = computed(() => {
+    const slug = this.product()?.brand;
+
+    if (!slug) return null;
+
+    return this.brands().find(b => b.slug === slug)?.name ?? slug;
+  });
+
+  readonly displayName = computed(() => {
+    const p = this.product();
+    const v = this.activeVariation();
+
+    if (!p) return '';
+
+    const parts = (v?.attributes ?? []).map(a =>
+      this.resolveOptionName(a.name, a.option),
+    );
+
+    return parts.length ? `${p.name} ${parts.join(' ')}` : p.name;
+  });
 
   readonly breadcrumbs = computed<BreadcrumbItem[]>(() => {
     const p = this.product();

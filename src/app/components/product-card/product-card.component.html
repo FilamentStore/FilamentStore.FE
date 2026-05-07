@@ -59,8 +59,8 @@
 
   <!-- ── Body ───────────────────────────────────────────────────────────── -->
   <div class="card__body">
-    @if (product().brand) {
-      <p class="card__brand">{{ product().brand }}</p>
+    @if (brandName()) {
+      <p class="card__brand">{{ brandName() }}</p>
     }
     <h4 class="card__name">{{ displayName() }}</h4>
 
@@ -73,9 +73,6 @@
           [style.background]="colorSwatchBg()"
           [title]="colorAttr()?.name ?? ''"
         ></span>
-      }
-      @if (diameterAttr()) {
-        <span class="card__spec-tag">{{ diameterAttr() }}</span>
       }
       @if (weightAttr()) {
         <span class="card__spec-tag">{{ weightAttr() }}</span>
