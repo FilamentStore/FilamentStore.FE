@@ -134,6 +134,8 @@ export class CartComponent implements OnInit {
   }
 
   getAttrLabel(variation: ProductVariation): string {
+    if (variation.custom_name?.trim()) return variation.custom_name.trim();
+
     return variation.attributes
       .map(a => this.resolveOptionName(a.name, a.option))
       .filter(Boolean)

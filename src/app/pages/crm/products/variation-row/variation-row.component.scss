@@ -37,11 +37,30 @@
   }
 }
 
-.combo-label {
+.name-input {
   font-weight: 500;
   font-size: 13px;
-  white-space: nowrap;
-  display: block;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 6px;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  padding: 6px 12px;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: #bdbdbd;
+  }
+
+  &:focus {
+    border-color: var(--accent-color, #22a794);
+  }
+
+  &::placeholder {
+    color: var(--text-primary, #212121);
+    font-weight: 500;
+  }
 }
 
 .article-row {

@@ -22,7 +22,12 @@
 </td>
 
 <td class="col-combo">
-  <span class="combo-label">{{ combinationLabel }}</span>
+  <input
+    class="name-input"
+    [formControl]="form.controls.custom_name"
+    [placeholder]="combinationLabel"
+    spellcheck="false"
+  />
   <div class="article-row">
     <span class="article-prefix">Арт.:</span>
     <input

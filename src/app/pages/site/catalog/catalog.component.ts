@@ -103,6 +103,7 @@ function mapToCardItem(v: CatalogVariationItem): ProductCardItem {
       sku: v.sku,
       status: 'publish',
       weight: '',
+      custom_name: v.custom_name,
     },
   };
 }

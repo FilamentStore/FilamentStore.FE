@@ -79,6 +79,7 @@ export class VariationRowComponent implements OnInit {
   saving = signal(false);
 
   form = new FormGroup({
+    custom_name: new FormControl(''),
     regular_price: new FormControl('', [Validators.required]),
     sale_price: new FormControl(''),
     stock_quantity: new FormControl<number>(0, [
@@ -92,6 +93,7 @@ export class VariationRowComponent implements OnInit {
 
   ngOnInit(): void {
     this.form.patchValue({
+      custom_name: this.variation.custom_name ?? '',
       regular_price: this.variation.regular_price,
       sale_price: this.variation.sale_price,
       stock_quantity: this.variation.stock_quantity,
@@ -133,6 +135,7 @@ export class VariationRowComponent implements OnInit {
     this.saveVariation.emit({
       variationId: this.variation.id,
       variation: {
+        custom_name: value.custom_name ?? '',
         regular_price: value.regular_price ?? '',
         sale_price: value.sale_price ?? '',
         stock_quantity: value.stock_quantity ?? 0,
