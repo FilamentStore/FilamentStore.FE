@@ -76,7 +76,10 @@ export class TabVariationsComponent implements OnChanges {
     spool: [],
   };
 
+  @Input() hasUnsavedAttributes = false;
   @Output() variationsChange = new EventEmitter<ProductVariation[]>();
+  @Output() saveAndGenerate = new EventEmitter<void>();
+  @Output() saveAndAdd = new EventEmitter<void>();
 
   private variationsService = inject(VariationsService);
 
@@ -96,6 +99,16 @@ export class TabVariationsComponent implements OnChanges {
     if (changes['productId']?.currentValue) {
       this.loadVariations();
     }
+  }
+
+  onGenerateClick(): void {
+    if (this.hasUnsavedAttributes) {
+      this.saveAndGenerate.emit();
+
+      return;
+    }
+
+    this.generateVariations();
   }
 
   generateVariations(): void {
@@ -150,6 +163,16 @@ export class TabVariationsComponent implements OnChanges {
           this.variationsChange.emit(this.variations());
         },
       });
+  }
+
+  onAddVariationClick(): void {
+    if (this.hasUnsavedAttributes) {
+      this.saveAndAdd.emit();
+
+      return;
+    }
+
+    this.openAddVariation();
   }
 
   openAddVariation(): void {

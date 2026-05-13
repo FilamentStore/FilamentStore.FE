@@ -93,7 +93,10 @@
                 [colorsList]="colors()"
                 [simpleAttributes]="simpleAttributes()"
                 [skuPrefix]="skuPrefix()"
+                [hasUnsavedAttributes]="hasUnsavedAttributes()"
                 (variationsChange)="setVariations($event)"
+                (saveAndGenerate)="handleSaveAndGenerate()"
+                (saveAndAdd)="handleSaveAndOpenAdd()"
               />
             }
           </div>

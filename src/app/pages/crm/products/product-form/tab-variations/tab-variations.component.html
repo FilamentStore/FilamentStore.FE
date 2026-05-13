@@ -6,13 +6,13 @@
         color="accent"
         type="button"
         [disabled]="activeAttributes.length === 0 || saving()"
-        (click)="generateVariations()"
+        (click)="onGenerateClick()"
         matTooltip="Створити всі комбінації атрибутів"
       >
         <mat-icon>auto_awesome</mat-icon>
         Згенерувати варіації
       </button>
-      <button mat-stroked-button type="button" (click)="openAddVariation()">
+      <button mat-stroked-button type="button" (click)="onAddVariationClick()">
         <mat-icon>add</mat-icon>
         Додати варіацію
       </button>
