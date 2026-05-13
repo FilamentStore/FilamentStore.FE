@@ -69,6 +69,8 @@
               [attributes]="attributes()"
               [colorsList]="colors()"
               [simpleAttributes]="simpleAttributes()"
+              [variations]="variations()"
+              [isEditMode]="isEditMode()"
               (attributesChange)="setAttributes($event)"
               (generateVariations)="save()"
             />
@@ -91,6 +93,7 @@
                 [colorsList]="colors()"
                 [simpleAttributes]="simpleAttributes()"
                 [skuPrefix]="skuPrefix()"
+                (variationsChange)="setVariations($event)"
               />
             }
           </div>

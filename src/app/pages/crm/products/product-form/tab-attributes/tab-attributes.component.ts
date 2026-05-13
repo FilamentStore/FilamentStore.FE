@@ -1,16 +1,53 @@
-﻿import { Component, Input, Output, EventEmitter } from '@angular/core';
+﻿import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import {
+  MatCheckboxModule,
+  MatCheckboxChange,
+} from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AttributeValue } from '@models/product.models';
+import {
+  MatDialog,
+  MatDialogModule,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
+import { AttributeValue, ProductVariation } from '@models/product.models';
 import {
   AttributeConfig,
   ColorValue,
   SimpleAttributeOption,
 } from '@app/models/config.models';
 import { ATTRIBUTE_CONFIGS } from '@app/constants/attribute-configs';
+
+@Component({
+  selector: 'app-attr-block-dialog',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule, MatDialogModule],
+  template: `
+    <h2 mat-dialog-title>Видалення неможливе</h2>
+    <mat-dialog-content>
+      <p>{{ data.message }}</p>
+      <ul style="margin: 8px 0; padding-left: 20px;">
+        @for (label of data.labels; track label) {
+          <li>
+            <code>{{ label }}</code>
+          </li>
+        }
+      </ul>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-flat-button color="primary" mat-dialog-close>
+        Зрозуміло
+      </button>
+    </mat-dialog-actions>
+  `,
+})
+export class AttrBlockDialogComponent {
+  readonly data = inject<{ message: string; labels: string[] }>(
+    MAT_DIALOG_DATA,
+  );
+}
 
 interface AttributeOption {
   label: string;
@@ -26,6 +63,7 @@ interface AttributeOption {
     MatIconModule,
     MatCheckboxModule,
     MatTooltipModule,
+    MatDialogModule,
   ],
   templateUrl: './tab-attributes.component.html',
   styleUrl: './tab-attributes.component.scss',
@@ -39,9 +77,12 @@ export class TabAttributesComponent {
     diameter: [],
     spool: [],
   };
+  @Input() variations: ProductVariation[] = [];
+  @Input() isEditMode = false;
   @Output() attributesChange = new EventEmitter<AttributeValue[]>();
   @Output() generateVariations = new EventEmitter<void>();
 
+  private dialog = inject(MatDialog);
   readonly configs = ATTRIBUTE_CONFIGS;
 
   getConfiguredValues(config: AttributeConfig): AttributeOption[] {
@@ -69,9 +110,30 @@ export class TabAttributesComponent {
     return this.getSelectedOptions(attrName).includes(value);
   }
 
-  toggle(config: AttributeConfig, value: string): void {
+  toggle(
+    config: AttributeConfig,
+    value: string,
+    event: MatCheckboxChange,
+  ): void {
     const current = this.getSelectedOptions(config.label);
-    const updated = current.includes(value)
+    const isRemoving = !event.checked;
+
+    if (isRemoving && this.isEditMode) {
+      const blocked = this.getBlockedVariationLabels(config.label, [value]);
+
+      if (blocked.length > 0) {
+        // eslint-disable-next-line no-param-reassign
+        event.source.checked = true;
+        this.openBlockDialog(
+          `Значення "${value}" використовується у ${blocked.length} варіації(ях). Спочатку видаліть ці варіації:`,
+          blocked,
+        );
+
+        return;
+      }
+    }
+
+    const updated = isRemoving
       ? current.filter(option => option !== value)
       : [...current, value];
 
@@ -104,6 +166,20 @@ export class TabAttributesComponent {
   }
 
   clearAll(config: AttributeConfig): void {
+    if (this.isEditMode) {
+      const current = this.getSelectedOptions(config.label);
+      const blocked = this.getBlockedVariationLabels(config.label, current);
+
+      if (blocked.length > 0) {
+        this.openBlockDialog(
+          `Атрибут "${config.label}" використовується у ${blocked.length} варіації(ях). Спочатку видаліть ці варіації:`,
+          blocked,
+        );
+
+        return;
+      }
+    }
+
     this.attributesChange.emit(
       this.attributes.map(attribute =>
         attribute.name === config.label
@@ -111,6 +187,26 @@ export class TabAttributesComponent {
           : attribute,
       ),
     );
+  }
+
+  private getBlockedVariationLabels(
+    attrName: string,
+    valuesToRemove: string[],
+  ): string[] {
+    const removeSet = new Set(valuesToRemove);
+
+    return this.variations
+      .filter(v =>
+        v.attributes.some(a => a.name === attrName && removeSet.has(a.option)),
+      )
+      .map(v => v.sku || `Варіація #${v.id}`);
+  }
+
+  private openBlockDialog(message: string, labels: string[]): void {
+    this.dialog.open(AttrBlockDialogComponent, {
+      data: { message, labels },
+      width: '420px',
+    });
   }
 
   hasAnySelected(): boolean {

@@ -31,6 +31,7 @@ import {
   AttributeValue,
   Product,
   ProductImage,
+  ProductVariation,
   WcCategory,
 } from '@models/product.models';
 import { Brand, SimpleAttributeOption } from '@models/config.models';
@@ -106,6 +107,7 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
   });
 
   readonly images = signal<ProductImage[]>([]);
+  readonly variations = signal<ProductVariation[]>([]);
   readonly attributes = signal<AttributeValue[]>(
     structuredClone(DEFAULT_ATTRIBUTES),
   );
@@ -226,6 +228,10 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
 
   readonly setAttributes = (attrs: AttributeValue[]): void => {
     this.attributes.set(attrs);
+  };
+
+  readonly setVariations = (variations: ProductVariation[]): void => {
+    this.variations.set(variations);
   };
 
   private loadReferenceData(): void {

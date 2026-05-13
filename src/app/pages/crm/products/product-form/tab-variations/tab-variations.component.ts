@@ -1,7 +1,9 @@
 ﻿import {
   Component,
+  EventEmitter,
   Input,
   OnChanges,
+  Output,
   SimpleChanges,
   inject,
   signal,
@@ -74,6 +76,8 @@ export class TabVariationsComponent implements OnChanges {
     spool: [],
   };
 
+  @Output() variationsChange = new EventEmitter<ProductVariation[]>();
+
   private variationsService = inject(VariationsService);
 
   readonly variations = signal<ProductVariation[]>([]);
@@ -143,6 +147,7 @@ export class TabVariationsComponent implements OnChanges {
       .subscribe({
         next: createdVariations => {
           this.variations.update(current => [...current, ...createdVariations]);
+          this.variationsChange.emit(this.variations());
         },
       });
   }
@@ -226,6 +231,7 @@ export class TabVariationsComponent implements OnChanges {
       .subscribe({
         next: variation => {
           this.variations.update(current => [...current, variation]);
+          this.variationsChange.emit(this.variations());
         },
       });
   }
@@ -290,6 +296,7 @@ export class TabVariationsComponent implements OnChanges {
       .subscribe({
         next: variation => {
           this.variations.update(current => [...current, variation]);
+          this.variationsChange.emit(this.variations());
           this.selectedOptions.set({});
           this.showManualVariation.set(false);
         },
@@ -324,6 +331,7 @@ export class TabVariationsComponent implements OnChanges {
             current.filter(variation => variation.id !== variationId),
           );
           this.selectedIds.delete(variationId);
+          this.variationsChange.emit(this.variations());
         },
       });
   }
@@ -430,6 +438,7 @@ export class TabVariationsComponent implements OnChanges {
         next: variations => {
           this.variations.set(variations);
           this.selectedIds.clear();
+          this.variationsChange.emit(variations);
         },
         error: () => {
           this.variations.set([]);
