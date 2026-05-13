@@ -403,6 +403,18 @@
   }
 }
 
+.icon-bag-wrap {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+
+  app-icon-badge {
+    top: -6px;
+    right: -6px;
+  }
+}
+
 // ─── Search ────────────────────────────────────────────────────────────────
 
 .header-search__wrap {

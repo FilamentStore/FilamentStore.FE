@@ -31,6 +31,7 @@ import {
   AttributeValue,
   Product,
   ProductImage,
+  ProductVariation,
   WcCategory,
 } from '@models/product.models';
 import { Brand, SimpleAttributeOption } from '@models/config.models';
@@ -72,6 +73,7 @@ const DEFAULT_ATTRIBUTES: AttributeValue[] = [
 })
 export class ProductFormComponent implements OnInit, AfterViewInit {
   @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
+  @ViewChild(TabVariationsComponent) variationsTab?: TabVariationsComponent;
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -106,6 +108,8 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
   });
 
   readonly images = signal<ProductImage[]>([]);
+  readonly variations = signal<ProductVariation[]>([]);
+  readonly hasUnsavedAttributes = signal(false);
   readonly attributes = signal<AttributeValue[]>(
     structuredClone(DEFAULT_ATTRIBUTES),
   );
@@ -142,7 +146,7 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
     setTimeout(() => this.tabGroup?.realignInkBar(), 300);
   }
 
-  save(): void {
+  save(afterSave?: () => void): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.snackBar.open(
@@ -197,6 +201,7 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
         if (this.isEditMode()) {
           this.patchForm(product);
           this.snackBar.open('Продукт збережено', '', { duration: 2500 });
+          afterSave?.();
 
           return;
         }
@@ -216,6 +221,14 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
     });
   }
 
+  readonly handleSaveAndGenerate = (): void => {
+    this.save(() => this.variationsTab?.generateVariations());
+  };
+
+  readonly handleSaveAndOpenAdd = (): void => {
+    this.save(() => this.variationsTab?.openAddVariation());
+  };
+
   cancel(): void {
     this.router.navigate([`/${ROUTES.crm.root}/${ROUTES.crm.products.root}`]);
   }
@@ -226,6 +239,13 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
 
   readonly setAttributes = (attrs: AttributeValue[]): void => {
     this.attributes.set(attrs);
+    if (this.isEditMode()) {
+      this.hasUnsavedAttributes.set(true);
+    }
+  };
+
+  readonly setVariations = (variations: ProductVariation[]): void => {
+    this.variations.set(variations);
   };
 
   private loadReferenceData(): void {
@@ -283,11 +303,13 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
       });
 
       this.attributes.set(merged);
+      this.hasUnsavedAttributes.set(false);
 
       return;
     }
 
     this.attributes.set(structuredClone(DEFAULT_ATTRIBUTES));
+    this.hasUnsavedAttributes.set(false);
   }
 
   private dedupeImages(images: ProductImage[]): ProductImage[] {

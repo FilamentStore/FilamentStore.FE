@@ -81,12 +81,6 @@ export class BrandsTabComponent implements OnInit {
     });
   }
 
-  onEditNameInput(value: string): void {
-    this.editForm.controls.slug.setValue(this.toSlug(value), {
-      emitEvent: false,
-    });
-  }
-
   openAdd(): void {
     this.showAddRow.set(true);
     this.addForm.reset({ name: '', slug: '' });
@@ -117,6 +111,7 @@ export class BrandsTabComponent implements OnInit {
   startEdit(brand: Brand): void {
     this.editingId.set(brand.id);
     this.editForm.setValue({ name: brand.name, slug: brand.slug });
+    this.editForm.controls.slug.disable();
     this.confirmDeleteId.set(null);
   }
 

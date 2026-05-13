@@ -88,8 +88,12 @@ export class ProductCardComponent {
   );
 
   readonly displayName = computed(() => {
+    const v = this.variation();
+
+    if (v.custom_name?.trim()) return v.custom_name.trim();
+
     const name = this.product().name;
-    const parts = this.variation().attributes.map(a =>
+    const parts = v.attributes.map(a =>
       this.resolveOptionName(a.name, a.option),
     );
 

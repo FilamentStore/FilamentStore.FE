@@ -92,6 +92,8 @@ export class ProductDetailComponent implements OnInit {
 
     if (!p) return '';
 
+    if (v?.custom_name?.trim()) return v.custom_name.trim();
+
     const parts = (v?.attributes ?? []).map(a =>
       this.resolveOptionName(a.name, a.option),
     );
