@@ -214,10 +214,7 @@ export class ProductsListComponent implements OnInit {
             totalPages: response.total_pages,
           };
         },
-        error: () => {
-          this.products = [];
-          this.pagination = { total: 0, totalPages: 0 };
-        },
+        error: () => {},
       });
   }
 

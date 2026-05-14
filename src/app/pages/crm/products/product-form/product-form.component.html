@@ -42,6 +42,8 @@
         color="primary"
         style="width: 100%"
         [class.tabs-hidden]="loading() && isEditMode()"
+        [selectedIndex]="activeTabIndex()"
+        (selectedIndexChange)="onTabChange($event)"
       >
         <mat-tab>
           <ng-template mat-tab-label>

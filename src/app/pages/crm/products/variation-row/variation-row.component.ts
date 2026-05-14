@@ -165,7 +165,7 @@ export class VariationRowComponent implements OnInit {
       });
   }
 
-  private getOptionLabel(attrName: string, option: string): string {
+  getOptionLabel(attrName: string, option: string): string {
     const byName = this.getConfiguredOptions(attrName);
     const exact = byName.find(item => item.value === option);
 
