@@ -67,6 +67,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: ROUTES.site.shipping,
+        loadComponent: () =>
+          import('./pages/site/shipping/shipping.component').then(
+            m => m.ShippingComponent,
+          ),
+      },
+      {
         path: '**',
         loadComponent: () =>
           import('./pages/site/not-found/not-found.component').then(

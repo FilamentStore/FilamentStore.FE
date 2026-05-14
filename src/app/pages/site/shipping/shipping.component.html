@@ -1,0 +1,134 @@
+<div class="shipping">
+  <div class="shipping__breadcrumb">
+    <app-breadcrumb [items]="[{ label: 'Оплата та доставка' }]" />
+  </div>
+
+  <!-- Hero -->
+  <section class="shipping__hero">
+    <div class="shipping__hero-inner">
+      <h1 class="shipping__hero-title">Оплата та доставка</h1>
+      <p class="shipping__hero-sub">
+        Працюємо з оптовими замовленнями по всій Україні
+      </p>
+    </div>
+  </section>
+
+  <!-- Cards -->
+  <section class="shipping__cards">
+    <div class="shipping__cards-inner">
+      <!-- Card 1: Умови замовлення -->
+      <div class="shipping__card">
+        <div class="shipping__card-head">
+          <div class="shipping__icon-wrap">
+            <img
+              src="assets/icons/delivery-box.svg"
+              alt=""
+              class="shipping__icon-img"
+            />
+          </div>
+          <h2 class="shipping__card-title">Умови замовлення</h2>
+        </div>
+
+        <div class="shipping__card-body">
+          <p>Філамент продається лише оптом — цілими ящиками.</p>
+          <p>Мінімальне замовлення: <strong>від 10 ящиків.</strong></p>
+        </div>
+
+        <div class="shipping__steps">
+          <div class="shipping__step">
+            <span class="shipping__step-num">1</span>
+            <p class="shipping__step-text">Оберіть товари у каталозі</p>
+          </div>
+          <div class="shipping__step">
+            <span class="shipping__step-num">2</span>
+            <p class="shipping__step-text">
+              В кошику перевірте своє замовлення та оберіть кількість
+            </p>
+          </div>
+          <div class="shipping__step">
+            <span class="shipping__step-num">3</span>
+            <p class="shipping__step-text">Оформіть замовлення</p>
+          </div>
+        </div>
+
+        <p class="shipping__note">
+          Після оформлення замовлення менеджер зв'яжеться з вами для
+          підтвердження замовлення та уточнення деталей.
+        </p>
+      </div>
+
+      <!-- Card 2: Доставка -->
+      <div class="shipping__card shipping__card--delivery">
+        <div class="shipping__card-head">
+          <div class="shipping__icon-wrap">
+            <img
+              src="assets/icons/delivery-car.svg"
+              alt=""
+              class="shipping__icon-img"
+            />
+          </div>
+          <h2 class="shipping__card-title">Доставка</h2>
+        </div>
+
+        <div class="shipping__card-body">
+          <p>
+            Відправка здійснюється <strong>Новою поштою</strong> по всій
+            Україні.
+          </p>
+          <p>Самовивіз можливий за попередньою домовленістю.</p>
+        </div>
+
+        <div class="shipping__map-wrap">
+          <img
+            src="assets/images/delivery/ukraine.png"
+            alt="Доставка по Україні"
+            class="shipping__map-img"
+          />
+          <img
+            src="assets/images/delivery/dev-car.webp"
+            alt=""
+            class="shipping__map-car"
+            aria-hidden="true"
+          />
+        </div>
+      </div>
+
+      <!-- Card 3: Акції -->
+      <div class="shipping__card">
+        <div class="shipping__card-head">
+          <div class="shipping__icon-wrap">
+            <img
+              src="assets/icons/percent.svg"
+              alt=""
+              class="shipping__icon-img"
+            />
+          </div>
+          <h2 class="shipping__card-title">Знижки</h2>
+        </div>
+
+        <div class="shipping__card-body">
+          <p>Для друкарів, волонтерів та військових діють спеціальні знижки.</p>
+          <p>Для отримання знижки необхідне підтвердження статусу:</p>
+        </div>
+
+        <div class="shipping__list">
+          <div class="shipping__list-item">
+            <span class="shipping__list-dot"></span>
+            <p class="shipping__list-text">посвідчення друкаря</p>
+          </div>
+          <div class="shipping__list-item">
+            <span class="shipping__list-dot"></span>
+            <p class="shipping__list-text">волонтерське посвідчення</p>
+          </div>
+          <div class="shipping__list-item">
+            <span class="shipping__list-dot"></span>
+            <p class="shipping__list-text">військове посвідчення</p>
+          </div>
+        </div>
+        <p class="shipping__note">
+          Ці дані необхідно вказати при оформленні замовлення.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
