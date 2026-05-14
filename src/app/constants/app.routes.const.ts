@@ -8,6 +8,7 @@ export const ROUTES = {
     favorites: 'favorites',
     cart: 'cart',
     checkout: 'checkout',
+    shipping: 'shipping',
   },
   crm: {
     root: 'crm',

@@ -1,0 +1,264 @@
+@use 'index' as *;
+
+.shipping {
+  padding-block-end: 40px;
+
+  // ── Breadcrumb ────────────────────────────────────────────────────────────
+
+  &__breadcrumb {
+    @include content-padding-in-line;
+    padding-block: 12px;
+  }
+
+  // ── Hero ──────────────────────────────────────────────────────────────────
+
+  &__hero {
+    padding-block: 20px 24px;
+
+    @include on-tablet {
+      padding-block: 28px 32px;
+    }
+  }
+
+  &__hero-inner {
+    @include content-padding-in-line;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__hero-title {
+    margin: 0;
+    font-size: clamp(28px, 6vw, 52px);
+    font-weight: 800;
+    color: var(--color-text-main);
+  }
+
+  &__hero-sub {
+    margin: 0;
+    font-size: clamp(14px, 2vw, 16px);
+    font-weight: 400;
+    color: var(--color-text-secondary);
+  }
+
+  // ── Cards grid ────────────────────────────────────────────────────────────
+
+  &__cards-inner {
+    @include content-padding-in-line;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+
+    @include on-wide {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  // ── Card ──────────────────────────────────────────────────────────────────
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 28px;
+    border: 1px solid
+      color-mix(in srgb, var(--color-text-main) 10%, transparent);
+    border-radius: 20px;
+    background: var(--color-card);
+
+    &--delivery {
+      overflow: hidden;
+    }
+  }
+
+  &__card-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__icon-wrap {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--color-text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__icon-img {
+    width: 26px;
+    height: 26px;
+    display: block;
+    filter: brightness(0) invert(1);
+  }
+
+  &__card-title {
+    margin: 0;
+    font-size: clamp(17px, 2vw, 20px);
+    font-weight: 700;
+    color: var(--color-text-main);
+  }
+
+  &__card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    p {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--color-text-secondary);
+      font-weight: 400;
+    }
+
+    strong {
+      color: var(--color-text-main);
+      font-weight: 700;
+    }
+  }
+
+  // ── Steps (Card 1) ────────────────────────────────────────────────────────
+
+  &__steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-block-start: auto;
+  }
+
+  &__step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    position: relative;
+    padding-block-end: 16px;
+
+    &:last-child {
+      padding-block-end: 0;
+    }
+
+    &:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 13px;
+      top: 28px;
+      bottom: 0;
+      width: 1px;
+      background: color-mix(in srgb, var(--color-text-main) 15%, transparent);
+    }
+  }
+
+  &__step-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--color-text-main);
+    color: var(--color-bg);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  &__step-text {
+    margin: 0;
+    padding-block-start: 4px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    font-weight: 400;
+  }
+
+  // ── Map image (Card 2) ────────────────────────────────────────────────────
+
+  &__map-wrap {
+    position: relative;
+    margin-block-start: auto;
+    margin-inline: -28px;
+    margin-block-end: -28px;
+    padding-inline: 12px;
+    padding-block-end: 12px;
+  }
+
+  &__map-img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  &__map-car {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 55%;
+    object-fit: contain;
+  }
+
+  // ── Discount list (Card 3) ────────────────────────────────────────────────
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__list-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    position: relative;
+    padding-block-end: 16px;
+
+    &:last-child {
+      padding-block-end: 0;
+    }
+
+    &:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 2px;
+      top: 6px;
+      bottom: 0;
+      width: 1px;
+      background: color-mix(in srgb, var(--color-text-main) 15%, transparent);
+    }
+  }
+
+  &__list-dot {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    margin-block-start: 5px;
+    border-radius: 50%;
+    background: var(--color-text-main);
+    position: relative;
+    z-index: 1;
+  }
+
+  &__list-text {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    font-weight: 400;
+  }
+
+  &__note {
+    margin: 0;
+    margin-block-start: auto;
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--color-surface);
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--color-text-secondary);
+    font-weight: 400;
+  }
+}
