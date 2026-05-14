@@ -37,6 +37,15 @@
       spellcheck="false"
     />
   </div>
+  @if (variation.attributes.length > 0) {
+    <div class="attrs-row">
+      @for (attr of variation.attributes; track attr.name) {
+        <span class="attr-tag">{{
+          getOptionLabel(attr.name, attr.option)
+        }}</span>
+      }
+    </div>
+  }
 </td>
 
 <td class="col-price">

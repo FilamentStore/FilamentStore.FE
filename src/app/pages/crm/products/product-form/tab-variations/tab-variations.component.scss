@@ -100,6 +100,7 @@
 
   tbody tr {
     border-bottom: 1px solid var(--border-color, #e0e0e0);
+    padding: 10px;
 
     &:last-child {
       border-bottom: none;
@@ -107,7 +108,6 @@
   }
 
   td {
-    padding: 8px 12px;
     vertical-align: middle;
   }
 
@@ -118,7 +118,7 @@
     width: 60px;
   }
   .col-combo {
-    min-width: 140px;
+    min-width: 200px;
   }
   .col-slug {
     min-width: 170px;

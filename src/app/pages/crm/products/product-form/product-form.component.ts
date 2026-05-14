@@ -85,6 +85,7 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
 
   readonly productId = signal<number | null>(null);
   readonly isEditMode = computed(() => this.productId() !== null);
+  readonly activeTabIndex = signal(0);
 
   readonly loading = signal(false);
   readonly saving = signal(false);
@@ -133,6 +134,11 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
+    const tab = this.route.snapshot.queryParamMap.get('tab');
+
+    if (tab !== null && !isNaN(+tab)) {
+      this.activeTabIndex.set(+tab);
+    }
 
     if (id && !isNaN(Number(id))) {
       this.productId.set(Number(id));
@@ -140,6 +146,16 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
     } else {
       this.loadReferenceData();
     }
+  }
+
+  onTabChange(index: number): void {
+    this.activeTabIndex.set(index);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: index },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   ngAfterViewInit(): void {
