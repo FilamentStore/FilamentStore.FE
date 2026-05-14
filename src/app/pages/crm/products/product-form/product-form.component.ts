@@ -17,6 +17,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
@@ -133,11 +134,11 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
 
-    this.loadReferenceData();
-
     if (id && !isNaN(Number(id))) {
       this.productId.set(Number(id));
       this.loadProduct(this.productId()!);
+    } else {
+      this.loadReferenceData();
     }
   }
 
@@ -262,11 +263,18 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
 
   private loadProduct(id: number): void {
     this.loading.set(true);
-    this.productsService
-      .getProduct(id)
+    forkJoin({
+      product: this.productsService.getProduct(id),
+      categories: this.productsService.getCategories(),
+      brands: this.brandsService.getBrands(),
+    })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: product => this.patchForm(product),
+        next: ({ product, categories, brands }) => {
+          this.categories = categories;
+          this.brands = brands;
+          this.patchForm(product);
+        },
         error: error => {
           this.snackBar.open(
             `Помилка: ${error?.error?.message ?? 'не вдалося завантажити продукт'}`,
