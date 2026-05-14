@@ -5,6 +5,7 @@
   OnChanges,
   Output,
   SimpleChanges,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -86,6 +87,26 @@ export class TabVariationsComponent implements OnChanges {
   readonly variations = signal<ProductVariation[]>([]);
   readonly loading = signal(false);
   readonly saving = signal(false);
+  readonly selectedFilters = signal<Record<string, string>>({});
+
+  readonly filteredVariations = computed(() => {
+    const filters = this.selectedFilters();
+    const active = Object.entries(filters).filter(([, v]) => v !== '');
+
+    if (active.length === 0) return this.variations();
+
+    return this.variations().filter(variation =>
+      active.every(([attrName, optionValue]) =>
+        variation.attributes.some(
+          a => a.name === attrName && a.option === optionValue,
+        ),
+      ),
+    );
+  });
+
+  readonly hasActiveFilters = computed(() =>
+    Object.values(this.selectedFilters()).some(v => v !== ''),
+  );
 
   selectedIds = new Set<number>();
   showManualVariation = signal(false);
@@ -93,6 +114,14 @@ export class TabVariationsComponent implements OnChanges {
 
   get activeAttributes(): AttributeValue[] {
     return this.attributes.filter(attribute => attribute.options.length > 0);
+  }
+
+  setFilter(attrName: string, value: string): void {
+    this.selectedFilters.update(current => ({ ...current, [attrName]: value }));
+  }
+
+  clearFilters(): void {
+    this.selectedFilters.set({});
   }
 
   ngOnChanges(changes: SimpleChanges): void {
