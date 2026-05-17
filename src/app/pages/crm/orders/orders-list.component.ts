@@ -4,6 +4,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '@app/components/confirm-dialog/confirm-dialog.component';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Order, OrdersService } from '@app/services/orders.service';
@@ -89,6 +91,7 @@ const HISTORY_STATUS_OPTIONS: StatusOption[] = [
     MatButtonModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    MatDialogModule,
   ],
   templateUrl: './orders-list.component.html',
   styleUrl: './orders-list.component.scss',
@@ -96,6 +99,7 @@ const HISTORY_STATUS_OPTIONS: StatusOption[] = [
 export class OrdersListComponent implements OnInit {
   private readonly ordersService = inject(OrdersService);
   private readonly store = inject(Store);
+  private readonly dialog = inject(MatDialog);
 
   private readonly colors = toSignal(this.store.select(selectAttributeColors), {
     initialValue: [] as ColorValue[],
@@ -440,6 +444,31 @@ export class OrdersListComponent implements OnInit {
 
   min(a: number, b: number): number {
     return Math.min(a, b);
+  }
+
+  deleteOrder(order: Order, event: Event): void {
+    event.stopPropagation();
+
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: 'Видалити замовлення?',
+          message: `Замовлення #${order.id} від ${order.customer_name} буде видалено назавжди.`,
+          confirmLabel: 'Видалити',
+          cancelLabel: 'Скасувати',
+        },
+        width: '380px',
+      })
+      .afterClosed()
+      .subscribe(confirmed => {
+        if (!confirmed) return;
+
+        this.ordersService.delete(order.id).subscribe({
+          next: () => {
+            this.allOrders.update(list => list.filter(o => o.id !== order.id));
+          },
+        });
+      });
   }
 
   private setUpdating(id: number, on: boolean): void {

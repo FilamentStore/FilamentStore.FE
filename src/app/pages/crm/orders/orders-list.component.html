@@ -161,6 +161,22 @@
               </button>
             </div>
 
+            @if (tab() === 'history') {
+              <div
+                class="orders__cell orders__cell--delete"
+                (click)="$event.stopPropagation()"
+              >
+                <button
+                  mat-icon-button
+                  class="orders__delete-btn"
+                  matTooltip="Видалити замовлення"
+                  (click)="deleteOrder(order, $event)"
+                >
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </div>
+            }
+
             <div class="orders__cell orders__cell--chevron">
               <mat-icon class="orders__chevron">
                 {{ isExpanded(order.id) ? 'expand_less' : 'expand_more' }}

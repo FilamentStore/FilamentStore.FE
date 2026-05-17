@@ -644,6 +644,15 @@
     color: #22a794;
   }
 
+  &__delete-btn {
+    color: #bbb;
+    transition: color 0.15s;
+
+    &:hover {
+      color: #e53935;
+    }
+  }
+
   &__chat-icon {
     width: 24px;
     height: 24px;

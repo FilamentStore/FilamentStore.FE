@@ -84,4 +84,8 @@ export class OrdersService {
   ): Observable<Order> {
     return this.http.patch<Order>(`${this.baseUrl}/orders/${id}`, payload);
   }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/orders/${id}`);
+  }
 }
