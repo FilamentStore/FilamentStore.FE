@@ -65,11 +65,11 @@ export class HomeComponent implements OnInit, OnDestroy {
       image: 'assets/images/baners/2.png',
     },
     {
-      material: 'WOOD',
-      title: 'Деревний\nфіламент',
+      material: '',
+      title: 'Весь асортимент\nв одному місці',
       description:
-        'Натуральний вигляд і текстура,\nідеальний для декоративних елементів',
-      cta: 'Обрати WOOD',
+        'Широкий вибір матеріалів для будь-яких задач —\nвід прототипів до готових виробів',
+      cta: 'Переглянути каталог',
       ctaLink: '/catalog',
       image: 'assets/images/baners/3.png',
     },
@@ -147,12 +147,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           const items = this.toSliderItems(res.items);
 
           this.newArrivals = items;
-          this.saleItems = items.filter(
-            i =>
-              i.variation.sale_price &&
-              i.variation.sale_price !== '0' &&
-              i.variation.sale_price !== i.variation.regular_price,
-          );
+          this.saleItems = items;
         },
       });
   }
