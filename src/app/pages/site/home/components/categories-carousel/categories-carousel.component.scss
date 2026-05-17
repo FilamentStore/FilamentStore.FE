@@ -97,33 +97,26 @@
 
   &__card {
     flex: 1 1 100%;
-    height: 136px;
+    height: 152px;
     display: flex;
     align-items: center;
     border-radius: 18px;
     overflow: hidden;
     text-decoration: none;
     position: relative;
-    // Colored glow uses --card-glow set per nth-child below
-    box-shadow:
-      0 6px 28px var(--card-glow, rgba(0, 0, 0, 0.4)),
-      0 2px 8px rgba(0, 0, 0, 0.45),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-    transition:
-      transform 0.28s ease,
-      box-shadow 0.28s ease;
+    transition: transform 0.28s ease;
 
     @include on-tablet {
       flex: 1 1 calc(50% - 7px);
       max-width: calc(50% - 7px);
-      height: 154px;
+      height: 172px;
       border-radius: 20px;
     }
 
     @include on-wide {
       flex: 1 1 calc(33.333% - 11px);
       max-width: none;
-      height: 168px;
+      height: 188px;
     }
 
     // ── Color palette ────────────────────────────────────────────────────────
@@ -233,18 +226,10 @@
 
     &:hover {
       transform: translateY(-6px);
-      box-shadow:
-        0 16px 48px var(--card-glow, rgba(0, 0, 0, 0.45)),
-        0 6px 16px rgba(0, 0, 0, 0.5),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
     }
 
     &:active {
       transform: translateY(-1px) scale(0.99);
-    }
-
-    &:hover .categories__img {
-      transform: scale(1.06);
     }
 
     &:hover .categories__cta {
@@ -301,23 +286,26 @@
     }
   }
 
-  // ── Media — image sits on card bg colour, no gradient overlay ────────────
+  // ── Media ─────────────────────────────────────────────────────────────────
 
   &__media {
     position: relative;
-    width: 42%;
+    width: 55%;
     height: 100%;
     flex-shrink: 0;
     overflow: hidden;
     z-index: 1;
+    background: #f4f4f4;
+    // Fades the entire media area (image + bg) on the left — no overlay on content
+    mask-image: linear-gradient(to right, transparent 0px, black 52px);
+    -webkit-mask-image: linear-gradient(to right, transparent 0px, black 52px);
   }
 
   &__img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
     display: block;
-    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 }
