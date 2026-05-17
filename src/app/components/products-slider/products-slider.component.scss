@@ -85,8 +85,6 @@
     flex: 0 0 calc(25% - 15px);
     scroll-snap-align: start;
     min-width: 0;
-    -webkit-box-reflect: below 4px
-      linear-gradient(transparent 75%, rgba(0, 0, 0, 0.06) 100%);
 
     @media (min-width: 768px) and (max-width: 1023px) {
       flex: 0 0 calc(33.333% - 14px);

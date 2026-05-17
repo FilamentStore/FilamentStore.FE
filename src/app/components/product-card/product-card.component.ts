@@ -1,5 +1,7 @@
 import {
+  ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   input,
@@ -29,6 +31,7 @@ export interface ProductCardEvent {
   imports: [],
   templateUrl: './product-card.component.html',
   styleUrl: './product-card.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductCardComponent {
   product = input.required<Product>();
@@ -44,6 +47,16 @@ export class ProductCardComponent {
 
   private store = inject(Store);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  private cartTimer?: ReturnType<typeof setTimeout>;
+  private favTimer?: ReturnType<typeof setTimeout>;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      clearTimeout(this.cartTimer);
+      clearTimeout(this.favTimer);
+    });
+  }
 
   private colors = toSignal(this.store.select(selectAttributeColors), {
     initialValue: [],
@@ -188,7 +201,8 @@ export class ProductCardComponent {
       void this.router.navigate(['/cart']);
     } else {
       this.cartAnimating.set(true);
-      setTimeout(() => this.cartAnimating.set(false), 650);
+      clearTimeout(this.cartTimer);
+      this.cartTimer = setTimeout(() => this.cartAnimating.set(false), 650);
       this.addToCart.emit({
         product: this.product(),
         variation: this.variation(),
@@ -198,7 +212,8 @@ export class ProductCardComponent {
 
   onAddToCart(): void {
     this.cartAnimating.set(true);
-    setTimeout(() => this.cartAnimating.set(false), 650);
+    clearTimeout(this.cartTimer);
+    this.cartTimer = setTimeout(() => this.cartAnimating.set(false), 650);
     this.addToCart.emit({
       product: this.product(),
       variation: this.variation(),
@@ -207,7 +222,8 @@ export class ProductCardComponent {
 
   onToggleFavorite(): void {
     this.favAnimating.set(true);
-    setTimeout(() => this.favAnimating.set(false), 850);
+    clearTimeout(this.favTimer);
+    this.favTimer = setTimeout(() => this.favAnimating.set(false), 850);
     this.toggleFavorite.emit({
       product: this.product(),
       variation: this.variation(),
