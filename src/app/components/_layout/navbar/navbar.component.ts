@@ -23,6 +23,7 @@ import { IconBadgeComponent } from '@app/components/icon-badge/icon-badge.compon
 })
 export class NavbarComponent implements OnChanges, OnDestroy {
   isOpen = input<boolean>(false);
+  isHome = input<boolean>(false);
   closeMenu = output<void>();
 
   private store = inject(Store);
