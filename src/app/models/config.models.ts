@@ -8,6 +8,7 @@
 export interface SimpleAttributeOption {
   name: string;
   slug: string;
+  box_qty?: number;
   usageCount?: number;
 }
 

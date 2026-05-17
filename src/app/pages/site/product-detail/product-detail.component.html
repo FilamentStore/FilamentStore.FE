@@ -90,30 +90,34 @@
               >
                 @if (isColorAttr(attr.name)) {
                   @for (opt of attr.options; track opt) {
-                    <button
-                      class="detail__swatch"
-                      [class.detail__swatch--active]="
-                        selectedAttrs().get(attr.name) === opt
-                      "
-                      [class.detail__swatch--multi]="
-                        getColorHex(opt).length > 1
-                      "
-                      [style.background]="swatchBg(getColorHex(opt))"
-                      [attr.data-label]="resolveOptionName(attr.name, opt)"
-                      (click)="selectOption(attr.name, opt)"
-                    ></button>
+                    @if (isOptionAvailable(attr.name, opt)) {
+                      <button
+                        class="detail__swatch"
+                        [class.detail__swatch--active]="
+                          selectedAttrs().get(attr.name) === opt
+                        "
+                        [class.detail__swatch--multi]="
+                          getColorHex(opt).length > 1
+                        "
+                        [style.background]="swatchBg(getColorHex(opt))"
+                        [attr.data-label]="resolveOptionName(attr.name, opt)"
+                        (click)="selectOption(attr.name, opt)"
+                      ></button>
+                    }
                   }
                 } @else {
                   @for (opt of attr.options; track opt) {
-                    <button
-                      class="detail__pill"
-                      [class.detail__pill--active]="
-                        selectedAttrs().get(attr.name) === opt
-                      "
-                      (click)="selectOption(attr.name, opt)"
-                    >
-                      {{ resolveOptionName(attr.name, opt) }}
-                    </button>
+                    @if (isOptionAvailable(attr.name, opt)) {
+                      <button
+                        class="detail__pill"
+                        [class.detail__pill--active]="
+                          selectedAttrs().get(attr.name) === opt
+                        "
+                        (click)="selectOption(attr.name, opt)"
+                      >
+                        {{ resolveOptionName(attr.name, opt) }}
+                      </button>
+                    }
                   }
                 }
               </div>
@@ -149,6 +153,24 @@
               <span class="detail__stock-label">В наявності</span>
             }
           </div>
+        }
+
+        @if (activeVariation()?.box_qty && activeVariation()!.box_qty! > 1) {
+          <p class="detail__box-hint">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                d="M20 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zm0 11H4V9h16v9zM3 4h18v2H3z"
+              />
+            </svg>
+            1 ящик = {{ activeVariation()!.box_qty }} шт.
+          </p>
         }
 
         <div class="detail__actions">

@@ -9,10 +9,10 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { RouterLink } from '@angular/router';
-import { catchError, forkJoin, map, of, switchMap, finalize } from 'rxjs';
-import { ProductsService } from '@app/services/tempService/products.service';
+import { finalize } from 'rxjs';
 import { VariationsService } from '@app/services/tempService/variations.service';
 import { CategoriesService } from '@app/services/tempService/categories.service';
+import { CatalogVariationItem } from '@app/models/product.models';
 import { WcCategory } from '@app/models/config.models';
 import { ProductCardEvent } from '@app/components/product-card/product-card.component';
 import {
@@ -41,7 +41,6 @@ interface HeroSlide {
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private store = inject(Store);
-  private productsService = inject(ProductsService);
   private variationsService = inject(VariationsService);
   private categoriesService = inject(CategoriesService);
   private _el = inject(ElementRef);
@@ -89,7 +88,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.startTimer();
-    this.loadNewArrivals();
+    this.loadNewest();
     this.loadCategories();
   }
 
@@ -99,35 +98,54 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // ── Data loading ──────────────────────────────────────────────────────────
 
-  private loadNewArrivals(): void {
-    this.productsService
-      .getProducts({ status: 'publish', page: 1 })
+  private toSliderItems(items: CatalogVariationItem[]): ProductSliderItem[] {
+    return items.map(item => ({
+      product: {
+        id: item.product_id,
+        name: item.product_name,
+        brand: item.brand,
+        category_id: item.category_id,
+        short_description: '',
+        description: '',
+        images: item.product_images,
+        status: 'publish' as const,
+        slug: '',
+        type: 'variable' as const,
+        attributes: [],
+      },
+      variation: {
+        id: item.id,
+        attributes: item.attributes.map(a => ({
+          name: a.name,
+          option: a.option,
+        })),
+        image: item.image ?? undefined,
+        regular_price: item.regular_price,
+        sale_price: item.sale_price,
+        stock_quantity: item.stock_quantity,
+        manage_stock: true as const,
+        sku: item.sku,
+        status: 'publish' as const,
+        weight: '',
+        box_qty: item.box_qty,
+        custom_name: item.custom_name,
+      },
+    }));
+  }
+
+  private loadNewest(): void {
+    this.variationsService
+      .getNewest(20)
       .pipe(
-        switchMap(response => {
-          const products = response?.products ?? [];
-
-          if (!products.length) return of([]);
-
-          return forkJoin(
-            products.map(product =>
-              this.variationsService.getVariations(product.id).pipe(
-                map(variations =>
-                  variations
-                    .filter(v => v.status === 'publish')
-                    .map(variation => ({ product, variation })),
-                ),
-                catchError(() => of([])),
-              ),
-            ),
-          ).pipe(map((groups: ProductSliderItem[][]) => groups.flat()));
-        }),
         finalize(() => {
           this.newArrivalsLoading = false;
           this.saleLoading = false;
         }),
       )
       .subscribe({
-        next: items => {
+        next: res => {
+          const items = this.toSliderItems(res.items);
+
           this.newArrivals = items;
           this.saleItems = items.filter(
             i =>

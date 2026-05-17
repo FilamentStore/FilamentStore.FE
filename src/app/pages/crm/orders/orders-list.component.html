@@ -80,14 +80,12 @@
               }}</span>
               <span class="orders__name">{{ order.customer_name }}</span>
               <span class="orders__contact">
-                <span
-                  class="orders__contact-badge orders__contact-badge--{{
-                    order.contact_type
-                  }}"
-                >
-                  {{ order.contact_type }}
-                </span>
-                {{ order.contact_value }}
+                <span class="orders__contact-phone">{{ order.phone }}</span>
+                @if (order.telegram) {
+                  <span class="orders__contact-telegram">{{
+                    order.telegram
+                  }}</span>
+                }
               </span>
             </div>
 
@@ -138,28 +136,59 @@
               class="orders__cell orders__cell--actions"
               (click)="$event.stopPropagation()"
             >
+              @if (order.status === 'pending') {
+                <button
+                  mat-icon-button
+                  class="orders__edit-btn"
+                  matTooltip="Редагувати замовлення"
+                  (click)="startEdit(order, $event)"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+              }
               <button
                 mat-icon-button
                 class="orders__chat-btn"
-                (click)="openChat(order)"
-                [matTooltip]="chatTooltip(order)"
+                matTooltip="Написати у Viber"
+                (click)="callViber(order)"
               >
-                @if (
-                  order.contact_type === 'telegram' ||
-                  order.contact_type === 'viber'
-                ) {
+                <img
+                  class="orders__chat-icon"
+                  src="assets/icons/social-nt/viber.svg"
+                  alt="viber"
+                />
+              </button>
+              @if (order.telegram) {
+                <button
+                  mat-icon-button
+                  class="orders__chat-btn"
+                  matTooltip="Написати у Telegram"
+                  (click)="openTelegram(order)"
+                >
                   <img
                     class="orders__chat-icon"
-                    [src]="
-                      'assets/icons/social-nt/' + order.contact_type + '.svg'
-                    "
-                    [alt]="order.contact_type"
+                    src="assets/icons/social-nt/telegram.svg"
+                    alt="telegram"
                   />
-                } @else {
-                  <mat-icon>phone</mat-icon>
-                }
-              </button>
+                </button>
+              }
             </div>
+
+            @if (tab() === 'history') {
+              <div
+                class="orders__cell orders__cell--delete"
+                (click)="$event.stopPropagation()"
+              >
+                <button
+                  mat-icon-button
+                  class="orders__delete-btn"
+                  matTooltip="Видалити замовлення"
+                  (click)="deleteOrder(order, $event)"
+                >
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </div>
+            }
 
             <div class="orders__cell orders__cell--chevron">
               <mat-icon class="orders__chevron">
@@ -204,6 +233,78 @@
                   (click)="dismissCancel(order.id)"
                 >
                   Ні, залишити
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- ── Edit row (pending only) ──────────────────────── -->
+          @if (isEditing(order.id) && getEditForm(order.id)) {
+            <div
+              class="orders__edit-row"
+              [formGroup]="getEditForm(order.id)"
+              (click)="$event.stopPropagation()"
+            >
+              <div class="orders__edit-grid">
+                <div class="orders__edit-field">
+                  <label class="orders__edit-label">Ім'я</label>
+                  <input
+                    class="orders__edit-input"
+                    formControlName="customer_name"
+                  />
+                </div>
+                <div class="orders__edit-field">
+                  <label class="orders__edit-label">Телефон</label>
+                  <input
+                    class="orders__edit-input"
+                    formControlName="phone"
+                    type="tel"
+                  />
+                </div>
+                <div class="orders__edit-field">
+                  <label class="orders__edit-label">Telegram</label>
+                  <input
+                    class="orders__edit-input"
+                    formControlName="telegram"
+                    placeholder="@username або порожньо"
+                  />
+                </div>
+                <div class="orders__edit-field">
+                  <label class="orders__edit-label">Місто</label>
+                  <input class="orders__edit-input" formControlName="city" />
+                </div>
+                <div class="orders__edit-field orders__edit-field--wide">
+                  <label class="orders__edit-label">Відділення</label>
+                  <input
+                    class="orders__edit-input"
+                    formControlName="warehouse"
+                  />
+                </div>
+                <div class="orders__edit-field orders__edit-field--wide">
+                  <label class="orders__edit-label">Коментар</label>
+                  <input class="orders__edit-input" formControlName="comment" />
+                </div>
+              </div>
+              <div class="orders__edit-actions">
+                <button
+                  class="orders__edit-save"
+                  [disabled]="
+                    getEditForm(order.id).invalid || isUpdating(order.id)
+                  "
+                  (click)="saveEdit(order, $event)"
+                >
+                  @if (isUpdating(order.id)) {
+                    <mat-spinner diameter="14" />
+                  } @else {
+                    Зберегти
+                  }
+                </button>
+                <button
+                  class="orders__edit-cancel"
+                  [disabled]="isUpdating(order.id)"
+                  (click)="cancelEdit($event)"
+                >
+                  Скасувати
                 </button>
               </div>
             </div>
@@ -314,44 +415,42 @@
       }
     </div>
 
-    @if (totalPages() > 1) {
-      <div class="orders__pagination">
-        <button
-          class="orders__page-btn"
-          [disabled]="currentPage() === 1"
-          (click)="setPage(currentPage() - 1)"
-        >
-          <mat-icon>chevron_left</mat-icon>
-        </button>
+    <div class="orders__pagination">
+      <button
+        class="orders__page-btn"
+        [disabled]="currentPage() === 1"
+        (click)="setPage(currentPage() - 1)"
+      >
+        <mat-icon>chevron_left</mat-icon>
+      </button>
 
-        @for (p of visiblePages(); track p; let i = $index) {
-          @if (isGap(visiblePages(), i)) {
-            <span class="orders__page-gap">…</span>
-          }
-          <button
-            class="orders__page-btn"
-            [class.orders__page-btn--active]="currentPage() === p"
-            (click)="setPage(p)"
-          >
-            {{ p }}
-          </button>
+      @for (p of visiblePages(); track p; let i = $index) {
+        @if (isGap(visiblePages(), i)) {
+          <span class="orders__page-gap">…</span>
         }
-
         <button
           class="orders__page-btn"
-          [disabled]="currentPage() === totalPages()"
-          (click)="setPage(currentPage() + 1)"
+          [class.orders__page-btn--active]="currentPage() === p"
+          (click)="setPage(p)"
         >
-          <mat-icon>chevron_right</mat-icon>
+          {{ p }}
         </button>
+      }
 
-        <span class="orders__page-info">
-          {{ (currentPage() - 1) * 10 + 1 }}–{{
-            min(currentPage() * 10, filteredOrders().length)
-          }}
-          з {{ filteredOrders().length }}
-        </span>
-      </div>
-    }
+      <button
+        class="orders__page-btn"
+        [disabled]="currentPage() === totalPages()"
+        (click)="setPage(currentPage() + 1)"
+      >
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+
+      <span class="orders__page-info">
+        {{ (currentPage() - 1) * 20 + 1 }}–{{
+          min(currentPage() * 20, filteredOrders().length)
+        }}
+        з {{ filteredOrders().length }}
+      </span>
+    </div>
   }
 </div>

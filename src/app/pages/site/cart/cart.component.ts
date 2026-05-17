@@ -65,7 +65,10 @@ export class CartComponent implements OnInit {
   readonly loading = signal(true);
 
   readonly totalCount = computed(() =>
-    this.cards().reduce((sum, c) => sum + c.quantity, 0),
+    this.cards().reduce(
+      (sum, c) => sum + c.quantity * (c.variation.box_qty ?? 1),
+      0,
+    ),
   );
 
   readonly totalPrice = computed(() =>
@@ -75,8 +78,9 @@ export class CartComponent implements OnInit {
           ? c.variation.sale_price
           : c.variation.regular_price,
       );
+      const spools = c.quantity * (c.variation.box_qty ?? 1);
 
-      return sum + (isNaN(price) ? 0 : price * c.quantity);
+      return sum + (isNaN(price) ? 0 : price * spools);
     }, 0),
   );
 
@@ -123,6 +127,14 @@ export class CartComponent implements OnInit {
       });
   }
 
+  getBoxQty(variation: ProductVariation): number {
+    return variation.box_qty ?? 1;
+  }
+
+  getTotalSpools(card: CartCard): number {
+    return card.quantity * this.getBoxQty(card.variation);
+  }
+
   getPrice(variation: ProductVariation): number {
     const p = parseFloat(
       variation.sale_price && variation.sale_price !== '0'
@@ -158,7 +170,10 @@ export class CartComponent implements OnInit {
   }
 
   isAtLimit(card: CartCard): boolean {
-    return card.quantity >= card.variation.stock_quantity;
+    return (
+      card.quantity * this.getBoxQty(card.variation) >=
+      card.variation.stock_quantity
+    );
   }
 
   increment(variationId: number): void {
@@ -210,7 +225,11 @@ export class CartComponent implements OnInit {
     const rawValue = input?.value ?? '';
     let qty = parseInt(rawValue, 10);
 
-    if (!isNaN(qty) && qty > card.variation.stock_quantity) {
+    const maxBoxes = Math.floor(
+      card.variation.stock_quantity / this.getBoxQty(card.variation),
+    );
+
+    if (!isNaN(qty) && qty > maxBoxes) {
       if (input) {
         input.value = String(card.quantity);
       }

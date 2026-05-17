@@ -76,93 +76,40 @@
               }
             </div>
 
-            <!-- Contact method -->
             <div class="checkout__field">
-              <label class="checkout__label">
-                Метод зв'язку <span class="checkout__required">*</span>
+              <label class="checkout__label" for="phone">
+                Номер телефону <span class="checkout__required">*</span>
               </label>
-              <div class="checkout__contact-toggle">
-                <button
-                  class="checkout__contact-btn"
-                  [class.checkout__contact-btn--active]="
-                    contactMethod() === 'telegram'
-                  "
-                  type="button"
-                  (click)="setContactMethod('telegram')"
+              <input
+                id="phone"
+                class="checkout__input"
+                [class.checkout__input--error]="isInvalid('phone')"
+                type="tel"
+                placeholder="+380501234567"
+                formControlName="phone"
+                autocomplete="tel"
+              />
+              @if (isInvalid('phone')) {
+                <span class="checkout__error"
+                  >Введіть коректний номер телефону</span
                 >
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                      d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.19 13.9l-2.963-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.961.659z"
-                    />
-                  </svg>
-                  Telegram
-                </button>
-                <button
-                  class="checkout__contact-btn"
-                  [class.checkout__contact-btn--active]="
-                    contactMethod() === 'viber'
-                  "
-                  type="button"
-                  (click)="setContactMethod('viber')"
-                >
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                      d="M11.4 0C5.5.2.4 5.1.1 11 0 13.5.6 16 1.9 18.1L.1 24l6.2-1.6C8.2 23.4 10 24 11.9 24 18 24 23 19 23 12.9 23.1 6.3 17.9.9 11.4 0zm6.8 17.6c-.3.8-1.4 1.5-2.3 1.7-.6.1-1.4.2-4.1-.9-3.4-1.4-5.6-4.9-5.8-5.1-.2-.2-1.4-1.9-1.4-3.6 0-1.7.9-2.6 1.2-2.9.3-.3.7-.4 1-.4h.7c.3 0 .6.1.9.7.3.7 1.1 2.7 1.2 2.9.1.2.1.4 0 .6-.4.9-.9.9-.7 1.2.7 1.3 1.7 2.4 2.9 3.2.3.2.6.2.9-.1.3-.3.8-.9 1.1-1.2.3-.3.5-.3.9-.1l2.7 1.3c.4.2.6.3.7.5.1.5-.1 1.4-.7 2.2z"
-                    />
-                  </svg>
-                  Viber
-                </button>
-              </div>
+              }
             </div>
 
-            @if (contactMethod() === 'telegram') {
-              <div class="checkout__field">
-                <label class="checkout__label" for="contactHandle">
-                  Telegram нікнейм <span class="checkout__required">*</span>
-                </label>
-                <input
-                  id="contactHandle"
-                  class="checkout__input"
-                  [class.checkout__input--error]="isInvalid('contactHandle')"
-                  type="text"
-                  placeholder="@username"
-                  formControlName="contactHandle"
-                />
-                @if (isInvalid('contactHandle')) {
-                  <span class="checkout__error"
-                    >Введіть Telegram нікнейм (починається з @)</span
-                  >
-                }
-              </div>
-            }
-
-            @if (contactMethod() === 'viber') {
-              <div class="checkout__field">
-                <label class="checkout__label" for="contactHandle">
-                  Номер Viber <span class="checkout__required">*</span>
-                </label>
-                <div
-                  class="checkout__input-prefix-wrap"
-                  [class.checkout__input-prefix-wrap--error]="
-                    isInvalid('contactHandle')
-                  "
-                >
-                  <span class="checkout__input-prefix">+380</span>
-                  <input
-                    id="contactHandle"
-                    class="checkout__input checkout__input--prefixed"
-                    type="tel"
-                    placeholder="XXXXXXXXX"
-                    formControlName="contactHandle"
-                    maxlength="9"
-                    (input)="onViberInput($event)"
-                  />
-                </div>
-                @if (isInvalid('contactHandle')) {
-                  <span class="checkout__error">Введіть 9 цифр після +380</span>
-                }
-              </div>
-            }
+            <div class="checkout__field">
+              <label class="checkout__label" for="telegram"> Telegram </label>
+              <input
+                id="telegram"
+                class="checkout__input"
+                type="text"
+                placeholder="@username"
+                formControlName="telegram"
+              />
+              <span class="checkout__hint">
+                Необов'язково (якщо хочете спілкуватися через Telegram — вкажіть
+                нікнейм)
+              </span>
+            </div>
           </section>
 
           <!-- Section: Доставка -->
@@ -411,12 +358,17 @@
                     <span class="checkout__item-name">{{
                       item.product.name
                     }}</span>
-                    <span class="checkout__item-qty"
-                      >× {{ item.quantity }}</span
-                    >
+                    <span class="checkout__item-qty">
+                      {{ item.quantity }} ящ. × {{ getBoxQty(item) }} шт. =
+                      {{ getTotalSpools(item) }} шт.
+                    </span>
                   </div>
                   <span class="checkout__item-price">
-                    {{ getItemPrice(item) * item.quantity | number: '1.0-0' }} ₴
+                    {{
+                      getItemPrice(item) * getTotalSpools(item)
+                        | number: '1.0-0'
+                    }}
+                    ₴
                   </span>
                 </li>
               }

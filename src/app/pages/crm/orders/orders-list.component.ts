@@ -1,9 +1,17 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '@app/components/confirm-dialog/confirm-dialog.component';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Order, OrdersService } from '@app/services/orders.service';
@@ -63,7 +71,7 @@ const HISTORY_STATUSES = new Set([
 ]);
 
 const TTN_RE = /^\d{14}$/;
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 20;
 
 const ACTIVE_STATUS_OPTIONS: StatusOption[] = [
   { value: '', label: 'Всі' },
@@ -85,10 +93,12 @@ const HISTORY_STATUS_OPTIONS: StatusOption[] = [
   standalone: true,
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     MatIconModule,
     MatButtonModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    MatDialogModule,
   ],
   templateUrl: './orders-list.component.html',
   styleUrl: './orders-list.component.scss',
@@ -96,6 +106,8 @@ const HISTORY_STATUS_OPTIONS: StatusOption[] = [
 export class OrdersListComponent implements OnInit {
   private readonly ordersService = inject(OrdersService);
   private readonly store = inject(Store);
+  private readonly dialog = inject(MatDialog);
+  private readonly fb = inject(FormBuilder);
 
   private readonly colors = toSignal(this.store.select(selectAttributeColors), {
     initialValue: [] as ColorValue[],
@@ -115,6 +127,9 @@ export class OrdersListComponent implements OnInit {
   readonly ttnErrors = signal<Record<number, string>>({});
   readonly cancelPending = signal<Set<number>>(new Set());
   readonly cancelReasons = signal<Record<number, string>>({});
+
+  readonly editingId = signal<number | null>(null);
+  readonly editForms = signal<Record<number, FormGroup>>({});
 
   readonly tab = signal<'active' | 'history'>('active');
   readonly statusFilter = signal('');
@@ -144,7 +159,8 @@ export class OrdersListComponent implements OnInit {
         o =>
           o.id.toString().includes(q) ||
           o.customer_name.toLowerCase().includes(q) ||
-          o.contact_value.toLowerCase().includes(q),
+          o.phone.toLowerCase().includes(q) ||
+          (o.telegram ?? '').toLowerCase().includes(q),
       );
     }
 
@@ -409,37 +425,114 @@ export class OrdersListComponent implements OnInit {
       .join(' · ');
   }
 
-  openChat(order: Order): void {
-    const val = order.contact_value.trim();
+  callViber(order: Order): void {
+    const phone = order.phone.replace(/\D/g, '');
 
-    if (order.contact_type === 'telegram') {
-      const handle = val.startsWith('@') ? val.slice(1) : val;
-
-      window.open(`https://t.me/${handle}`, '_blank', 'noopener');
-
-      return;
-    }
-
-    if (order.contact_type === 'viber') {
-      const phone = val.replace(/\D/g, '');
-
-      window.location.href = `viber://chat?number=%2B${phone}`;
-
-      return;
-    }
-
-    window.location.href = `tel:${val}`;
+    window.location.href = `viber://chat?number=%2B${phone}`;
   }
 
-  chatTooltip(order: Order): string {
-    if (order.contact_type === 'telegram') return 'Відкрити Telegram';
-    if (order.contact_type === 'viber') return 'Відкрити Viber';
+  openTelegram(order: Order): void {
+    if (!order.telegram) return;
+    const handle = order.telegram.startsWith('@')
+      ? order.telegram.slice(1)
+      : order.telegram;
 
-    return 'Зателефонувати';
+    window.open(`https://t.me/${handle}`, '_blank', 'noopener');
+  }
+
+  // ── Edit (pending only) ───────────────────────────────────────────────────
+
+  isEditing(id: number): boolean {
+    return this.editingId() === id;
+  }
+
+  getEditForm(id: number): FormGroup {
+    return this.editForms()[id];
+  }
+
+  startEdit(order: Order, event: Event): void {
+    event.stopPropagation();
+
+    const form = this.fb.group({
+      customer_name: [
+        order.customer_name,
+        [Validators.required, Validators.minLength(2)],
+      ],
+      phone: [order.phone, [Validators.required]],
+      telegram: [order.telegram ?? ''],
+      city: [order.city, [Validators.required]],
+      warehouse: [order.warehouse, [Validators.required]],
+      comment: [order.comment ?? ''],
+    });
+
+    this.editForms.update(m => ({ ...m, [order.id]: form }));
+    this.editingId.set(order.id);
+  }
+
+  cancelEdit(event: Event): void {
+    event.stopPropagation();
+    this.editingId.set(null);
+  }
+
+  saveEdit(order: Order, event: Event): void {
+    event.stopPropagation();
+
+    const form = this.getEditForm(order.id);
+
+    if (!form || form.invalid) return;
+
+    this.setUpdating(order.id, true);
+
+    const v = form.getRawValue();
+
+    this.ordersService
+      .patch(order.id, {
+        customer_name: v.customer_name,
+        phone: v.phone,
+        telegram: v.telegram,
+        city: v.city,
+        warehouse: v.warehouse,
+        comment: v.comment || undefined,
+      })
+      .subscribe({
+        next: updated => {
+          this.allOrders.update(list =>
+            list.map(o => (o.id === order.id ? { ...o, ...updated } : o)),
+          );
+          this.editingId.set(null);
+          this.setUpdating(order.id, false);
+        },
+        error: () => this.setUpdating(order.id, false),
+      });
   }
 
   min(a: number, b: number): number {
     return Math.min(a, b);
+  }
+
+  deleteOrder(order: Order, event: Event): void {
+    event.stopPropagation();
+
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: 'Видалити замовлення?',
+          message: `Замовлення #${order.id} від ${order.customer_name} буде видалено назавжди.`,
+          confirmLabel: 'Видалити',
+          cancelLabel: 'Скасувати',
+        },
+        width: '380px',
+      })
+      .afterClosed()
+      .subscribe(confirmed => {
+        if (!confirmed) return;
+
+        this.ordersService.delete(order.id).subscribe({
+          next: () => {
+            this.allOrders.update(list => list.filter(o => o.id !== order.id));
+          },
+        });
+      });
   }
 
   private setUpdating(id: number, on: boolean): void {
