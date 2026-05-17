@@ -90,6 +90,23 @@
   }
 </td>
 
+<td class="col-box-qty">
+  <mat-form-field
+    appearance="outline"
+    class="inline-field inline-field--xs"
+    matTooltip="Кількість штук в одному ящику"
+    matTooltipPosition="above"
+  >
+    <input
+      matInput
+      [formControl]="form.controls.box_qty"
+      type="number"
+      min="1"
+      placeholder="—"
+    />
+  </mat-form-field>
+</td>
+
 <td class="col-status">
   <mat-slide-toggle
     [checked]="form.controls.status.value === 'publish'"

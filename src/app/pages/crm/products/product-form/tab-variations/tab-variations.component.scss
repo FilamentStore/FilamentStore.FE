@@ -168,6 +168,18 @@
   .col-sku {
     width: 130px;
   }
+  .col-box-qty {
+    width: 68px;
+    text-align: center;
+
+    .col-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      vertical-align: middle;
+      color: var(--text-secondary, #888);
+    }
+  }
   .col-status {
     width: 80px;
   }

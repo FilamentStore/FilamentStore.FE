@@ -46,11 +46,12 @@ export class WeightAttributeTabComponent {
   }>();
   @Output() removeValue = new EventEmitter<string>();
 
-  readonly columns = ['name', 'slug', 'usage', 'actions'];
+  readonly columns = ['name', 'slug', 'box_qty', 'usage', 'actions'];
   readonly showAddRow = signal(false);
   readonly addForm = new FormGroup({
     name: new FormControl('', [Validators.required]),
     slug: new FormControl('', [Validators.required]),
+    box_qty: new FormControl<number | null>(null, [Validators.min(1)]),
   });
   readonly editing = signal<{ oldSlug: string; form: FormGroup } | null>(null);
   readonly confirmDelete = signal<string | null>(null);
@@ -91,7 +92,7 @@ export class WeightAttributeTabComponent {
 
   openAdd(): void {
     this.showAddRow.set(true);
-    this.addForm.reset({ name: '', slug: '' });
+    this.addForm.reset({ name: '', slug: '', box_qty: null });
     this.editing.set(null);
     this.confirmDelete.set(null);
   }
@@ -103,11 +104,16 @@ export class WeightAttributeTabComponent {
 
   submitAdd(): void {
     if (this.addForm.invalid) return;
-    const { name, slug } = this.addForm.getRawValue();
+    const { name, slug, box_qty } = this.addForm.getRawValue();
 
     if (!name || !slug) return;
 
-    this.addValue.emit({ name, slug, usageCount: 0 });
+    this.addValue.emit({
+      name,
+      slug,
+      box_qty: box_qty ?? undefined,
+      usageCount: 0,
+    });
     this.showAddRow.set(false);
     this.addForm.reset();
   }
@@ -116,6 +122,9 @@ export class WeightAttributeTabComponent {
     const form = new FormGroup({
       name: new FormControl(opt.name, [Validators.required]),
       slug: new FormControl(opt.slug, [Validators.required]),
+      box_qty: new FormControl<number | null>(opt.box_qty ?? null, [
+        Validators.min(1),
+      ]),
     });
 
     if (this.isUsed(opt)) {
@@ -135,7 +144,7 @@ export class WeightAttributeTabComponent {
     const editing = this.editing();
 
     if (!editing || editing.form.invalid) return;
-    const { name, slug } = editing.form.getRawValue();
+    const { name, slug, box_qty } = editing.form.getRawValue();
 
     if (!name || !slug) return;
 
@@ -143,7 +152,12 @@ export class WeightAttributeTabComponent {
 
     this.updateValue.emit({
       oldSlug: editing.oldSlug,
-      option: { name, slug, usageCount: currentItem?.usageCount },
+      option: {
+        name,
+        slug,
+        box_qty: box_qty ?? undefined,
+        usageCount: currentItem?.usageCount,
+      },
     });
     this.editing.set(null);
   }

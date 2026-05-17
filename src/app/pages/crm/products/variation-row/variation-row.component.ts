@@ -88,6 +88,7 @@ export class VariationRowComponent implements OnInit {
     ]),
     sku: new FormControl(''),
     weight: new FormControl(''),
+    box_qty: new FormControl<number | null>(null, [Validators.min(1)]),
     status: new FormControl<'publish' | 'private'>('publish'),
   });
 
@@ -99,6 +100,7 @@ export class VariationRowComponent implements OnInit {
       stock_quantity: this.variation.stock_quantity,
       sku: this.variation.sku,
       weight: this.variation.weight,
+      box_qty: this.variation.box_qty ?? null,
       status: this.variation.status,
     });
   }
@@ -141,6 +143,7 @@ export class VariationRowComponent implements OnInit {
         stock_quantity: value.stock_quantity ?? 0,
         sku: value.sku || this.generateSku(),
         weight: value.weight ?? '',
+        box_qty: value.box_qty ?? undefined,
         status: value.status ?? 'publish',
       },
     });

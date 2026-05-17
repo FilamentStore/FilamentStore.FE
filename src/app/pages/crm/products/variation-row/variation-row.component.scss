@@ -140,6 +140,31 @@ td {
   min-width: 170px;
 }
 
+.col-stock,
+.col-box-qty {
+  .inline-field {
+    ::ng-deep {
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: transparent;
+        transition: border-color 0.2s;
+      }
+    }
+
+    &:hover,
+    &:focus-within {
+      ::ng-deep {
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+          border-color: var(--border-color, #e0e0e0);
+        }
+      }
+    }
+  }
+}
+
 .inline-field {
   width: 90px;
 
@@ -162,14 +187,19 @@ td {
   &--sm {
     width: 70px;
   }
+
+  &--xs {
+    width: 54px;
+  }
 }
 
 .col-stock {
-  text-align: center;
   white-space: nowrap;
 }
 
 .stock-label {
+  display: block;
+  margin-top: 4px;
   font-size: 11px;
   font-weight: 600;
   border-radius: 10px;
