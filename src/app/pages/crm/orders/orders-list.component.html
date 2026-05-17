@@ -415,44 +415,42 @@
       }
     </div>
 
-    @if (totalPages() > 1) {
-      <div class="orders__pagination">
-        <button
-          class="orders__page-btn"
-          [disabled]="currentPage() === 1"
-          (click)="setPage(currentPage() - 1)"
-        >
-          <mat-icon>chevron_left</mat-icon>
-        </button>
+    <div class="orders__pagination">
+      <button
+        class="orders__page-btn"
+        [disabled]="currentPage() === 1"
+        (click)="setPage(currentPage() - 1)"
+      >
+        <mat-icon>chevron_left</mat-icon>
+      </button>
 
-        @for (p of visiblePages(); track p; let i = $index) {
-          @if (isGap(visiblePages(), i)) {
-            <span class="orders__page-gap">…</span>
-          }
-          <button
-            class="orders__page-btn"
-            [class.orders__page-btn--active]="currentPage() === p"
-            (click)="setPage(p)"
-          >
-            {{ p }}
-          </button>
+      @for (p of visiblePages(); track p; let i = $index) {
+        @if (isGap(visiblePages(), i)) {
+          <span class="orders__page-gap">…</span>
         }
-
         <button
           class="orders__page-btn"
-          [disabled]="currentPage() === totalPages()"
-          (click)="setPage(currentPage() + 1)"
+          [class.orders__page-btn--active]="currentPage() === p"
+          (click)="setPage(p)"
         >
-          <mat-icon>chevron_right</mat-icon>
+          {{ p }}
         </button>
+      }
 
-        <span class="orders__page-info">
-          {{ (currentPage() - 1) * 10 + 1 }}–{{
-            min(currentPage() * 10, filteredOrders().length)
-          }}
-          з {{ filteredOrders().length }}
-        </span>
-      </div>
-    }
+      <button
+        class="orders__page-btn"
+        [disabled]="currentPage() === totalPages()"
+        (click)="setPage(currentPage() + 1)"
+      >
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+
+      <span class="orders__page-info">
+        {{ (currentPage() - 1) * 20 + 1 }}–{{
+          min(currentPage() * 20, filteredOrders().length)
+        }}
+        з {{ filteredOrders().length }}
+      </span>
+    </div>
   }
 </div>

@@ -71,7 +71,7 @@ const HISTORY_STATUSES = new Set([
 ]);
 
 const TTN_RE = /^\d{14}$/;
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 20;
 
 const ACTIVE_STATUS_OPTIONS: StatusOption[] = [
   { value: '', label: 'Всі' },
