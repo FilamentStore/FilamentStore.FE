@@ -72,7 +72,7 @@
             @for (option of getConfiguredValues(config); track option.value) {
               <mat-checkbox
                 [checked]="isChecked(config.label, option.value)"
-                (change)="toggle(config, option.value)"
+                (change)="toggle(config, option.value, $event)"
                 color="primary"
                 class="value-checkbox"
               >

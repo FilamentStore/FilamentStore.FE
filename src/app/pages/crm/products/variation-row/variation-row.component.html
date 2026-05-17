@@ -22,7 +22,12 @@
 </td>
 
 <td class="col-combo">
-  <span class="combo-label">{{ combinationLabel }}</span>
+  <input
+    class="name-input"
+    [formControl]="form.controls.custom_name"
+    [placeholder]="combinationLabel"
+    spellcheck="false"
+  />
   <div class="article-row">
     <span class="article-prefix">Арт.:</span>
     <input
@@ -32,6 +37,15 @@
       spellcheck="false"
     />
   </div>
+  @if (variation.attributes.length > 0) {
+    <div class="attrs-row">
+      @for (attr of variation.attributes; track attr.name) {
+        <span class="attr-tag">{{
+          getOptionLabel(attr.name, attr.option)
+        }}</span>
+      }
+    </div>
+  }
 </td>
 
 <td class="col-price">
@@ -76,6 +90,23 @@
   }
 </td>
 
+<td class="col-box-qty">
+  <mat-form-field
+    appearance="outline"
+    class="inline-field inline-field--xs"
+    matTooltip="Кількість штук в одному ящику"
+    matTooltipPosition="above"
+  >
+    <input
+      matInput
+      [formControl]="form.controls.box_qty"
+      type="number"
+      min="1"
+      placeholder="—"
+    />
+  </mat-form-field>
+</td>
+
 <td class="col-status">
   <mat-slide-toggle
     [checked]="form.controls.status.value === 'publish'"
@@ -89,20 +120,29 @@
 
 <td class="col-actions">
   <div class="actions-group">
-    <button
-      mat-icon-button
-      color="primary"
-      type="button"
-      (click)="save()"
-      [disabled]="form.invalid || saving()"
-      matTooltip="Зберегти"
-    >
-      @if (saving()) {
-        <mat-spinner diameter="20" />
-      } @else {
-        <mat-icon>save</mat-icon>
+    <div class="save-wrap">
+      @if (isDirty()) {
+        <span
+          class="unsaved-dot"
+          matTooltip="Є незбережені зміни"
+          matTooltipPosition="above"
+        ></span>
       }
-    </button>
+      <button
+        mat-icon-button
+        color="primary"
+        type="button"
+        (click)="save()"
+        [disabled]="form.invalid || saving()"
+        matTooltip="Зберегти"
+      >
+        @if (saving()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          <mat-icon>save</mat-icon>
+        }
+      </button>
+    </div>
     <button
       mat-icon-button
       color="warn"

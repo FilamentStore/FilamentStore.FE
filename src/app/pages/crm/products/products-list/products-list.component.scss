@@ -60,6 +60,21 @@
     gap: 16px;
     color: var(--text-secondary, #888);
   }
+
+  .table-container {
+    position: relative;
+  }
+
+  .loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 4px;
+  }
 }
 
 .products-table {

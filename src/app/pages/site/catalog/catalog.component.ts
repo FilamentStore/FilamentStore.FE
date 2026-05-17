@@ -103,6 +103,7 @@ function mapToCardItem(v: CatalogVariationItem): ProductCardItem {
       sku: v.sku,
       status: 'publish',
       weight: '',
+      custom_name: v.custom_name,
     },
   };
 }
@@ -225,6 +226,11 @@ export class CatalogComponent implements OnInit {
 
   readonly filtersOpen = signal(false);
   readonly colorsDropOpen = signal(false);
+  readonly sortDropOpen = signal(false);
+
+  readonly activeSortLabel = computed(
+    () => SORT_OPTIONS.find(o => o.value === this.activeSort())?.label ?? '',
+  );
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -235,7 +241,12 @@ export class CatalogComponent implements OnInit {
     if (toolbar && !toolbar.contains(target as Node)) {
       this.filtersOpen.set(false);
       this.colorsDropOpen.set(false);
+      this.sortDropOpen.set(false);
     }
+  }
+
+  toggleSortDrop(): void {
+    this.sortDropOpen.update(v => !v);
   }
 
   ngOnInit(): void {

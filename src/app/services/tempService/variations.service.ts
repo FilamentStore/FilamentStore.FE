@@ -13,6 +13,24 @@ export class VariationsService {
   private http = inject(HttpClient);
   private baseUrl = environment.apiUrl;
 
+  getNewest(limit = 20): Observable<CatalogVariationsResponse> {
+    const params = new HttpParams().set('limit', String(limit));
+
+    return this.http.get<CatalogVariationsResponse>(
+      `${this.baseUrl}/variations/newest`,
+      { params },
+    );
+  }
+
+  getPopular(limit = 20): Observable<CatalogVariationsResponse> {
+    const params = new HttpParams().set('limit', String(limit));
+
+    return this.http.get<CatalogVariationsResponse>(
+      `${this.baseUrl}/variations/popular`,
+      { params },
+    );
+  }
+
   getCatalogVariations(
     filters: CatalogFilters = {},
   ): Observable<CatalogVariationsResponse> {

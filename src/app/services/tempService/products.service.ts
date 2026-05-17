@@ -34,7 +34,7 @@ export class ProductsService {
       params = params.set('category_id', String(filters.category_id));
     if (filters.page) params = params.set('page', String(filters.page));
     if (filters.include?.length)
-      params = params.set('include', filters.include.join(','));
+      params = params.set('ids', filters.include.join(','));
 
     return this.http.get<ProductsListResponse>(this.baseUrl, { params });
   }

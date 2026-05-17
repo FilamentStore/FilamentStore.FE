@@ -17,21 +17,21 @@
         color="primary"
         type="button"
         (click)="save()"
-        [disabled]="saving"
+        [disabled]="saving()"
       >
-        @if (saving) {
+        @if (saving()) {
           <mat-spinner diameter="18" />
         } @else {
           <mat-icon>save</mat-icon>
         }
-        {{ saving ? 'Збереження...' : 'Зберегти' }}
+        {{ saving() ? 'Збереження...' : 'Зберегти' }}
       </button>
     </div>
   </div>
 
   <mat-card class="form-card">
     <mat-card-content>
-      @if (loading && isEditMode()) {
+      @if (loading() && isEditMode()) {
         <div class="loading-overlay">
           <mat-spinner diameter="48" />
           <p>Завантаження...</p>
@@ -41,7 +41,9 @@
         animationDuration="200ms"
         color="primary"
         style="width: 100%"
-        [class.tabs-hidden]="loading && isEditMode()"
+        [class.tabs-hidden]="loading() && isEditMode()"
+        [selectedIndex]="activeTabIndex()"
+        (selectedIndexChange)="onTabChange($event)"
       >
         <mat-tab>
           <ng-template mat-tab-label>
@@ -69,6 +71,8 @@
               [attributes]="attributes()"
               [colorsList]="colors()"
               [simpleAttributes]="simpleAttributes()"
+              [variations]="variations()"
+              [isEditMode]="isEditMode()"
               (attributesChange)="setAttributes($event)"
               (generateVariations)="save()"
             />
@@ -91,6 +95,10 @@
                 [colorsList]="colors()"
                 [simpleAttributes]="simpleAttributes()"
                 [skuPrefix]="skuPrefix()"
+                [hasUnsavedAttributes]="hasUnsavedAttributes()"
+                (variationsChange)="setVariations($event)"
+                (saveAndGenerate)="handleSaveAndGenerate()"
+                (saveAndAdd)="handleSaveAndOpenAdd()"
               />
             }
           </div>

@@ -92,12 +92,6 @@ export class CategoriesTabComponent implements OnInit {
     });
   }
 
-  onEditNameInput(value: string): void {
-    this.editForm.controls.slug.setValue(this.toSlug(value), {
-      emitEvent: false,
-    });
-  }
-
   // ─── Image upload ─────────────────────────────────────────────────
   onAddImageSelect(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];

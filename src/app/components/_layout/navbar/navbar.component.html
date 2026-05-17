@@ -48,6 +48,16 @@
               Про нас
             </a>
           </li>
+          <li class="nav-item">
+            <a
+              routerLink="/shipping"
+              routerLinkActive="is-active"
+              class="nav-link"
+              (click)="onClose()"
+            >
+              Доставка
+            </a>
+          </li>
         </ul>
       </nav>
     </div>
@@ -70,6 +80,7 @@
         aria-label="Go to Favorites"
       >
         <span class="icon-img icon-img--favorite" aria-hidden="true"></span>
+        <app-icon-badge [count]="favoritesCount()" />
       </a>
       <a
         routerLink="/cart"
@@ -79,6 +90,7 @@
         aria-label="Go to Shopping Bag"
       >
         <span class="icon-img icon-img--bag" aria-hidden="true"></span>
+        <app-icon-badge [count]="cartCount()" />
       </a>
     </div>
   </div>

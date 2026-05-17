@@ -17,6 +17,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
@@ -31,6 +32,7 @@ import {
   AttributeValue,
   Product,
   ProductImage,
+  ProductVariation,
   WcCategory,
 } from '@models/product.models';
 import { Brand, SimpleAttributeOption } from '@models/config.models';
@@ -72,6 +74,7 @@ const DEFAULT_ATTRIBUTES: AttributeValue[] = [
 })
 export class ProductFormComponent implements OnInit, AfterViewInit {
   @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
+  @ViewChild(TabVariationsComponent) variationsTab?: TabVariationsComponent;
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -82,9 +85,10 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
 
   readonly productId = signal<number | null>(null);
   readonly isEditMode = computed(() => this.productId() !== null);
+  readonly activeTabIndex = signal(0);
 
-  loading = false;
-  saving = false;
+  readonly loading = signal(false);
+  readonly saving = signal(false);
   categories: WcCategory[] = [];
   brands: Brand[] = [];
   readonly colors = toSignal(this.store.select(selectAttributeColors), {
@@ -106,6 +110,8 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
   });
 
   readonly images = signal<ProductImage[]>([]);
+  readonly variations = signal<ProductVariation[]>([]);
+  readonly hasUnsavedAttributes = signal(false);
   readonly attributes = signal<AttributeValue[]>(
     structuredClone(DEFAULT_ATTRIBUTES),
   );
@@ -128,13 +134,28 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
+    const tab = this.route.snapshot.queryParamMap.get('tab');
 
-    this.loadReferenceData();
+    if (tab !== null && !isNaN(+tab)) {
+      this.activeTabIndex.set(+tab);
+    }
 
     if (id && !isNaN(Number(id))) {
       this.productId.set(Number(id));
       this.loadProduct(this.productId()!);
+    } else {
+      this.loadReferenceData();
     }
+  }
+
+  onTabChange(index: number): void {
+    this.activeTabIndex.set(index);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: index },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   ngAfterViewInit(): void {
@@ -142,7 +163,7 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
     setTimeout(() => this.tabGroup?.realignInkBar(), 300);
   }
 
-  save(): void {
+  save(afterSave?: () => void): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.snackBar.open(
@@ -186,17 +207,18 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
       })),
     };
 
-    this.saving = true;
+    this.saving.set(true);
 
     const request$ = this.isEditMode()
       ? this.productsService.updateProduct(this.productId()!, productData)
       : this.productsService.createProduct(productData);
 
-    request$.pipe(finalize(() => (this.saving = false))).subscribe({
+    request$.pipe(finalize(() => this.saving.set(false))).subscribe({
       next: product => {
         if (this.isEditMode()) {
           this.patchForm(product);
           this.snackBar.open('Продукт збережено', '', { duration: 2500 });
+          afterSave?.();
 
           return;
         }
@@ -216,6 +238,14 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
     });
   }
 
+  readonly handleSaveAndGenerate = (): void => {
+    this.save(() => this.variationsTab?.generateVariations());
+  };
+
+  readonly handleSaveAndOpenAdd = (): void => {
+    this.save(() => this.variationsTab?.openAddVariation());
+  };
+
   cancel(): void {
     this.router.navigate([`/${ROUTES.crm.root}/${ROUTES.crm.products.root}`]);
   }
@@ -226,6 +256,13 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
 
   readonly setAttributes = (attrs: AttributeValue[]): void => {
     this.attributes.set(attrs);
+    if (this.isEditMode()) {
+      this.hasUnsavedAttributes.set(true);
+    }
+  };
+
+  readonly setVariations = (variations: ProductVariation[]): void => {
+    this.variations.set(variations);
   };
 
   private loadReferenceData(): void {
@@ -241,12 +278,19 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
   }
 
   private loadProduct(id: number): void {
-    this.loading = true;
-    this.productsService
-      .getProduct(id)
-      .pipe(finalize(() => (this.loading = false)))
+    this.loading.set(true);
+    forkJoin({
+      product: this.productsService.getProduct(id),
+      categories: this.productsService.getCategories(),
+      brands: this.brandsService.getBrands(),
+    })
+      .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: product => this.patchForm(product),
+        next: ({ product, categories, brands }) => {
+          this.categories = categories;
+          this.brands = brands;
+          this.patchForm(product);
+        },
         error: error => {
           this.snackBar.open(
             `Помилка: ${error?.error?.message ?? 'не вдалося завантажити продукт'}`,
@@ -283,11 +327,13 @@ export class ProductFormComponent implements OnInit, AfterViewInit {
       });
 
       this.attributes.set(merged);
+      this.hasUnsavedAttributes.set(false);
 
       return;
     }
 
     this.attributes.set(structuredClone(DEFAULT_ATTRIBUTES));
+    this.hasUnsavedAttributes.set(false);
   }
 
   private dedupeImages(images: ProductImage[]): ProductImage[] {

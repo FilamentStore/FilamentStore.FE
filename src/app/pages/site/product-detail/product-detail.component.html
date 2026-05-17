@@ -1,23 +1,43 @@
 <article class="detail">
-  <app-breadcrumb [items]="breadcrumbs()" />
-
-  <button class="detail__back" (click)="goBack()">
-    <span class="detail__back-icon"></span>
-    Назад
-  </button>
+  <div class="detail__top">
+    <app-breadcrumb [items]="breadcrumbs()" />
+    <button class="detail__back" (click)="goBack()">
+      <span class="detail__back-icon"></span>
+      Назад
+    </button>
+  </div>
 
   @if (loading()) {
     <app-skeleton variant="product-detail" />
   } @else if (product(); as p) {
     <div class="detail__title-row">
       <div>
-        <p class="detail__brand"></p>
-        <h1 class="detail__name">{{ p.name + ' - ' + p.brand }}</h1>
+        @if (brandName()) {
+          <p class="detail__brand">{{ brandName() }}</p>
+        }
+        <h1 class="detail__name">{{ displayName() }}</h1>
       </div>
-      <span class="detail__id">ID: {{ p.id }}</span>
+      <div class="detail__title-meta">
+        <div class="detail__rating" aria-label="Відгуків: 5">
+          @for (active of [true, true, true, true, false]; track $index) {
+            <img
+              class="detail__rating-star"
+              [class.detail__rating-star--muted]="!active"
+              [src]="
+                active
+                  ? 'assets/icons/icon-star-active.svg'
+                  : 'assets/icons/icon-star.svg'
+              "
+              alt=""
+            />
+          }
+        </div>
+        <span class="detail__id">ID: {{ p.id }}</span>
+      </div>
     </div>
 
     <div class="detail__layout">
+      <!-- Image -->
       <div class="detail__image-col">
         <div class="detail__image-wrap">
           @if (activeImage()) {
@@ -42,7 +62,6 @@
               <span>Немає фото</span>
             </div>
           }
-
           @if (stockStatus() !== 'in') {
             <span
               class="detail__stock-badge"
@@ -57,48 +76,53 @@
             <span class="detail__sale-badge">Акція</span>
           }
         </div>
-
-        @if (p.short_description) {
-          <div
-            class="detail__short-desc"
-            [innerHTML]="p.short_description"
-          ></div>
-        }
       </div>
 
+      <!-- Info -->
       <div class="detail__info-col">
         @for (attr of p.attributes; track attr.name) {
-          <div class="detail__attr-group">
-            <p class="detail__attr-label">{{ attr.name }}</p>
-            <div class="detail__attr-options">
-              @if (isColorAttr(attr.name)) {
-                @for (opt of attr.options; track opt) {
-                  <button
-                    class="detail__swatch"
-                    [class.detail__swatch--active]="
-                      selectedAttrs().get(attr.name) === opt
-                    "
-                    [class.detail__swatch--multi]="getColorHex(opt).length > 1"
-                    [style.background]="swatchBg(getColorHex(opt))"
-                    [attr.data-label]="resolveOptionName(attr.name, opt)"
-                    (click)="selectOption(attr.name, opt)"
-                  ></button>
+          @if (attr.name !== 'Діаметр') {
+            <div class="detail__attr-group">
+              <p class="detail__attr-label">{{ attr.name }}</p>
+              <div
+                class="detail__attr-options"
+                [class.detail__attr-options--colors]="isColorAttr(attr.name)"
+              >
+                @if (isColorAttr(attr.name)) {
+                  @for (opt of attr.options; track opt) {
+                    @if (isOptionAvailable(attr.name, opt)) {
+                      <button
+                        class="detail__swatch"
+                        [class.detail__swatch--active]="
+                          selectedAttrs().get(attr.name) === opt
+                        "
+                        [class.detail__swatch--multi]="
+                          getColorHex(opt).length > 1
+                        "
+                        [style.background]="swatchBg(getColorHex(opt))"
+                        [attr.data-label]="resolveOptionName(attr.name, opt)"
+                        (click)="selectOption(attr.name, opt)"
+                      ></button>
+                    }
+                  }
+                } @else {
+                  @for (opt of attr.options; track opt) {
+                    @if (isOptionAvailable(attr.name, opt)) {
+                      <button
+                        class="detail__pill"
+                        [class.detail__pill--active]="
+                          selectedAttrs().get(attr.name) === opt
+                        "
+                        (click)="selectOption(attr.name, opt)"
+                      >
+                        {{ resolveOptionName(attr.name, opt) }}
+                      </button>
+                    }
+                  }
                 }
-              } @else {
-                @for (opt of attr.options; track opt) {
-                  <button
-                    class="detail__pill"
-                    [class.detail__pill--active]="
-                      selectedAttrs().get(attr.name) === opt
-                    "
-                    (click)="selectOption(attr.name, opt)"
-                  >
-                    {{ resolveOptionName(attr.name, opt) }}
-                  </button>
-                }
-              }
+              </div>
             </div>
-          </div>
+          }
         }
 
         <hr class="detail__divider" />
@@ -110,7 +134,7 @@
           }
         </div>
 
-        @if (activeVariation(); as v) {
+        @if (activeVariation()) {
           <div class="detail__stock-info">
             <span
               class="detail__stock-dot"
@@ -123,17 +147,32 @@
               >
             } @else if (stockStatus() === 'low') {
               <span class="detail__stock-label detail__stock-label--low"
-                >Залишилось: {{ v.stock_quantity }} шт.</span
+                >Закінчується</span
               >
             } @else {
-              <span class="detail__stock-label"
-                >В наявності: {{ v.stock_quantity }} шт.</span
-              >
+              <span class="detail__stock-label">В наявності</span>
             }
           </div>
         }
 
-        <!-- Actions -->
+        @if (activeVariation()?.box_qty && activeVariation()!.box_qty! > 1) {
+          <p class="detail__box-hint">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                d="M20 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zm0 11H4V9h16v9zM3 4h18v2H3z"
+              />
+            </svg>
+            1 ящик = {{ activeVariation()!.box_qty }} шт.
+          </p>
+        }
+
         <div class="detail__actions">
           <button
             class="detail__btn-cart"
@@ -223,25 +262,27 @@
             }
           </div>
         </div>
-
-        <!-- Quick specs -->
-        @if (activeVariation(); as v) {
-          <hr class="detail__divider" />
-          <table class="detail__specs">
-            @for (attr of v.attributes; track attr.name) {
-              <tr class="detail__specs-row">
-                <td class="detail__specs-key">{{ attr.name }}</td>
-                <td class="detail__specs-val">
-                  {{ resolveOptionName(attr.name, attr.option) }}
-                </td>
-              </tr>
-            }
-          </table>
-        }
       </div>
     </div>
 
-    <!-- Full description -->
+    <!-- Below layout: specs + description -->
+    @if (activeVariation(); as v) {
+      <table class="detail__specs">
+        @for (attr of v.attributes; track attr.name) {
+          <tr class="detail__specs-row">
+            <td class="detail__specs-key">{{ attr.name }}</td>
+            <td class="detail__specs-val">
+              {{ resolveOptionName(attr.name, attr.option) }}
+            </td>
+          </tr>
+        }
+      </table>
+    }
+
+    @if (p.short_description) {
+      <div class="detail__short-desc" [innerHTML]="p.short_description"></div>
+    }
+
     @if (p.description) {
       <section class="detail__description">
         <h2 class="detail__description-title">Опис</h2>

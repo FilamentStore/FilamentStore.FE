@@ -1,0 +1,407 @@
+<div class="checkout">
+  <div class="checkout__inner">
+    <app-breadcrumb
+      [items]="[
+        { label: 'Кошик', route: '/cart' },
+        { label: 'Оформлення замовлення' },
+      ]"
+    />
+
+    <!-- ── Success ─────────────────────────────────────────────────────── -->
+    @if (submitted()) {
+      <div class="checkout__success">
+        <div class="checkout__success-icon">
+          <svg viewBox="0 0 64 64" fill="none">
+            <circle
+              cx="32"
+              cy="32"
+              r="30"
+              stroke="currentColor"
+              stroke-width="3"
+            />
+            <polyline
+              points="18 33 27 42 46 22"
+              stroke="currentColor"
+              stroke-width="3.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+        <h2 class="checkout__success-title">Замовлення прийнято!</h2>
+        <p class="checkout__success-sub">
+          Ми зв'яжемося з вами найближчим часом для підтвердження.
+        </p>
+        <div class="checkout__success-actions">
+          <a class="checkout__success-btn" routerLink="/">На головну</a>
+          <a
+            class="checkout__success-btn checkout__success-btn--ghost"
+            routerLink="/catalog"
+          >
+            Продовжити покупки
+          </a>
+        </div>
+      </div>
+    } @else {
+      <!-- ── Layout ──────────────────────────────────────────────────────── -->
+      <div class="checkout__layout">
+        <!-- Form ─────────────────────────────────────────────────────────── -->
+        <form
+          [formGroup]="form"
+          (ngSubmit)="submit()"
+          class="checkout__form"
+          novalidate
+        >
+          <!-- Section: Контактні дані -->
+          <section class="checkout__section">
+            <h2 class="checkout__section-title">Контактні дані</h2>
+
+            <div class="checkout__field">
+              <label class="checkout__label" for="name">
+                Ім'я та прізвище <span class="checkout__required">*</span>
+              </label>
+              <input
+                id="name"
+                class="checkout__input"
+                [class.checkout__input--error]="isInvalid('name')"
+                type="text"
+                placeholder="Іван Іваненко"
+                formControlName="name"
+                autocomplete="name"
+              />
+              @if (isInvalid('name')) {
+                <span class="checkout__error"
+                  >Введіть ім'я (мінімум 2 символи)</span
+                >
+              }
+            </div>
+
+            <div class="checkout__field">
+              <label class="checkout__label" for="phone">
+                Номер телефону <span class="checkout__required">*</span>
+              </label>
+              <input
+                id="phone"
+                class="checkout__input"
+                [class.checkout__input--error]="isInvalid('phone')"
+                type="tel"
+                placeholder="+380501234567"
+                formControlName="phone"
+                autocomplete="tel"
+              />
+              @if (isInvalid('phone')) {
+                <span class="checkout__error"
+                  >Введіть коректний номер телефону</span
+                >
+              }
+            </div>
+
+            <div class="checkout__field">
+              <label class="checkout__label" for="telegram"> Telegram </label>
+              <input
+                id="telegram"
+                class="checkout__input"
+                type="text"
+                placeholder="@username"
+                formControlName="telegram"
+              />
+              <span class="checkout__hint">
+                Необов'язково (якщо хочете спілкуватися через Telegram — вкажіть
+                нікнейм)
+              </span>
+            </div>
+          </section>
+
+          <!-- Section: Доставка -->
+          <section class="checkout__section">
+            <h2 class="checkout__section-title">Доставка — Нова Пошта</h2>
+
+            <!-- City search -->
+            <div class="checkout__field">
+              <label class="checkout__label" for="cityQuery">
+                Місто <span class="checkout__required">*</span>
+              </label>
+              <div class="checkout__autocomplete">
+                <input
+                  id="cityQuery"
+                  class="checkout__input"
+                  [class.checkout__input--error]="
+                    form.get('cityQuery')!.touched && !selectedCity()
+                  "
+                  type="text"
+                  placeholder="Почніть вводити місто..."
+                  formControlName="cityQuery"
+                  autocomplete="off"
+                  (input)="onCityInput($event)"
+                  (focus)="showCitiesDrop.set(cities().length > 0)"
+                  (blur)="hideCitiesDrop()"
+                />
+                @if (citiesLoading()) {
+                  <span class="checkout__autocomplete-spin"></span>
+                }
+                @if (showCitiesDrop() && cities().length) {
+                  <ul class="checkout__drop">
+                    @for (city of cities(); track city.Ref) {
+                      <li
+                        class="checkout__drop-item"
+                        (mousedown)="selectCity(city)"
+                      >
+                        <span class="checkout__drop-main">{{
+                          city.MainDescription
+                        }}</span>
+                        <span class="checkout__drop-sub">{{
+                          city.Present
+                        }}</span>
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+              @if (form.get('cityQuery')!.touched && !selectedCity()) {
+                <span class="checkout__error">Оберіть місто зі списку</span>
+              }
+            </div>
+
+            <!-- Warehouse selection (after city chosen) -->
+            @if (selectedCity()) {
+              <div class="checkout__field">
+                <label class="checkout__label">
+                  Відділення <span class="checkout__required">*</span>
+                </label>
+
+                <div class="checkout__warehouse-row">
+                  <div class="checkout__autocomplete">
+                    <input
+                      class="checkout__input"
+                      [class.checkout__input--error]="
+                        form.get('warehouseSearch')!.touched &&
+                        !selectedWarehouse()
+                      "
+                      type="text"
+                      placeholder="Введіть адресу або номер відділення"
+                      formControlName="warehouseSearch"
+                      autocomplete="off"
+                      (input)="onWarehouseInput($event)"
+                      (focus)="showWarehousesDrop.set(warehouses().length > 0)"
+                      (blur)="hideWarehousesDrop()"
+                    />
+                    @if (warehousesLoading()) {
+                      <span class="checkout__autocomplete-spin"></span>
+                    }
+                    @if (showWarehousesDrop() && filteredWarehouses().length) {
+                      <ul class="checkout__drop checkout__drop--tall">
+                        @for (w of filteredWarehouses(); track w.Ref) {
+                          <li
+                            class="checkout__drop-item"
+                            (mousedown)="selectWarehouseFromDrop(w)"
+                          >
+                            <span class="checkout__drop-main"
+                              >НП №{{ w.Number }}</span
+                            >
+                            <span class="checkout__drop-sub">{{
+                              w.Description
+                            }}</span>
+                          </li>
+                        }
+                      </ul>
+                    }
+                  </div>
+                  <button
+                    class="checkout__map-btn"
+                    type="button"
+                    (click)="openMapModal()"
+                    title="Обрати на мапі"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
+                      />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    На мапі
+                  </button>
+                </div>
+
+                @if (selectedWarehouse()) {
+                  <div class="checkout__warehouse-badge">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span
+                      >НП №{{ selectedWarehouse()!.Number }} —
+                      {{ selectedWarehouse()!.Description }}</span
+                    >
+                    <button
+                      type="button"
+                      class="checkout__warehouse-badge-clear"
+                      (click)="clearWarehouse()"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                      >
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </section>
+
+          <!-- Section: Додатково -->
+          <section class="checkout__section">
+            <h2 class="checkout__section-title">Додатково</h2>
+
+            <div class="checkout__field">
+              <label class="checkout__label" for="printerCertificate">
+                Посвідчення друкаря
+              </label>
+              <input
+                id="printerCertificate"
+                class="checkout__input"
+                type="text"
+                placeholder="Номер або назва посвідчення..."
+                formControlName="printerCertificate"
+              />
+              <span class="checkout__hint">
+                Якщо маєте — допоможе отримати спеціальні умови
+              </span>
+            </div>
+
+            <div class="checkout__field">
+              <label class="checkout__label" for="comment">
+                Коментар до замовлення
+              </label>
+              <textarea
+                id="comment"
+                class="checkout__textarea"
+                rows="3"
+                placeholder="Додаткова інформація..."
+                formControlName="comment"
+              ></textarea>
+            </div>
+          </section>
+
+          <!-- Submit (mobile — below summary on desktop) -->
+          @if (orderError()) {
+            <p class="checkout__order-error">{{ orderError() }}</p>
+          }
+          <div class="checkout__submit-wrap">
+            <button
+              class="checkout__submit"
+              type="submit"
+              [disabled]="submitting()"
+            >
+              @if (submitting()) {
+                <span class="checkout__submit-spin"></span>
+                Оформлення...
+              } @else {
+                Оформити замовлення
+              }
+            </button>
+          </div>
+        </form>
+
+        <!-- Summary ────────────────────────────────────────────────────────── -->
+        <aside class="checkout__summary">
+          <h3 class="checkout__summary-title">Ваше замовлення</h3>
+
+          @if (cartLoading()) {
+            <div class="checkout__summary-skeleton">
+              @for (i of [1, 2, 3]; track i) {
+                <div class="checkout__skeleton-row">
+                  <div class="checkout__skeleton checkout__skeleton--img"></div>
+                  <div
+                    class="checkout__skeleton checkout__skeleton--text"
+                  ></div>
+                </div>
+              }
+            </div>
+          } @else if (cartItems().length === 0) {
+            <p class="checkout__summary-empty">Кошик порожній</p>
+            <a class="checkout__summary-link" routerLink="/catalog"
+              >До каталогу</a
+            >
+          } @else {
+            <ul class="checkout__items">
+              @for (item of cartItems(); track item.variation.id) {
+                <li class="checkout__item">
+                  <div class="checkout__item-img">
+                    @if (item.variation.image?.src; as src) {
+                      <img [src]="src" [alt]="item.product.name" />
+                    } @else if (item.product.images[0]?.src; as src) {
+                      <img [src]="src" [alt]="item.product.name" />
+                    } @else {
+                      <div class="checkout__item-img-placeholder"></div>
+                    }
+                  </div>
+                  <div class="checkout__item-info">
+                    <span class="checkout__item-name">{{
+                      item.product.name
+                    }}</span>
+                    <span class="checkout__item-qty">
+                      {{ item.quantity }} ящ. × {{ getBoxQty(item) }} шт. =
+                      {{ getTotalSpools(item) }} шт.
+                    </span>
+                  </div>
+                  <span class="checkout__item-price">
+                    {{
+                      getItemPrice(item) * getTotalSpools(item)
+                        | number: '1.0-0'
+                    }}
+                    ₴
+                  </span>
+                </li>
+              }
+            </ul>
+
+            <div class="checkout__summary-total">
+              <span>Разом</span>
+              <strong>{{ totalPrice() | number: '1.0-0' }} ₴</strong>
+            </div>
+
+            <div class="checkout__summary-count">
+              {{ totalCount() }}
+              {{
+                totalCount() === 1
+                  ? 'товар'
+                  : totalCount() < 5
+                    ? 'товари'
+                    : 'товарів'
+              }}
+            </div>
+          }
+        </aside>
+      </div>
+    }
+    <!-- end else submitted -->
+  </div>
+</div>
+
+@if (showMapModal() && selectedCity()) {
+  <app-np-map-modal
+    [cityRef]="selectedCity()!.Ref"
+    [cityName]="selectedCity()!.Present"
+    (selected)="onWarehouseSelected($event)"
+    (closed)="closeMapModal()"
+  />
+}

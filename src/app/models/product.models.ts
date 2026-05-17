@@ -40,6 +40,8 @@ export interface ProductVariation {
   sku: string;
   status: 'publish' | 'private';
   weight: string;
+  box_qty?: number;
+  custom_name?: string;
 }
 
 export interface WcCategory {
@@ -106,6 +108,8 @@ export interface CatalogVariationItem {
   category_ids: number[];
   product_images: ProductImage[];
   total_sales: number;
+  box_qty?: number;
+  custom_name?: string;
 }
 
 export interface CatalogVariationsResponse {

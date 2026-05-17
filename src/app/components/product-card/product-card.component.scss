@@ -13,12 +13,13 @@
   overflow: hidden;
   height: 100%;
   cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
   transition:
     box-shadow 0.25s ease,
     transform 0.25s ease;
 
   &:hover {
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.13);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
     transform: translateY(-3px);
   }
 
@@ -29,7 +30,8 @@
     width: 100%;
     aspect-ratio: 4 / 3;
     overflow: hidden;
-    background-color: $color-surface;
+    background-color: #ffffff;
+    border-bottom: 1.5px solid $color-element;
     flex-shrink: 0;
   }
 
@@ -115,9 +117,9 @@
 
   &__brand {
     margin: 0;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: $color-accent;
   }
@@ -152,13 +154,32 @@
   }
 
   &__swatch {
+    position: relative;
     display: inline-block;
     width: 16px;
     height: 16px;
     border-radius: 50%;
     flex-shrink: 0;
-    border: 1.5px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 0 0 1px $color-element;
+    border: none;
+    box-shadow:
+      inset 0 1px 3px rgba(0, 0, 0, 0.18),
+      0 0 0 2px $color-card,
+      0 0 0 3px $color-element;
+
+    &--multi::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: linear-gradient(
+        135deg,
+        transparent calc(50% - 0.7px),
+        rgba(255, 255, 255, 0.7) calc(50% - 0.7px),
+        rgba(255, 255, 255, 0.7) calc(50% + 0.7px),
+        transparent calc(50% + 0.7px)
+      );
+      pointer-events: none;
+    }
   }
 
   &__spec-tag {
@@ -204,6 +225,41 @@
   }
 
   // ── Actions ───────────────────────────────────────────────────────────────
+
+  &__rating {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 18px;
+    margin-top: 2px;
+  }
+
+  &__rating-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  &__rating-star {
+    display: block;
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+
+    &--muted {
+      filter: brightness(0.88) contrast(1.12);
+    }
+  }
+
+  &__rating-reviews {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: $color-text-main;
+    white-space: nowrap;
+  }
 
   &__actions {
     display: flex;
@@ -259,7 +315,41 @@
     }
 
     &--animating {
-      animation: card-cart-bounce 0.55s ease;
+      animation:
+        card-cart-bounce 0.55s ease,
+        card-cart-glow 0.55s ease;
+    }
+  }
+
+  &__sparkle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 10px;
+    font-weight: 800;
+    color: $color-text-buttons;
+    pointer-events: none;
+    line-height: 1;
+    animation: card-sparkle-fly 0.65s ease-out forwards;
+
+    &--1 {
+      --tx: -16px;
+      --ty: -22px;
+      font-size: 13px;
+    }
+
+    &--2 {
+      --tx: 4px;
+      --ty: -28px;
+      font-size: 10px;
+      animation-delay: 0.04s;
+    }
+
+    &--3 {
+      --tx: 20px;
+      --ty: -18px;
+      font-size: 11px;
+      animation-delay: 0.08s;
     }
   }
 
@@ -350,6 +440,35 @@
   }
   100% {
     transform: scale(1);
+  }
+}
+
+@keyframes card-cart-glow {
+  0% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  50% {
+    box-shadow: 0 4px 22px color-mix(in srgb, $color-accent 65%, transparent);
+  }
+  100% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+@keyframes card-sparkle-fly {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 1;
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty)))
+      scale(1);
+    opacity: 0;
   }
 }
 

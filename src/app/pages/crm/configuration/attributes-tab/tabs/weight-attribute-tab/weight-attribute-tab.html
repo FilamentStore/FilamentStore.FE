@@ -69,6 +69,29 @@
         </td>
       </ng-container>
 
+      <ng-container matColumnDef="box_qty">
+        <th mat-header-cell *matHeaderCellDef>Шт. в ящику</th>
+        <td mat-cell *matCellDef="let opt">
+          @if (isEditing(opt.slug)) {
+            <mat-form-field
+              appearance="outline"
+              class="edit-field edit-field--sm"
+            >
+              <input
+                matInput
+                type="number"
+                min="1"
+                [formControl]="$any(editing()!.form.controls['box_qty'])"
+                placeholder="поштучно"
+                (keyup.escape)="cancelEdit()"
+              />
+            </mat-form-field>
+          } @else {
+            <span class="value-label">{{ opt.box_qty ?? '—' }}</span>
+          }
+        </td>
+      </ng-container>
+
       <ng-container matColumnDef="usage">
         <th mat-header-cell *matHeaderCellDef>Використання</th>
         <td mat-cell *matCellDef="let opt">
@@ -165,6 +188,19 @@
             matInput
             formControlName="slug"
             placeholder="1kg"
+            (keyup.enter)="submitAdd()"
+            (keyup.escape)="cancelAdd()"
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="add-field add-field--sm">
+          <mat-label>Шт. в ящику</mat-label>
+          <input
+            matInput
+            type="number"
+            min="1"
+            formControlName="box_qty"
+            placeholder="поштучно"
             (keyup.enter)="submitAdd()"
             (keyup.escape)="cancelAdd()"
           />

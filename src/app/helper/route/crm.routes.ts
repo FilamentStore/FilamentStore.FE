@@ -28,6 +28,13 @@ export const CRM_ROUTES: Routes = [
       { path: '', redirectTo: crm.dashboard, pathMatch: 'full' },
       { path: crm.dashboard, component: DashboardComponent },
       {
+        path: crm.orders,
+        loadComponent: () =>
+          import('@pages/crm/orders/orders-list.component').then(
+            m => m.OrdersListComponent,
+          ),
+      },
+      {
         path: crm.products.root,
         loadChildren: () =>
           import('@app/helper/route/products.routes').then(

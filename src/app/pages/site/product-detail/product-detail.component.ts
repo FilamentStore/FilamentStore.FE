@@ -4,8 +4,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { Product, ProductVariation } from '@app/models/product.models';
-import { ColorValue, SimpleAttributeOption } from '@app/models/config.models';
+import {
+  Brand,
+  ColorValue,
+  SimpleAttributeOption,
+} from '@app/models/config.models';
 import { ProductsService } from '@app/services/tempService/products.service';
 import { VariationsService } from '@app/services/tempService/variations.service';
 import {
@@ -18,6 +23,7 @@ import {
   selectAttributeColors,
   selectAttributeSimpleAttributes,
 } from '@store/attributes/attributes.selectors';
+import { selectBrands } from '@store/config/config.selectors';
 import { selectFavoriteVariationIds } from '@store/favorites/favorites.selectors';
 import { FavoritesActions } from '@store/favorites/favorites.actions';
 import { selectCartVariationIds } from '@store/cart/cart.selectors';
@@ -68,6 +74,32 @@ export class ProductDetailComponent implements OnInit {
     this.store.select(selectAttributeSimpleAttributes),
     { initialValue: {} as Record<string, SimpleAttributeOption[]> },
   );
+  private brands = toSignal(this.store.select(selectBrands), {
+    initialValue: [] as Brand[],
+  });
+
+  readonly brandName = computed(() => {
+    const slug = this.product()?.brand;
+
+    if (!slug) return null;
+
+    return this.brands().find(b => b.slug === slug)?.name ?? slug;
+  });
+
+  readonly displayName = computed(() => {
+    const p = this.product();
+    const v = this.activeVariation();
+
+    if (!p) return '';
+
+    if (v?.custom_name?.trim()) return v.custom_name.trim();
+
+    const parts = (v?.attributes ?? []).map(a =>
+      this.resolveOptionName(a.name, a.option),
+    );
+
+    return parts.length ? `${p.name} ${parts.join(' ')}` : p.name;
+  });
 
   readonly breadcrumbs = computed<BreadcrumbItem[]>(() => {
     const p = this.product();
@@ -144,23 +176,24 @@ export class ProductDetailComponent implements OnInit {
     forkJoin({
       product: this.productsService.getProduct(id),
       variations: this.variationsService.getVariations(id),
-    }).subscribe({
-      next: ({ product, variations }) => {
-        const published = variations.filter(v => v.status === 'publish');
-        const initial =
-          (queryVariationId
-            ? published.find(v => v.id === queryVariationId)
-            : null) ??
-          published[0] ??
-          null;
+    })
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: ({ product, variations }) => {
+          const varList = Array.isArray(variations) ? variations : [];
+          const published = varList.filter(v => v.status === 'publish');
+          const initial =
+            (queryVariationId
+              ? published.find(v => v.id === queryVariationId)
+              : null) ??
+            published[0] ??
+            null;
 
-        this.product.set(product);
-        this.variations.set(published);
-        this.activeVariation.set(initial);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
+          this.product.set(product);
+          this.variations.set(published);
+          this.activeVariation.set(initial);
+        },
+      });
   }
 
   selectOption(attrName: string, option: string): void {
@@ -168,16 +201,31 @@ export class ProductDetailComponent implements OnInit {
 
     current.set(attrName, option);
 
+    // Exact match — all attrs align
     let match = this.variations().find(v =>
       [...current.entries()].every(([name, opt]) =>
         v.attributes.some(a => a.name === name && a.option === opt),
       ),
     );
 
+    // Best-match fallback — keep as many current attrs as possible
     if (!match) {
-      match = this.variations().find(v =>
+      const candidates = this.variations().filter(v =>
         v.attributes.some(a => a.name === attrName && a.option === option),
       );
+
+      let bestScore = -1;
+
+      for (const candidate of candidates) {
+        const score = [...current.entries()].filter(([name, opt]) =>
+          candidate.attributes.some(a => a.name === name && a.option === opt),
+        ).length;
+
+        if (score > bestScore) {
+          bestScore = score;
+          match = candidate;
+        }
+      }
     }
 
     if (match) {
@@ -189,6 +237,20 @@ export class ProductDetailComponent implements OnInit {
         replaceUrl: true,
       });
     }
+  }
+
+  isOptionAvailable(attrName: string, option: string): boolean {
+    const current = this.selectedAttrs();
+
+    return this.variations().some(
+      v =>
+        v.attributes.some(a => a.name === attrName && a.option === option) &&
+        [...current.entries()]
+          .filter(([name]) => name !== attrName)
+          .every(([name, opt]) =>
+            v.attributes.some(a => a.name === name && a.option === opt),
+          ),
+    );
   }
 
   isColorAttr(attrName: string): boolean {

@@ -6,13 +6,13 @@
         color="accent"
         type="button"
         [disabled]="activeAttributes.length === 0 || saving()"
-        (click)="generateVariations()"
+        (click)="onGenerateClick()"
         matTooltip="Створити всі комбінації атрибутів"
       >
         <mat-icon>auto_awesome</mat-icon>
         Згенерувати варіації
       </button>
-      <button mat-stroked-button type="button" (click)="openAddVariation()">
+      <button mat-stroked-button type="button" (click)="onAddVariationClick()">
         <mat-icon>add</mat-icon>
         Додати варіацію
       </button>
@@ -52,6 +52,31 @@
       </button>
     </div>
   </div>
+
+  @if (activeAttributes.length > 0) {
+    <div class="variations-filters">
+      @for (attr of activeAttributes; track attr.name) {
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-select
+            multiple
+            [placeholder]="attr.name"
+            [value]="selectedFilters()[attr.name] || []"
+            (selectionChange)="setFilter(attr.name, $event.value)"
+          >
+            @for (option of getManualOptions(attr); track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+      @if (hasActiveFilters()) {
+        <button mat-stroked-button type="button" (click)="clearFilters()">
+          <mat-icon>filter_list_off</mat-icon>
+          Скинути
+        </button>
+      }
+    </div>
+  }
 
   @if (showManualVariation()) {
     <div class="manual-variation-panel">
@@ -122,16 +147,34 @@
               />
             </th>
             <th class="col-image">Фото</th>
-            <th class="col-combo">Комбінація / Артикул</th>
+            <th class="col-combo">
+              Атрибути / Назва / Артикул
+              @if (hasActiveFilters()) {
+                <span class="filter-count"
+                  >{{ filteredVariations().length }} /
+                  {{ variations().length }}</span
+                >
+              }
+            </th>
             <th class="col-price">Ціна</th>
             <th class="col-price">Знижка</th>
             <th class="col-stock">Залишок</th>
+            <th
+              class="col-box-qty"
+              matTooltip="Кількість штук в ящику"
+              matTooltipPosition="above"
+            >
+              <mat-icon class="col-icon">inventory_2</mat-icon>
+            </th>
             <th class="col-status">Статус</th>
             <th class="col-actions">Дії</th>
           </tr>
         </thead>
         <tbody>
-          @for (variation of variations(); track trackById($index, variation)) {
+          @for (
+            variation of filteredVariations();
+            track trackById($index, variation)
+          ) {
             <tr
               appVariationRow
               [variation]="variation"
@@ -142,6 +185,7 @@
               (selectionChange)="toggleSelect(variation.id, $event)"
               (saveVariation)="onVariationSave($event)"
               (deleteVariation)="onVariationDelete($event)"
+              (dirtyChange)="onVariationDirtyChange(variation.id, $event)"
             ></tr>
           }
         </tbody>

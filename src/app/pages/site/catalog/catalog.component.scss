@@ -3,16 +3,39 @@
 .catalog {
   @include content-padding-in-line;
 
-  padding-block-start: 24px;
+  padding-block-start: 10px;
   padding-block-end: 32px;
 
   @include on-tablet {
     padding-block-end: 48px;
   }
 
+  // Sidebar takes over left structure — undo centering constraints at desktop
+  @include on-desktop {
+    max-width: none;
+    margin-inline: 0;
+    padding-inline: 15px 20px;
+  }
+
   &__header {
-    margin-bottom: 24px;
     text-align: center;
+  }
+
+  // ── Body (flex container on desktop) ──────────────────────────────────────
+
+  &__body {
+    @include on-desktop {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+  }
+
+  &__main {
+    @include on-desktop {
+      flex: 1;
+      min-width: 0;
+    }
   }
 
   &__title {
@@ -30,31 +53,130 @@
 
   &__toolbar {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
     gap: 10px;
     margin-bottom: 20px;
 
-    // На мобільному — колонка: сортування зверху, фільтри знизу праворуч
-    @media (max-width: 519px) {
-      flex-direction: column;
-      align-items: stretch;
+    @include on-wide {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
     }
   }
 
   // ── Sort ──────────────────────────────────────────────────────────────────
 
-  // Обгортка для горизонтального скролу на мобільному
-  &__sort-scroll {
-    overflow-x: auto;
-    flex: 1;
-    min-width: 0;
+  // Mobile/tablet: custom sort dropdown (default, < 880px)
+  &__sort-drop-wrap {
+    position: relative;
+    width: 200px;
 
-    // Прибираємо смугу прокрутки візуально
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
+    @include on-wide {
       display: none;
+    }
+  }
+
+  &__sort-drop-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    height: 38px;
+    padding: 0 14px;
+    border-radius: 100px;
+    border: 1.5px solid $color-element;
+    background: $color-card;
+    font-family: Mont, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-text-main;
+    cursor: pointer;
+    outline: none;
+    transition:
+      border-color 0.2s,
+      color 0.2s;
+
+    &:hover,
+    &--open {
+      border-color: $color-accent;
+      color: $color-accent;
+    }
+  }
+
+  &__sort-drop-chevron {
+    flex-shrink: 0;
+    transition: transform 0.2s;
+    color: $color-text-secondary;
+
+    &--open {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__sort-drop-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 100%;
+    background: $color-card;
+    border: 1.5px solid $color-element;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    z-index: 7;
+    display: flex;
+    flex-direction: column;
+    padding: 6px;
+    gap: 2px;
+  }
+
+  &__sort-drop-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    font-family: Mont, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-text-secondary;
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+    transition:
+      background-color 0.15s,
+      color 0.15s;
+
+    &:hover {
+      background: $color-surface;
+      color: $color-text-main;
+    }
+
+    &--active {
+      color: $color-accent;
+      background: color-mix(in srgb, $color-accent 8%, transparent);
+    }
+  }
+
+  // Wide/desktop: pill buttons (≥ 880px)
+  &__sort-scroll {
+    display: none;
+
+    @include on-wide {
+      display: block;
+      overflow-x: auto;
+      flex: 1;
+      min-width: 0;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
     }
   }
 
@@ -63,10 +185,6 @@
     align-items: center;
     gap: 6px;
     white-space: nowrap;
-
-    @media (max-width: 519px) {
-      justify-content: flex-start;
-    }
   }
 
   &__sort-label {
@@ -112,9 +230,14 @@
     position: relative;
     flex-shrink: 0;
     z-index: 6;
+    align-self: flex-end;
 
-    @media (max-width: 519px) {
-      align-self: flex-end;
+    @include on-wide {
+      align-self: auto;
+    }
+
+    @include on-desktop {
+      display: none;
     }
   }
 
@@ -163,34 +286,59 @@
     z-index: 8;
     border: 0;
     background: rgba(18, 24, 33, 0.24);
+
+    @include on-desktop {
+      display: none;
+    }
   }
 
   &__filters-drop {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    z-index: 9;
-    width: min(320px, calc(100vw - 24px));
     background: $color-card;
     border: 1.5px solid $color-element;
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    max-height: min(72vh, 720px);
 
-    // На мобільному — розтягуємо на всю ширину екрану
-    @media (max-width: 519px) {
-      position: fixed;
-      top: auto;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      width: 100%;
-      border-radius: 24px 24px 0 0;
-      max-height: min(82dvh, 760px);
-      box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+    // Mobile/tablet: hidden by default, bottom drawer when open
+    @media (max-width: #{$breakpoint-desktop - 1px}) {
+      display: none;
+
+      &--open {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        border-radius: 16px 16px 0 0;
+        max-height: 80vh;
+        box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+        z-index: 9;
+      }
+    }
+
+    // Desktop: sticky sidebar, always visible
+    @include on-desktop {
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      position: sticky;
+      top: 20px;
+      width: 280px;
+      flex-shrink: 0;
+      align-self: flex-start;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      max-height: calc(100vh - 40px);
+    }
+  }
+
+  &__filters-top {
+    @include on-desktop {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: $color-card;
+      border-radius: 20px 20px 0 0;
     }
   }
 
@@ -245,6 +393,10 @@
       border-color: $color-accent;
       color: $color-accent;
       background: color-mix(in srgb, $color-accent 10%, white);
+    }
+
+    @include on-desktop {
+      display: none;
     }
   }
 
@@ -491,9 +643,6 @@
     padding: 12px 18px;
     border-bottom: 1px solid $color-element;
     background: color-mix(in srgb, $color-card 92%, white);
-    position: sticky;
-    top: 0;
-    z-index: 2;
   }
 
   &__filters-apply {
@@ -552,8 +701,11 @@
     }
 
     @include on-desktop {
-      grid-template-columns: repeat(4, 1fr);
       gap: 20px;
+    }
+
+    @media (min-width: 1500px) {
+      grid-template-columns: repeat(4, 1fr);
     }
   }
 

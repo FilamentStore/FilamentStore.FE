@@ -37,6 +37,15 @@
               Про нас
             </a>
           </li>
+          <li>
+            <a
+              routerLink="/shipping"
+              routerLinkActive="is-active"
+              class="nav-link"
+            >
+              Доставка
+            </a>
+          </li>
         </ul>
       </nav>
     </div>
@@ -124,11 +133,14 @@
     <a
       routerLink="/cart"
       routerLinkActive="icon--active"
-      class="icon"
+      class="icon icon--primary"
       aria-label="Go to Shopping Bag"
     >
-      <span class="icon-img icon-img--bag" aria-hidden="true"></span>
-      <app-icon-badge [count]="cartCount()" />
+      <span class="icon-bag-wrap">
+        <span class="icon-img icon-img--bag" aria-hidden="true"></span>
+        <app-icon-badge [count]="cartCount()" />
+      </span>
+      <span class="icon-cart__label">Кошик</span>
     </a>
 
     <button

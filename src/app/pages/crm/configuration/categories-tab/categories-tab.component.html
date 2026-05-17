@@ -89,7 +89,6 @@
                 <input
                   matInput
                   [formControl]="editForm.controls.name"
-                  (input)="onEditNameInput($any($event.target).value)"
                   (keyup.enter)="submitEdit(cat.id)"
                   (keyup.escape)="cancelEdit()"
                   autofocus

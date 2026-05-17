@@ -93,7 +93,11 @@
               }
             </div>
 
-            <div class="cart__item-qty">
+            <div
+              class="cart__item-qty"
+              matTooltip="Кількість ящиків"
+              matTooltipPosition="above"
+            >
               <button
                 class="cart__qty-btn"
                 type="button"
@@ -129,13 +133,28 @@
                 </button>
               </span>
             </div>
+
             <div class="cart__item-price">
               <p>
                 {{
-                  getPrice(card.variation) * card.quantity | number: '1.0-0'
+                  getPrice(card.variation) * getTotalSpools(card)
+                    | number: '1.0-0'
                 }}
                 ₴
               </p>
+            </div>
+
+            <div
+              class="cart__item-spools"
+              matTooltip="Загальна кількість товару"
+              matTooltipPosition="above"
+            >
+              <span class="cart__spools-formula">
+                {{ card.quantity }} × {{ getBoxQty(card.variation) }} шт.
+              </span>
+              <span class="cart__spools-total"
+                >= {{ getTotalSpools(card) }} шт.</span
+              >
             </div>
           </div>
         }
@@ -157,7 +176,11 @@
                   : 'товарів'
             }}
           </p>
-          <button class="cart__checkout-btn" type="button">
+          <button
+            class="cart__checkout-btn"
+            type="button"
+            routerLink="/checkout"
+          >
             Оформити замовлення
           </button>
         </div>

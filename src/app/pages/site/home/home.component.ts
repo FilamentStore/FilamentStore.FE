@@ -1,18 +1,10 @@
-import {
-  Component,
-  ElementRef,
-  HostListener,
-  OnInit,
-  OnDestroy,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { RouterLink } from '@angular/router';
-import { catchError, forkJoin, map, of, switchMap, finalize } from 'rxjs';
-import { ProductsService } from '@app/services/tempService/products.service';
+import { finalize } from 'rxjs';
 import { VariationsService } from '@app/services/tempService/variations.service';
 import { CategoriesService } from '@app/services/tempService/categories.service';
+import { CatalogVariationItem } from '@app/models/product.models';
 import { WcCategory } from '@app/models/config.models';
 import { ProductCardEvent } from '@app/components/product-card/product-card.component';
 import {
@@ -41,11 +33,8 @@ interface HeroSlide {
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private store = inject(Store);
-  private productsService = inject(ProductsService);
   private variationsService = inject(VariationsService);
   private categoriesService = inject(CategoriesService);
-  private _el = inject(ElementRef);
-
   readonly slides: HeroSlide[] = [
     {
       material: 'PLA',
@@ -67,11 +56,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     },
     {
       material: 'WOOD',
-      title: 'Деревний\nфіламент',
+      title: 'Швидка доставка\nпо всій Україні',
       description:
-        'Натуральний вигляд і текстура,\nідеальний для декоративних елементів',
-      cta: 'Обрати WOOD',
-      ctaLink: '/catalog',
+        'Відправляємо в день замовлення.\nДізнайтесь більше про нас і умови доставки',
+      cta: 'Умови доставки',
+      ctaLink: '/shipping',
       image: 'assets/images/baners/3.png',
     },
   ];
@@ -89,7 +78,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.startTimer();
-    this.loadNewArrivals();
+    this.loadNewest();
     this.loadCategories();
   }
 
@@ -99,42 +88,56 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // ── Data loading ──────────────────────────────────────────────────────────
 
-  private loadNewArrivals(): void {
-    this.productsService
-      .getProducts({ status: 'publish', page: 1 })
+  private toSliderItems(items: CatalogVariationItem[]): ProductSliderItem[] {
+    return items.map(item => ({
+      product: {
+        id: item.product_id,
+        name: item.product_name,
+        brand: item.brand,
+        category_id: item.category_id,
+        short_description: '',
+        description: '',
+        images: item.product_images,
+        status: 'publish' as const,
+        slug: '',
+        type: 'variable' as const,
+        attributes: [],
+      },
+      variation: {
+        id: item.id,
+        attributes: item.attributes.map(a => ({
+          name: a.name,
+          option: a.option,
+        })),
+        image: item.image ?? undefined,
+        regular_price: item.regular_price,
+        sale_price: item.sale_price,
+        stock_quantity: item.stock_quantity,
+        manage_stock: true as const,
+        sku: item.sku,
+        status: 'publish' as const,
+        weight: '',
+        box_qty: item.box_qty,
+        custom_name: item.custom_name,
+      },
+    }));
+  }
+
+  private loadNewest(): void {
+    this.variationsService
+      .getNewest(12)
       .pipe(
-        switchMap(response => {
-          const products = response.products;
-
-          if (!products.length) return of([]);
-
-          return forkJoin(
-            products.map(product =>
-              this.variationsService.getVariations(product.id).pipe(
-                map(variations =>
-                  variations
-                    .filter(v => v.status === 'publish')
-                    .map(variation => ({ product, variation })),
-                ),
-                catchError(() => of([])),
-              ),
-            ),
-          ).pipe(map((groups: ProductSliderItem[][]) => groups.flat()));
-        }),
         finalize(() => {
           this.newArrivalsLoading = false;
           this.saleLoading = false;
         }),
       )
       .subscribe({
-        next: items => {
+        next: res => {
+          const items = this.toSliderItems(res.items);
+
           this.newArrivals = items;
-          this.saleItems = items.filter(
-            i =>
-              i.variation.sale_price &&
-              i.variation.sale_price !== '0' &&
-              i.variation.sale_price !== i.variation.regular_price,
-          );
+          this.saleItems = items;
         },
       });
   }
@@ -201,15 +204,5 @@ export class HomeComponent implements OnInit, OnDestroy {
         variationId: event.variation.id,
       }),
     );
-  }
-
-  // ── Mouse spotlight ───────────────────────────────────────────────────────
-
-  @HostListener('mousemove', ['$event'])
-  onMouseMove(e: MouseEvent): void {
-    const el = this._el.nativeElement as HTMLElement;
-
-    el.style.setProperty('--mx', `${e.clientX}px`);
-    el.style.setProperty('--my', `${e.clientY}px`);
   }
 }

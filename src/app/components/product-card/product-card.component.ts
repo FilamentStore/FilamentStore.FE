@@ -1,5 +1,7 @@
 import {
+  ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   input,
@@ -16,6 +18,7 @@ import {
   selectAttributeColors,
   selectAttributeSimpleAttributes,
 } from '@store/attributes/attributes.selectors';
+import { selectBrands } from '@store/config/config.selectors';
 
 export interface ProductCardEvent {
   product: Product;
@@ -28,12 +31,14 @@ export interface ProductCardEvent {
   imports: [],
   templateUrl: './product-card.component.html',
   styleUrl: './product-card.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductCardComponent {
   product = input.required<Product>();
   variation = input.required<ProductVariation>();
   isFavorite = input<boolean>(false);
   isInCart = input<boolean>(false);
+  isOnRate = input<boolean>(false);
 
   addToCart = output<ProductCardEvent>();
   toggleFavorite = output<ProductCardEvent>();
@@ -42,6 +47,16 @@ export class ProductCardComponent {
 
   private store = inject(Store);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  private cartTimer?: ReturnType<typeof setTimeout>;
+  private favTimer?: ReturnType<typeof setTimeout>;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      clearTimeout(this.cartTimer);
+      clearTimeout(this.favTimer);
+    });
+  }
 
   private colors = toSignal(this.store.select(selectAttributeColors), {
     initialValue: [],
@@ -50,6 +65,17 @@ export class ProductCardComponent {
     this.store.select(selectAttributeSimpleAttributes),
     { initialValue: {} as Record<string, SimpleAttributeOption[]> },
   );
+  private brands = toSignal(this.store.select(selectBrands), {
+    initialValue: [],
+  });
+
+  readonly brandName = computed(() => {
+    const slug = this.product().brand;
+
+    if (!slug) return null;
+
+    return this.brands().find(b => b.slug === slug)?.name ?? slug;
+  });
 
   readonly image = computed(() => {
     const v = this.variation();
@@ -75,8 +101,12 @@ export class ProductCardComponent {
   );
 
   readonly displayName = computed(() => {
+    const v = this.variation();
+
+    if (v.custom_name?.trim()) return v.custom_name.trim();
+
     const name = this.product().name;
-    const parts = this.variation().attributes.map(a =>
+    const parts = v.attributes.map(a =>
       this.resolveOptionName(a.name, a.option),
     );
 
@@ -171,7 +201,8 @@ export class ProductCardComponent {
       void this.router.navigate(['/cart']);
     } else {
       this.cartAnimating.set(true);
-      setTimeout(() => this.cartAnimating.set(false), 650);
+      clearTimeout(this.cartTimer);
+      this.cartTimer = setTimeout(() => this.cartAnimating.set(false), 650);
       this.addToCart.emit({
         product: this.product(),
         variation: this.variation(),
@@ -181,7 +212,8 @@ export class ProductCardComponent {
 
   onAddToCart(): void {
     this.cartAnimating.set(true);
-    setTimeout(() => this.cartAnimating.set(false), 650);
+    clearTimeout(this.cartTimer);
+    this.cartTimer = setTimeout(() => this.cartAnimating.set(false), 650);
     this.addToCart.emit({
       product: this.product(),
       variation: this.variation(),
@@ -190,7 +222,8 @@ export class ProductCardComponent {
 
   onToggleFavorite(): void {
     this.favAnimating.set(true);
-    setTimeout(() => this.favAnimating.set(false), 850);
+    clearTimeout(this.favTimer);
+    this.favTimer = setTimeout(() => this.favAnimating.set(false), 850);
     this.toggleFavorite.emit({
       product: this.product(),
       variation: this.variation(),
