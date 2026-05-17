@@ -21,6 +21,87 @@
   </div>
 
   <div class="table-wrap">
+    @if (showAddRow()) {
+      <div class="add-row" [formGroup]="addForm">
+        <div formArrayName="hexes" class="hex-pickers-list">
+          <div class="hex-pickers-items">
+            @for (ctrl of addHexes.controls; track $index) {
+              <div class="hex-picker-item">
+                <input
+                  type="color"
+                  [formControlName]="$index"
+                  class="color-picker"
+                />
+                <mat-form-field
+                  appearance="outline"
+                  class="add-field add-field--sm"
+                >
+                  <mat-label>HEX</mat-label>
+                  <input
+                    matInput
+                    [formControlName]="$index"
+                    placeholder="#000000"
+                    (keyup.escape)="cancelAdd()"
+                  />
+                </mat-form-field>
+                @if (addHexes.length > 1) {
+                  <button
+                    type="button"
+                    mat-icon-button
+                    color="warn"
+                    (click)="removeHexFromForm($index)"
+                    matTooltip="Прибрати"
+                  >
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+          @if (addHexes.length < 3) {
+            <button
+              type="button"
+              mat-icon-button
+              (click)="addHexToForm()"
+              matTooltip="Ще колір"
+            >
+              <mat-icon>add</mat-icon>
+            </button>
+          }
+        </div>
+
+        <mat-form-field appearance="outline" class="add-field">
+          <mat-label>Назва</mat-label>
+          <input
+            matInput
+            formControlName="name"
+            placeholder="Чорний"
+            (input)="onNameInput($any($event.target).value)"
+            (keyup.escape)="cancelAdd()"
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="add-field add-field--sm">
+          <mat-label>Системна назва</mat-label>
+          <input matInput formControlName="slug" placeholder="black" />
+        </mat-form-field>
+
+        <div class="add-row-actions">
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="submitAdd()"
+            [disabled]="addForm.invalid || saving"
+          >
+            <mat-icon>add</mat-icon>
+            Додати
+          </button>
+
+          <button mat-stroked-button (click)="cancelAdd()">Скасувати</button>
+        </div>
+      </div>
+    }
+
     <table mat-table [dataSource]="colors()" class="values-table">
       <ng-container matColumnDef="preview">
         <th mat-header-cell *matHeaderCellDef>Зразок</th>
@@ -227,88 +308,5 @@
         </td>
       </tr>
     </table>
-
-    @if (showAddRow()) {
-      <div class="add-row" [formGroup]="addForm">
-        <div formArrayName="hexes" class="hex-pickers-list">
-          <label class="color-picker-label">Кольори</label>
-          <div class="hex-pickers-items">
-            @for (ctrl of addHexes.controls; track $index) {
-              <div class="hex-picker-item">
-                <input
-                  type="color"
-                  [formControlName]="$index"
-                  class="color-picker"
-                />
-                <mat-form-field
-                  appearance="outline"
-                  class="add-field add-field--sm"
-                >
-                  <mat-label>HEX</mat-label>
-                  <input
-                    matInput
-                    [formControlName]="$index"
-                    placeholder="#000000"
-                    (keyup.escape)="cancelAdd()"
-                  />
-                </mat-form-field>
-                @if (addHexes.length > 1) {
-                  <button
-                    type="button"
-                    mat-icon-button
-                    color="warn"
-                    (click)="removeHexFromForm($index)"
-                    matTooltip="Прибрати"
-                  >
-                    <mat-icon>remove</mat-icon>
-                  </button>
-                }
-              </div>
-            }
-          </div>
-          @if (addHexes.length < 3) {
-            <button
-              type="button"
-              mat-stroked-button
-              class="add-hex-btn"
-              (click)="addHexToForm()"
-            >
-              <mat-icon>add</mat-icon>
-              Ще колір
-            </button>
-          }
-        </div>
-
-        <mat-form-field appearance="outline" class="add-field">
-          <mat-label>Назва</mat-label>
-          <input
-            matInput
-            formControlName="name"
-            placeholder="Чорний"
-            (input)="onNameInput($any($event.target).value)"
-            (keyup.escape)="cancelAdd()"
-          />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="add-field add-field--sm">
-          <mat-label>Системна назва</mat-label>
-          <input matInput formControlName="slug" placeholder="black" />
-        </mat-form-field>
-
-        <div class="add-row-actions">
-          <button
-            mat-flat-button
-            color="primary"
-            (click)="submitAdd()"
-            [disabled]="addForm.invalid || saving"
-          >
-            <mat-icon>add</mat-icon>
-            Додати
-          </button>
-
-          <button mat-stroked-button (click)="cancelAdd()">Скасувати</button>
-        </div>
-      </div>
-    }
   </div>
 </div>
