@@ -1,5 +1,6 @@
 ﻿import {
   Component,
+  DestroyRef,
   EventEmitter,
   Input,
   OnInit,
@@ -7,6 +8,7 @@
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '@app/components/confirm-dialog/confirm-dialog.component';
 import {
@@ -37,6 +39,7 @@ import { MediaService } from '@app/services/tempService/media.service';
     '[class.low-stock]':
       'variation.stock_quantity > 0 && variation.stock_quantity < 5',
     '[class.out-of-stock]': 'variation.stock_quantity === 0',
+    '[class.has-changes]': 'isDirty()',
     class: 'variation-row',
   },
   imports: [
@@ -71,12 +74,15 @@ export class VariationRowComponent implements OnInit {
     variation: Partial<ProductVariation>;
   }>();
   @Output() deleteVariation = new EventEmitter<number>();
+  @Output() dirtyChange = new EventEmitter<boolean>();
 
   private mediaService = inject(MediaService);
   private dialog = inject(MatDialog);
+  private destroyRef = inject(DestroyRef);
 
   uploadingImage = signal(false);
   saving = signal(false);
+  isDirty = signal(false);
 
   form = new FormGroup({
     custom_name: new FormControl(''),
@@ -93,16 +99,26 @@ export class VariationRowComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.form.patchValue({
-      custom_name: this.variation.custom_name ?? '',
-      regular_price: this.variation.regular_price,
-      sale_price: this.variation.sale_price,
-      stock_quantity: this.variation.stock_quantity,
-      sku: this.variation.sku,
-      weight: this.variation.weight,
-      box_qty: this.variation.box_qty ?? null,
-      status: this.variation.status,
-    });
+    this.form.patchValue(
+      {
+        custom_name: this.variation.custom_name ?? '',
+        regular_price: this.variation.regular_price,
+        sale_price: this.variation.sale_price,
+        stock_quantity: this.variation.stock_quantity,
+        sku: this.variation.sku,
+        weight: this.variation.weight,
+        box_qty: this.variation.box_qty ?? null,
+        status: this.variation.status,
+      },
+      { emitEvent: false },
+    );
+
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.isDirty.set(true);
+        this.dirtyChange.emit(true);
+      });
   }
 
   get combinationLabel(): string {
@@ -148,6 +164,8 @@ export class VariationRowComponent implements OnInit {
       },
     });
 
+    this.isDirty.set(false);
+    this.dirtyChange.emit(false);
     setTimeout(() => this.saving.set(false), 300);
   }
 

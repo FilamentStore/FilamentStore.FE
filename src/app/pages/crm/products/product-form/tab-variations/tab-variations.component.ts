@@ -10,14 +10,15 @@
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { forkJoin } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   MatCheckboxModule,
   MatCheckboxChange,
@@ -59,6 +60,7 @@ function cartesianProduct(arrays: string[][]): string[][] {
     MatTooltipModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatSnackBarModule,
     MatCheckboxModule,
     VariationRowComponent,
   ],
@@ -83,29 +85,44 @@ export class TabVariationsComponent implements OnChanges {
   @Output() saveAndAdd = new EventEmitter<void>();
 
   private variationsService = inject(VariationsService);
+  private snackBar = inject(MatSnackBar);
 
   readonly variations = signal<ProductVariation[]>([]);
   readonly loading = signal(false);
   readonly saving = signal(false);
-  readonly selectedFilters = signal<Record<string, string>>({});
+  readonly selectedFilters = signal<Record<string, string[]>>({});
+
+  private readonly dirtyIds = signal(new Set<number>());
+  readonly hasDirtyVariations = computed(() => this.dirtyIds().size > 0);
+
+  onVariationDirtyChange(variationId: number, dirty: boolean): void {
+    this.dirtyIds.update(set => {
+      const next = new Set(set);
+
+      if (dirty) next.add(variationId);
+      else next.delete(variationId);
+
+      return next;
+    });
+  }
 
   readonly filteredVariations = computed(() => {
     const filters = this.selectedFilters();
-    const active = Object.entries(filters).filter(([, v]) => v !== '');
+    const active = Object.entries(filters).filter(([, v]) => v.length > 0);
 
     if (active.length === 0) return this.variations();
 
     return this.variations().filter(variation =>
-      active.every(([attrName, optionValue]) =>
+      active.every(([attrName, selectedValues]) =>
         variation.attributes.some(
-          a => a.name === attrName && a.option === optionValue,
+          a => a.name === attrName && selectedValues.includes(a.option),
         ),
       ),
     );
   });
 
   readonly hasActiveFilters = computed(() =>
-    Object.values(this.selectedFilters()).some(v => v !== ''),
+    Object.values(this.selectedFilters()).some(v => v.length > 0),
   );
 
   selectedIds = new Set<number>();
@@ -116,7 +133,7 @@ export class TabVariationsComponent implements OnChanges {
     return this.attributes.filter(attribute => attribute.options.length > 0);
   }
 
-  setFilter(attrName: string, value: string): void {
+  setFilter(attrName: string, value: string[]): void {
     this.selectedFilters.update(current => ({ ...current, [attrName]: value }));
   }
 
@@ -150,46 +167,77 @@ export class TabVariationsComponent implements OnChanges {
     );
     const existing = this.variations();
     const existingKeys = new Set(existing.map(v => optionKey(v.attributes)));
-    const requests = combinations
+    const toCreate = combinations
       .map(combo => {
         const attrs = combo.map((option, index) => ({
           name: active[index].name,
           option,
         }));
 
-        if (existingKeys.has(optionKey(attrs))) {
-          return null;
-        }
+        if (existingKeys.has(optionKey(attrs))) return null;
 
-        return this.variationsService.createVariation(this.productId, {
-          attributes: attrs,
-          sku: this.createVariationSku(attrs),
-          regular_price: '0',
-          sale_price: '',
-          stock_quantity: 0,
-          manage_stock: true,
-          status: 'publish',
-          weight: '',
-        });
+        const label = attrs
+          .map(a => this.getOptionLabel(a.name, a.option))
+          .join(' / ');
+
+        return {
+          label,
+          request: this.variationsService.createVariation(this.productId, {
+            attributes: attrs,
+            sku: this.createVariationSku(attrs),
+            regular_price: '0',
+            sale_price: '',
+            stock_quantity: 0,
+            manage_stock: true,
+            status: 'publish',
+            weight: '',
+            box_qty: this.getBoxQtyForAttrs(attrs),
+          }),
+        };
       })
       .filter(
         (
-          request,
-        ): request is ReturnType<VariationsService['createVariation']> =>
-          !!request,
+          item,
+        ): item is {
+          label: string;
+          request: ReturnType<VariationsService['createVariation']>;
+        } => item !== null,
       );
 
-    if (requests.length === 0) {
-      return;
-    }
+    if (toCreate.length === 0) return;
+
+    const failedLabels: string[] = [];
 
     this.saving.set(true);
-    forkJoin(requests)
+    forkJoin(
+      toCreate.map(({ label, request }) =>
+        request.pipe(
+          catchError(() => {
+            failedLabels.push(label);
+
+            return of(null);
+          }),
+        ),
+      ),
+    )
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
-        next: createdVariations => {
-          this.variations.update(current => [...current, ...createdVariations]);
+        next: results => {
+          const created = results.filter(
+            (v): v is ProductVariation => v !== null,
+          );
+
+          this.variations.update(current => [...current, ...created]);
           this.variationsChange.emit(this.variations());
+
+          if (failedLabels.length > 0) {
+            const msg =
+              failedLabels.length === 1
+                ? `Не вдалось створити: ${failedLabels[0]}`
+                : `Не вдалось створити ${failedLabels.length} варіацій:\n${failedLabels.join(', ')}`;
+
+            this.snackBar.open(msg, 'OK', { duration: 6000 });
+          }
         },
       });
   }
@@ -343,6 +391,7 @@ export class TabVariationsComponent implements OnChanges {
         manage_stock: true,
         status: 'publish',
         weight: '',
+        box_qty: this.getBoxQtyForAttrs(attrs),
       })
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
@@ -506,6 +555,17 @@ export class TabVariationsComponent implements OnChanges {
 
     this.variations.update(current =>
       current.map(variation => updatedMap.get(variation.id) ?? variation),
+    );
+  }
+
+  private getBoxQtyForAttrs(attrs: { name: string; option: string }[]): number {
+    const weightAttr = attrs.find(a => a.name === 'Вага');
+
+    if (!weightAttr) return 1;
+
+    return (
+      this.simpleAttributes['weight']?.find(w => w.slug === weightAttr.option)
+        ?.box_qty ?? 1
     );
   }
 

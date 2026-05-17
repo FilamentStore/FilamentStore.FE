@@ -57,12 +57,12 @@
     <div class="variations-filters">
       @for (attr of activeAttributes; track attr.name) {
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>{{ attr.name }}</mat-label>
           <mat-select
-            [value]="selectedFilters()[attr.name] || ''"
+            multiple
+            [placeholder]="attr.name"
+            [value]="selectedFilters()[attr.name] || []"
             (selectionChange)="setFilter(attr.name, $event.value)"
           >
-            <mat-option value="">Всі</mat-option>
             @for (option of getManualOptions(attr); track option.value) {
               <mat-option [value]="option.value">{{ option.label }}</mat-option>
             }
@@ -185,6 +185,7 @@
               (selectionChange)="toggleSelect(variation.id, $event)"
               (saveVariation)="onVariationSave($event)"
               (deleteVariation)="onVariationDelete($event)"
+              (dirtyChange)="onVariationDirtyChange(variation.id, $event)"
             ></tr>
           }
         </tbody>
