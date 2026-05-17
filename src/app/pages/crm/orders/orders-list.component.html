@@ -136,6 +136,16 @@
               class="orders__cell orders__cell--actions"
               (click)="$event.stopPropagation()"
             >
+              @if (order.status === 'pending') {
+                <button
+                  mat-icon-button
+                  class="orders__edit-btn"
+                  matTooltip="Редагувати замовлення"
+                  (click)="startEdit(order, $event)"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+              }
               <button
                 mat-icon-button
                 class="orders__chat-btn"
@@ -223,6 +233,78 @@
                   (click)="dismissCancel(order.id)"
                 >
                   Ні, залишити
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- ── Edit row (pending only) ──────────────────────── -->
+          @if (isEditing(order.id) && getEditForm(order.id)) {
+            <div
+              class="orders__edit-row"
+              [formGroup]="getEditForm(order.id)"
+              (click)="$event.stopPropagation()"
+            >
+              <div class="orders__edit-grid">
+                <div class="orders__edit-field">
+                  <label class="orders__edit-label">Ім'я</label>
+                  <input
+                    class="orders__edit-input"
+                    formControlName="customer_name"
+                  />
+                </div>
+                <div class="orders__edit-field">
+                  <label class="orders__edit-label">Телефон</label>
+                  <input
+                    class="orders__edit-input"
+                    formControlName="phone"
+                    type="tel"
+                  />
+                </div>
+                <div class="orders__edit-field">
+                  <label class="orders__edit-label">Telegram</label>
+                  <input
+                    class="orders__edit-input"
+                    formControlName="telegram"
+                    placeholder="@username або порожньо"
+                  />
+                </div>
+                <div class="orders__edit-field">
+                  <label class="orders__edit-label">Місто</label>
+                  <input class="orders__edit-input" formControlName="city" />
+                </div>
+                <div class="orders__edit-field orders__edit-field--wide">
+                  <label class="orders__edit-label">Відділення</label>
+                  <input
+                    class="orders__edit-input"
+                    formControlName="warehouse"
+                  />
+                </div>
+                <div class="orders__edit-field orders__edit-field--wide">
+                  <label class="orders__edit-label">Коментар</label>
+                  <input class="orders__edit-input" formControlName="comment" />
+                </div>
+              </div>
+              <div class="orders__edit-actions">
+                <button
+                  class="orders__edit-save"
+                  [disabled]="
+                    getEditForm(order.id).invalid || isUpdating(order.id)
+                  "
+                  (click)="saveEdit(order, $event)"
+                >
+                  @if (isUpdating(order.id)) {
+                    <mat-spinner diameter="14" />
+                  } @else {
+                    Зберегти
+                  }
+                </button>
+                <button
+                  class="orders__edit-cancel"
+                  [disabled]="isUpdating(order.id)"
+                  (click)="cancelEdit($event)"
+                >
+                  Скасувати
                 </button>
               </div>
             </div>

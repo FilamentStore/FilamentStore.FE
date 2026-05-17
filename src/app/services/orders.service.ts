@@ -45,6 +45,15 @@ export interface OrdersResponse {
   totalPages: number;
 }
 
+export interface PatchOrderDto {
+  customer_name?: string;
+  phone?: string;
+  telegram?: string;
+  city?: string;
+  warehouse?: string;
+  comment?: string;
+}
+
 export interface CreateOrderDto {
   customer_name: string;
   phone: string;
@@ -83,6 +92,10 @@ export class OrdersService {
     payload: Record<string, unknown>,
   ): Observable<Order> {
     return this.http.put<Order>(`${this.baseUrl}/orders/${id}`, payload);
+  }
+
+  patch(id: number, payload: PatchOrderDto): Observable<Order> {
+    return this.http.patch<Order>(`${this.baseUrl}/orders/${id}`, payload);
   }
 
   delete(id: number): Observable<void> {
