@@ -201,16 +201,31 @@ export class ProductDetailComponent implements OnInit {
 
     current.set(attrName, option);
 
+    // Exact match — all attrs align
     let match = this.variations().find(v =>
       [...current.entries()].every(([name, opt]) =>
         v.attributes.some(a => a.name === name && a.option === opt),
       ),
     );
 
+    // Best-match fallback — keep as many current attrs as possible
     if (!match) {
-      match = this.variations().find(v =>
+      const candidates = this.variations().filter(v =>
         v.attributes.some(a => a.name === attrName && a.option === option),
       );
+
+      let bestScore = -1;
+
+      for (const candidate of candidates) {
+        const score = [...current.entries()].filter(([name, opt]) =>
+          candidate.attributes.some(a => a.name === name && a.option === opt),
+        ).length;
+
+        if (score > bestScore) {
+          bestScore = score;
+          match = candidate;
+        }
+      }
     }
 
     if (match) {
@@ -222,6 +237,20 @@ export class ProductDetailComponent implements OnInit {
         replaceUrl: true,
       });
     }
+  }
+
+  isOptionAvailable(attrName: string, option: string): boolean {
+    const current = this.selectedAttrs();
+
+    return this.variations().some(
+      v =>
+        v.attributes.some(a => a.name === attrName && a.option === option) &&
+        [...current.entries()]
+          .filter(([name]) => name !== attrName)
+          .every(([name, opt]) =>
+            v.attributes.some(a => a.name === name && a.option === opt),
+          ),
+    );
   }
 
   isColorAttr(attrName: string): boolean {
