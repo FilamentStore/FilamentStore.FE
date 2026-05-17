@@ -11,7 +11,9 @@
     "lint:fix": "eslint \"src/**/*.{ts,html}\" --fix",
     "format": "prettier --write \"src/**/*.{ts,html,scss,css}\"",
     "format:check": "prettier --check \"src/**/*.{ts,html,scss,css}\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "deploy": "npm run build && wrangler deploy",
+    "preview": "npm run build && wrangler dev"
   },
   "lint-staged": {
     "src/**/*.{ts,html,scss,css}": [
@@ -56,6 +58,7 @@
     "lint-staged": "^16.3.2",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "wrangler": "^4.92.0"
   }
 }
