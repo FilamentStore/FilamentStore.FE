@@ -65,12 +65,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       image: 'assets/images/baners/2.png',
     },
     {
-      material: '',
-      title: 'Весь асортимент\nв одному місці',
+      material: 'WOOD',
+      title: 'Швидка доставка\nпо всій Україні',
       description:
-        'Широкий вибір матеріалів для будь-яких задач —\nвід прототипів до готових виробів',
-      cta: 'Переглянути каталог',
-      ctaLink: '/catalog',
+        'Відправляємо в день замовлення.\nДізнайтесь більше про нас і умови доставки',
+      cta: 'Умови доставки',
+      ctaLink: '/shipping',
       image: 'assets/images/baners/3.png',
     },
   ];
