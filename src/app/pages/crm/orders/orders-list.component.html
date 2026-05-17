@@ -80,14 +80,12 @@
               }}</span>
               <span class="orders__name">{{ order.customer_name }}</span>
               <span class="orders__contact">
-                <span
-                  class="orders__contact-badge orders__contact-badge--{{
-                    order.contact_type
-                  }}"
-                >
-                  {{ order.contact_type }}
-                </span>
-                {{ order.contact_value }}
+                <span class="orders__contact-phone">{{ order.phone }}</span>
+                @if (order.telegram) {
+                  <span class="orders__contact-telegram">{{
+                    order.telegram
+                  }}</span>
+                }
               </span>
             </div>
 
@@ -141,24 +139,29 @@
               <button
                 mat-icon-button
                 class="orders__chat-btn"
-                (click)="openChat(order)"
-                [matTooltip]="chatTooltip(order)"
+                matTooltip="Написати у Viber"
+                (click)="callViber(order)"
               >
-                @if (
-                  order.contact_type === 'telegram' ||
-                  order.contact_type === 'viber'
-                ) {
+                <img
+                  class="orders__chat-icon"
+                  src="assets/icons/social-nt/viber.svg"
+                  alt="viber"
+                />
+              </button>
+              @if (order.telegram) {
+                <button
+                  mat-icon-button
+                  class="orders__chat-btn"
+                  matTooltip="Написати у Telegram"
+                  (click)="openTelegram(order)"
+                >
                   <img
                     class="orders__chat-icon"
-                    [src]="
-                      'assets/icons/social-nt/' + order.contact_type + '.svg'
-                    "
-                    [alt]="order.contact_type"
+                    src="assets/icons/social-nt/telegram.svg"
+                    alt="telegram"
                   />
-                } @else {
-                  <mat-icon>phone</mat-icon>
-                }
-              </button>
+                </button>
+              }
             </div>
 
             @if (tab() === 'history') {

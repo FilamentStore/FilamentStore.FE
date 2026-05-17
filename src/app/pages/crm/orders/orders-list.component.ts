@@ -148,7 +148,8 @@ export class OrdersListComponent implements OnInit {
         o =>
           o.id.toString().includes(q) ||
           o.customer_name.toLowerCase().includes(q) ||
-          o.contact_value.toLowerCase().includes(q),
+          o.phone.toLowerCase().includes(q) ||
+          (o.telegram ?? '').toLowerCase().includes(q),
       );
     }
 
@@ -413,33 +414,19 @@ export class OrdersListComponent implements OnInit {
       .join(' · ');
   }
 
-  openChat(order: Order): void {
-    const val = order.contact_value.trim();
+  callViber(order: Order): void {
+    const phone = order.phone.replace(/\D/g, '');
 
-    if (order.contact_type === 'telegram') {
-      const handle = val.startsWith('@') ? val.slice(1) : val;
-
-      window.open(`https://t.me/${handle}`, '_blank', 'noopener');
-
-      return;
-    }
-
-    if (order.contact_type === 'viber') {
-      const phone = val.replace(/\D/g, '');
-
-      window.location.href = `viber://chat?number=%2B${phone}`;
-
-      return;
-    }
-
-    window.location.href = `tel:${val}`;
+    window.location.href = `viber://chat?number=%2B${phone}`;
   }
 
-  chatTooltip(order: Order): string {
-    if (order.contact_type === 'telegram') return 'Відкрити Telegram';
-    if (order.contact_type === 'viber') return 'Відкрити Viber';
+  openTelegram(order: Order): void {
+    if (!order.telegram) return;
+    const handle = order.telegram.startsWith('@')
+      ? order.telegram.slice(1)
+      : order.telegram;
 
-    return 'Зателефонувати';
+    window.open(`https://t.me/${handle}`, '_blank', 'noopener');
   }
 
   min(a: number, b: number): number {

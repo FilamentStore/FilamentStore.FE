@@ -21,8 +21,8 @@ export interface Order {
   total: string;
   currency: string;
   customer_name: string;
-  contact_type: 'telegram' | 'viber' | 'phone';
-  contact_value: string;
+  phone: string;
+  telegram: string | null;
   city: string;
   warehouse: string;
   comment: string | null;
@@ -47,8 +47,8 @@ export interface OrdersResponse {
 
 export interface CreateOrderDto {
   customer_name: string;
-  contact_type: 'telegram' | 'viber' | 'phone';
-  contact_value: string;
+  phone: string;
+  telegram?: string;
   city?: string;
   warehouse?: string;
   items: { variation_id: number; quantity: number }[];
@@ -82,7 +82,7 @@ export class OrdersService {
     id: number,
     payload: Record<string, unknown>,
   ): Observable<Order> {
-    return this.http.patch<Order>(`${this.baseUrl}/orders/${id}`, payload);
+    return this.http.put<Order>(`${this.baseUrl}/orders/${id}`, payload);
   }
 
   delete(id: number): Observable<void> {

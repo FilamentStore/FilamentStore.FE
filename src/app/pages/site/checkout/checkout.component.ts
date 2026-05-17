@@ -113,11 +113,14 @@ export class CheckoutComponent implements OnInit {
   readonly submitted = signal(false);
   readonly submitting = signal(false);
   readonly orderError = signal<string | null>(null);
-  readonly contactMethod = signal<'telegram' | 'viber'>('telegram');
 
   readonly form = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
-    contactHandle: ['', Validators.required],
+    phone: [
+      '',
+      [Validators.required, Validators.pattern(/^\+?[\d\s\-()]{10,15}$/)],
+    ],
+    telegram: [''],
     cityQuery: [''],
     warehouseSearch: [''],
     printerCertificate: [''],
@@ -254,28 +257,6 @@ export class CheckoutComponent implements OnInit {
     this.showMapModal.set(false);
   }
 
-  onViberInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const digits = input.value.replace(/\D/g, '').slice(0, 9);
-
-    input.value = digits;
-    this.form.get('contactHandle')!.setValue(digits, { emitEvent: false });
-  }
-
-  setContactMethod(method: 'telegram' | 'viber'): void {
-    this.contactMethod.set(method);
-    const ctrl = this.form.get('contactHandle')!;
-
-    if (method === 'viber') {
-      ctrl.setValidators([Validators.required, Validators.pattern(/^\d{9}$/)]);
-    } else {
-      ctrl.setValidators([Validators.required]);
-    }
-
-    ctrl.setValue('');
-    ctrl.updateValueAndValidity();
-  }
-
   hideCitiesDrop(): void {
     setTimeout(() => this.showCitiesDrop.set(false), 150);
   }
@@ -326,16 +307,13 @@ export class CheckoutComponent implements OnInit {
     this.ordersService
       .create({
         customer_name: this.form.value.name!,
-        contact_type: this.contactMethod(),
-        contact_value:
-          this.contactMethod() === 'viber'
-            ? `+380${this.form.value.contactHandle!}`
-            : this.form.value.contactHandle!,
+        phone: this.form.value.phone!,
+        telegram: this.form.value.telegram || undefined,
         city: city.Present,
         warehouse: this.selectedWarehouse()!.Description,
         items: this.cartItems().map(i => ({
           variation_id: i.variation.id,
-          quantity: i.quantity,
+          quantity: i.quantity * (i.variation.box_qty ?? 1),
         })),
         certificate: this.form.value.printerCertificate || null,
         comment: this.form.value.comment || null,
