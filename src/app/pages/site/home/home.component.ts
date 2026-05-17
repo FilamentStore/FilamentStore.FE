@@ -1,12 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  HostListener,
-  OnInit,
-  OnDestroy,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -43,8 +35,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   private variationsService = inject(VariationsService);
   private categoriesService = inject(CategoriesService);
-  private _el = inject(ElementRef);
-
   readonly slides: HeroSlide[] = [
     {
       material: 'PLA',
@@ -135,7 +125,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private loadNewest(): void {
     this.variationsService
-      .getNewest(20)
+      .getNewest(12)
       .pipe(
         finalize(() => {
           this.newArrivalsLoading = false;
@@ -214,15 +204,5 @@ export class HomeComponent implements OnInit, OnDestroy {
         variationId: event.variation.id,
       }),
     );
-  }
-
-  // ── Mouse spotlight ───────────────────────────────────────────────────────
-
-  @HostListener('mousemove', ['$event'])
-  onMouseMove(e: MouseEvent): void {
-    const el = this._el.nativeElement as HTMLElement;
-
-    el.style.setProperty('--mx', `${e.clientX}px`);
-    el.style.setProperty('--my', `${e.clientY}px`);
   }
 }
