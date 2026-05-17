@@ -70,13 +70,17 @@ export class CheckoutComponent implements OnInit {
           ? item.variation.sale_price
           : item.variation.regular_price,
       );
+      const spools = item.quantity * (item.variation.box_qty ?? 1);
 
-      return sum + (isNaN(p) ? 0 : p * item.quantity);
+      return sum + (isNaN(p) ? 0 : p * spools);
     }, 0),
   );
 
   readonly totalCount = computed(() =>
-    this.cartItems().reduce((sum, item) => sum + item.quantity, 0),
+    this.cartItems().reduce(
+      (sum, item) => sum + item.quantity * (item.variation.box_qty ?? 1),
+      0,
+    ),
   );
 
   // ── Nova Poshta ──────────────────────────────────────────────────────────
@@ -296,6 +300,14 @@ export class CheckoutComponent implements OnInit {
     );
 
     return isNaN(p) ? 0 : p;
+  }
+
+  getBoxQty(item: CartItem): number {
+    return item.variation.box_qty ?? 1;
+  }
+
+  getTotalSpools(item: CartItem): number {
+    return item.quantity * this.getBoxQty(item);
   }
 
   // ── Submit ────────────────────────────────────────────────────────────────

@@ -411,12 +411,17 @@
                     <span class="checkout__item-name">{{
                       item.product.name
                     }}</span>
-                    <span class="checkout__item-qty"
-                      >× {{ item.quantity }}</span
-                    >
+                    <span class="checkout__item-qty">
+                      {{ item.quantity }} ящ. × {{ getBoxQty(item) }} шт. =
+                      {{ getTotalSpools(item) }} шт.
+                    </span>
                   </div>
                   <span class="checkout__item-price">
-                    {{ getItemPrice(item) * item.quantity | number: '1.0-0' }} ₴
+                    {{
+                      getItemPrice(item) * getTotalSpools(item)
+                        | number: '1.0-0'
+                    }}
+                    ₴
                   </span>
                 </li>
               }
