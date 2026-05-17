@@ -2,7 +2,15 @@
   <div class="container">
     <div class="menu-top">
       <a routerLink="/" class="logo-link" (click)="onClose()">
-        <img src="assets/icons/logo.png" alt="Logo" class="logo" />
+        <img
+          [src]="
+            isHome()
+              ? 'assets/icons/logo-dark.svg'
+              : 'assets/icons/logo-light.svg'
+          "
+          alt="Logo"
+          class="logo"
+        />
       </a>
 
       <div class="header-icons">

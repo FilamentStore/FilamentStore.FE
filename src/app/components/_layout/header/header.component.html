@@ -2,7 +2,15 @@
   <div class="header-left">
     <div class="header-logo">
       <a routerLink="/" class="logo-link">
-        <img class="nav-img" src="assets/icons/logo.png" alt="Logo" />
+        <img
+          class="nav-img"
+          [src]="
+            isTransparent
+              ? 'assets/icons/logo-dark.svg'
+              : 'assets/icons/logo-light.svg'
+          "
+          alt="Logo"
+        />
       </a>
     </div>
 
@@ -152,5 +160,9 @@
 </header>
 
 @if (isMenuOpen) {
-  <app-navbar [isOpen]="isMenuOpen" (closeMenu)="isMenuOpen = false" />
+  <app-navbar
+    [isOpen]="isMenuOpen"
+    [isHome]="isHome()"
+    (closeMenu)="isMenuOpen = false"
+  />
 }
