@@ -423,6 +423,7 @@ $header-h-tablet: 70px;
     z-index: 1;
     pointer-events: none;
     filter: blur(48px);
+    will-change: transform;
   }
 
   &__blob--1 {
