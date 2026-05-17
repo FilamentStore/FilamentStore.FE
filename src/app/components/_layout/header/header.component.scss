@@ -178,11 +178,11 @@
   align-items: center;
 
   .nav-img {
-    width: 64px;
+    width: 160px;
     height: auto;
 
     @include on-desktop {
-      width: 80px;
+      width: 200px;
     }
   }
 }

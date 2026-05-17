@@ -109,6 +109,12 @@ $header-h-tablet: 70px;
         opacity: 0.82;
       }
 
+      .hero__visual-image {
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+
       .hero__dot-ornament--1 {
         top: 69%;
         left: 2%;
@@ -517,6 +523,12 @@ $header-h-tablet: 70px;
     height: 84%;
   }
 
+  .hero__slide--pla .hero__visual-image {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
   .hero__slide--petg .hero__visual-image {
     inset: 8% 0 4% 0;
     width: 100%;
@@ -587,6 +599,12 @@ $header-h-tablet: 70px;
     inset: 6% 4% 4% 4%;
     width: 92%;
     height: 92%;
+  }
+
+  .hero__slide--pla .hero__visual-image {
+    inset: 0;
+    width: 100%;
+    height: 100%;
   }
 
   .hero__slide--pla .hero__decor--main {
