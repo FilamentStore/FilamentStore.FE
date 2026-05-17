@@ -38,12 +38,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   readonly slides: HeroSlide[] = [
     {
       material: 'PLA',
-      title: 'Преміум пластик\nдля 3D друку',
+      title: 'Преміум філамент\nдля 3D друку',
       description:
-        'Біорозкладний, простий у друку,\nдоступний у широкій палітрі кольорів',
+        'Стабільний діаметр ±0.02 мм для ідеального друку.\nРівна, щільна намотка без перехлестів і вузлів.',
       cta: 'Переглянути асортимент',
       ctaLink: '/catalog',
-      image: 'assets/images/baners/1.png',
+      image: 'assets/images/baners/bn-1.png',
     },
     {
       material: 'PETG',
