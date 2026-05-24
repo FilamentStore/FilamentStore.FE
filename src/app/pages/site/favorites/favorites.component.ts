@@ -10,6 +10,7 @@ import {
   ProductCardEvent,
 } from '@app/components/product-card/product-card.component';
 import { BreadcrumbComponent } from '@app/components/breadcrumb/breadcrumb.component';
+import { SeoService } from '@app/services/seo.service';
 import { SkeletonComponent } from '@app/components/skeleton/skeleton.component';
 import { Product, ProductVariation } from '@app/models/product.models';
 import { selectFavoriteItems } from '@store/favorites/favorites.selectors';
@@ -38,6 +39,7 @@ export class FavoritesComponent implements OnInit {
   private store = inject(Store);
   private productsService = inject(ProductsService);
   private variationsService = inject(VariationsService);
+  private seo = inject(SeoService);
 
   readonly favoriteItems = toSignal(this.store.select(selectFavoriteItems), {
     initialValue: [] as { productId: number; variationId: number }[],
@@ -51,6 +53,11 @@ export class FavoritesComponent implements OnInit {
   readonly loading = signal(true);
 
   ngOnInit(): void {
+    this.seo.set({
+      title: 'Обране',
+      description: 'Список обраних товарів Filament Store',
+      noIndex: true,
+    });
     const pairs = this.favoriteItems();
 
     if (!pairs.length) {

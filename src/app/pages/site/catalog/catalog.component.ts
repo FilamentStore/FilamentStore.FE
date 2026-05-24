@@ -24,6 +24,7 @@ import {
   Brand,
 } from '@app/models/config.models';
 import { VariationsService } from '@app/services/tempService/variations.service';
+import { SeoService } from '@app/services/seo.service';
 import {
   ProductCardComponent,
   ProductCardEvent,
@@ -126,6 +127,7 @@ export class CatalogComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private seo = inject(SeoService);
 
   // ── Data ──────────────────────────────────────────────────────────────────
 
@@ -250,6 +252,12 @@ export class CatalogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.seo.set({
+      title: 'Каталог філаментів',
+      description:
+        'Великий вибір філаменту для 3D друку: PLA, PETG, ABS, TPU та інші матеріали. Фільтрація за кольором, діаметром та брендом.',
+      canonical: 'https://filamentstore.com.ua/catalog',
+    });
     this.route.queryParamMap
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {
