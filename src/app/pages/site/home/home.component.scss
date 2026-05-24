@@ -110,9 +110,9 @@ $header-h-tablet: 70px;
       }
 
       .hero__visual-image {
-        inset: 0;
-        width: 100%;
-        height: 100%;
+        inset: -5%;
+        width: 110%;
+        height: 110%;
       }
 
       .hero__dot-ornament--1 {
@@ -273,13 +273,10 @@ $header-h-tablet: 70px;
       }
 
       .hero__visual-image {
-        inset: 4% 2% 4% 2%;
-        width: 96%;
-        height: 96%;
         object-fit: contain;
-        inset: 10% 4% 6% 4%;
-        width: 92%;
-        height: 92%;
+        inset: -12% -8% -8% -8%;
+        width: 116%;
+        height: 120%;
       }
     }
   }
@@ -524,9 +521,16 @@ $header-h-tablet: 70px;
   }
 
   .hero__slide--pla .hero__visual-image {
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    inset: -5%;
+    width: 110%;
+    height: 110%;
+  }
+
+  .hero__slide--wood .hero__visual-image {
+    object-fit: contain;
+    inset: -10% -6% -6% -6%;
+    width: 112%;
+    height: 116%;
   }
 
   .hero__slide--petg .hero__visual-image {
@@ -602,9 +606,16 @@ $header-h-tablet: 70px;
   }
 
   .hero__slide--pla .hero__visual-image {
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    inset: -5%;
+    width: 110%;
+    height: 110%;
+  }
+
+  .hero__slide--wood .hero__visual-image {
+    object-fit: contain;
+    inset: -8% -6% -4% -6%;
+    width: 112%;
+    height: 112%;
   }
 
   .hero__slide--pla .hero__decor--main {
