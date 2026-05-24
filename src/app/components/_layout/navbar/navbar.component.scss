@@ -13,7 +13,7 @@
   flex-direction: column;
   background-color: $color-bg;
 
-  @include on-tablet {
+  @media (min-width: 850px) {
     display: none;
   }
 }

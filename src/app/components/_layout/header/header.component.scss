@@ -212,7 +212,7 @@
   text-decoration: none;
   font-weight: 600;
 
-  @include on-tablet {
+  @media (min-width: 850px) {
     display: flex;
     height: 70px;
   }
@@ -255,7 +255,7 @@
   display: none;
   position: relative;
 
-  @include on-tablet {
+  @media (min-width: 850px) {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -348,7 +348,7 @@
     mask-position: center;
   }
 
-  @include on-tablet {
+  @media (min-width: 850px) {
     display: none;
   }
 }
@@ -370,7 +370,7 @@
     background-color 0.25s ease,
     color 0.25s ease;
 
-  @include on-tablet {
+  @media (min-width: 850px) {
     display: flex;
     order: 3;
     padding-inline: 14px;
@@ -398,7 +398,7 @@
 .icon-cart__label {
   display: none;
 
-  @media (min-width: 751px) {
+  @media (min-width: 850px) {
     display: block;
   }
 }
