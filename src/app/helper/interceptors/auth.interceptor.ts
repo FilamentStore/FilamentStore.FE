@@ -7,6 +7,7 @@ import { AuthService } from '@app/services/auth/auth.service';
 import { JwtService } from '@app/services/auth/jwt.service';
 import { selectToken } from '@store/auth/auth.selectors';
 import { ROUTES } from '@app/constants/app.routes.const';
+import { environment } from '@env/environment';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const store = inject(Store);
@@ -21,7 +22,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     auth.logout();
   }
 
-  const isExternal = req.url.startsWith('http') || req.url.startsWith('//');
+  const isOwnBackend =
+    req.url.startsWith(environment.apiUrl) ||
+    req.url.startsWith(environment.wpJsonUrl);
+  const isExternal = !isOwnBackend;
 
   const authReq =
     validToken && !isExternal
