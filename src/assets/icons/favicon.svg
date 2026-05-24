@@ -1,0 +1,16 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Filament Store favicon">
+  <defs>
+    <linearGradient id="faviconGradient" x1="20" y1="20" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#10B7A3"/>
+      <stop offset="1" stop-color="#08A392"/>
+    </linearGradient>
+  </defs>
+  <rect x="20" y="20" width="80" height="80" rx="18" fill="url(#faviconGradient)"/>
+  <text x="60" y="76"
+        font-family="Inter, Arial, sans-serif"
+        font-size="48"
+        font-weight="800"
+        text-anchor="middle"
+        fill="#FFFFFF"
+        letter-spacing="-2">F</text>
+</svg>

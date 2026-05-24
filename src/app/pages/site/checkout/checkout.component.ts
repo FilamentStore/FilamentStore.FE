@@ -14,6 +14,7 @@ import {
 } from 'rxjs/operators';
 
 import { BreadcrumbComponent } from '@app/components/breadcrumb/breadcrumb.component';
+import { SeoService } from '@app/services/seo.service';
 import { NpMapModalComponent } from './np-map-modal/np-map-modal.component';
 import {
   NovaPoshtaService,
@@ -53,6 +54,7 @@ export class CheckoutComponent implements OnInit {
   private readonly productsService = inject(ProductsService);
   private readonly variationsService = inject(VariationsService);
   private readonly ordersService = inject(OrdersService);
+  private readonly seo = inject(SeoService);
 
   private readonly entries = toSignal(this.store.select(selectCartEntries), {
     initialValue: [],
@@ -132,6 +134,11 @@ export class CheckoutComponent implements OnInit {
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
+    this.seo.set({
+      title: 'Оформлення замовлення',
+      description: 'Оформлення замовлення Filament Store',
+      noIndex: true,
+    });
     this.loadCartItems();
     this.setupCitySearch();
   }
