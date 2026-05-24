@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { SeoService } from '@app/services/seo.service';
 import { Store } from '@ngrx/store';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -35,6 +36,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   private variationsService = inject(VariationsService);
   private categoriesService = inject(CategoriesService);
+  private seo = inject(SeoService);
   readonly slides: HeroSlide[] = [
     {
       material: 'PLA',
@@ -77,6 +79,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   private touchStartX = 0;
 
   ngOnInit(): void {
+    this.seo.set({
+      title: 'Преміум філамент для 3D друку',
+      description:
+        'Купити філамент для 3D друку в Україні. PLA, PETG, ABS та інші матеріали. Стабільний діаметр, швидка доставка по всій Україні.',
+      canonical: 'https://filamentstore.com.ua',
+    });
     this.startTimer();
     this.loadNewest();
     this.loadCategories();

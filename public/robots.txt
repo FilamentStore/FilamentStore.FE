@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /crm/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /favorites
+
+Sitemap: https://filamentstore.com.ua/sitemap.xml

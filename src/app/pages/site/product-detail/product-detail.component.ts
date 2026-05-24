@@ -13,6 +13,7 @@ import {
 } from '@app/models/config.models';
 import { ProductsService } from '@app/services/tempService/products.service';
 import { VariationsService } from '@app/services/tempService/variations.service';
+import { SeoService } from '@app/services/seo.service';
 import {
   BreadcrumbComponent,
   BreadcrumbItem,
@@ -44,6 +45,7 @@ export class ProductDetailComponent implements OnInit {
   private productsService = inject(ProductsService);
   private variationsService = inject(VariationsService);
   private store = inject(Store);
+  private seo = inject(SeoService);
 
   readonly product = signal<Product | null>(null);
   readonly variations = signal<ProductVariation[]>([]);
@@ -192,6 +194,13 @@ export class ProductDetailComponent implements OnInit {
           this.product.set(product);
           this.variations.set(published);
           this.activeVariation.set(initial);
+          this.seo.set({
+            title: product.name,
+            description: product.short_description
+              ? product.short_description.replace(/<[^>]*>/g, '')
+              : `Купити ${product.name} в Україні. Філамент для 3D друку від Filament Store.`,
+            ogImage: product.images?.[0]?.src,
+          });
         },
       });
   }

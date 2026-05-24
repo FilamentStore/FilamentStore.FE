@@ -9,6 +9,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { BreadcrumbComponent } from '@app/components/breadcrumb/breadcrumb.component';
+import { SeoService } from '@app/services/seo.service';
 
 import { ATTRIBUTE_CONFIGS } from '@app/constants/attribute-configs';
 import { ColorValue, SimpleAttributeOption } from '@app/models/config.models';
@@ -47,6 +48,7 @@ export class CartComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private productsService = inject(ProductsService);
   private variationsService = inject(VariationsService);
+  private seo = inject(SeoService);
 
   private readonly entries = toSignal(this.store.select(selectCartEntries), {
     initialValue: [],
@@ -85,6 +87,11 @@ export class CartComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    this.seo.set({
+      title: 'Кошик',
+      description: 'Кошик покупок Filament Store',
+      noIndex: true,
+    });
     const entries = this.entries();
 
     if (!entries.length) {
