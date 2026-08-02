@@ -10,6 +10,7 @@ import {
   AuthUser,
   RegisterRequest,
   RegisterResponse,
+  UpdateMeRequest,
 } from '@app/models/auth.models';
 import { AuthActions } from '@store/auth/auth.actions';
 import { selectToken } from '@store/auth/auth.selectors';
@@ -53,6 +54,12 @@ export class AuthService {
           }
         }),
       );
+  }
+
+  updateMe(body: UpdateMeRequest): Observable<AuthUser> {
+    return this.http
+      .put<AuthUser>(`${environment.apiUrl}/me`, body)
+      .pipe(tap(user => this.setSession(this.token()!, user)));
   }
 
   me(token?: string): Observable<AuthUser> {

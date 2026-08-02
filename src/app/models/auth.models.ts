@@ -19,6 +19,7 @@ export interface AuthUser {
   name: string;
   isAdmin: boolean;
   phone: string;
+  telegram: string;
   certif: string;
   addresses: Address[];
 }
@@ -32,4 +33,12 @@ export interface RegisterRequest {
 export interface RegisterResponse {
   user: AuthUser;
   token: string | null;
+}
+
+export interface UpdateMeRequest {
+  name?: string;
+  phone?: string;
+  telegram?: string;
+  certif?: string;
+  addresses?: Address[];
 }
