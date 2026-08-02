@@ -399,12 +399,28 @@
 
   &__table-wrap {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-element) transparent;
+
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--color-element);
+      border-radius: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
   }
 
   &__table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 560px;
+    min-width: 900px;
 
     th {
       text-align: left;

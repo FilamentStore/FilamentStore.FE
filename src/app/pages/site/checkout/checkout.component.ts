@@ -24,9 +24,12 @@ import {
 import { ProductsService } from '@app/services/tempService/products.service';
 import { VariationsService } from '@app/services/tempService/variations.service';
 import { OrdersService } from '@app/services/orders.service';
+import { AuthService } from '@app/services/auth/auth.service';
 import { selectCartEntries } from '@store/cart/cart.selectors';
+import { selectCurrentUser } from '@store/auth/auth.selectors';
 import { CartActions } from '@store/cart/cart.actions';
 import { Product, ProductVariation } from '@app/models/product.models';
+import { Address } from '@app/models/auth.models';
 
 interface CartItem {
   product: Product;
@@ -54,11 +57,21 @@ export class CheckoutComponent implements OnInit {
   private readonly productsService = inject(ProductsService);
   private readonly variationsService = inject(VariationsService);
   private readonly ordersService = inject(OrdersService);
+  private readonly auth = inject(AuthService);
   private readonly seo = inject(SeoService);
 
   private readonly entries = toSignal(this.store.select(selectCartEntries), {
     initialValue: [],
   });
+
+  // ── Account (logged-in user) ──────────────────────────────────────────────
+
+  private readonly user = this.store.selectSignal(selectCurrentUser);
+
+  readonly savedAddresses = computed<Address[]>(
+    () => this.user()?.addresses ?? [],
+  );
+  readonly activeSavedAddressId = signal<string | null>(null);
 
   // ── Cart ────────────────────────────────────────────────────────────────
 
@@ -141,6 +154,27 @@ export class CheckoutComponent implements OnInit {
     });
     this.loadCartItems();
     this.setupCitySearch();
+    this.prefillFromAccount();
+  }
+
+  private prefillFromAccount(): void {
+    const user = this.user();
+
+    if (!this.auth.isLoggedIn() || !user) return;
+
+    this.form.patchValue({
+      name: user.name,
+      phone: user.phone,
+      telegram: user.telegram,
+      printerCertificate: user.certif,
+    });
+
+    const defaultAddress =
+      user.addresses.find(a => a.isDefault) ?? user.addresses[0];
+
+    if (defaultAddress) {
+      this.selectSavedAddress(defaultAddress);
+    }
   }
 
   private loadCartItems(): void {
@@ -211,6 +245,7 @@ export class CheckoutComponent implements OnInit {
     this.selectedCity.set(null);
     this.selectedWarehouse.set(null);
     this.warehouses.set([]);
+    this.activeSavedAddressId.set(null);
     if (q.length >= 2) {
       this.citySearch$.next(q);
     } else {
@@ -222,6 +257,7 @@ export class CheckoutComponent implements OnInit {
   selectCity(city: NpCity): void {
     this.selectedCity.set(city);
     this.selectedWarehouse.set(null);
+    this.activeSavedAddressId.set(null);
     this.form.patchValue({ cityQuery: city.Present, warehouseSearch: '' });
     this.showCitiesDrop.set(false);
     this.cities.set([]);
@@ -236,21 +272,56 @@ export class CheckoutComponent implements OnInit {
     const q = (event.target as HTMLInputElement).value;
 
     if (this.selectedWarehouse()) this.selectedWarehouse.set(null);
+    this.activeSavedAddressId.set(null);
     this.showWarehousesDrop.set(q.length > 0 || this.warehouses().length > 0);
   }
 
   selectWarehouseFromDrop(w: NpWarehouse): void {
     this.selectedWarehouse.set(w);
+    this.activeSavedAddressId.set(null);
     this.form.patchValue({ warehouseSearch: w.Description });
     this.showWarehousesDrop.set(false);
   }
 
   clearWarehouse(): void {
     this.selectedWarehouse.set(null);
+    this.activeSavedAddressId.set(null);
     this.form.patchValue({ warehouseSearch: '' });
   }
 
+  selectSavedAddress(address: Address): void {
+    const city: NpCity = {
+      Ref: '',
+      Present: address.city,
+      MainDescription: address.city,
+      AreaDescription: '',
+      SettlementTypeDescription: '',
+    };
+    const warehouse: NpWarehouse = {
+      Ref: '',
+      Description: address.warehouse,
+      Number: '',
+      CityRef: '',
+      TypeOfWarehouse: '',
+      Latitude: '',
+      Longitude: '',
+    };
+
+    this.selectedCity.set(city);
+    this.selectedWarehouse.set(warehouse);
+    this.activeSavedAddressId.set(address.id);
+    this.warehouses.set([]);
+    this.cities.set([]);
+    this.showCitiesDrop.set(false);
+    this.showWarehousesDrop.set(false);
+    this.form.patchValue({
+      cityQuery: city.Present,
+      warehouseSearch: warehouse.Description,
+    });
+  }
+
   openMapModal(): void {
+    if (!this.selectedCity()?.Ref) return;
     this.showMapModal.set(true);
   }
 
@@ -260,6 +331,7 @@ export class CheckoutComponent implements OnInit {
 
   onWarehouseSelected(w: NpWarehouse): void {
     this.selectedWarehouse.set(w);
+    this.activeSavedAddressId.set(null);
     this.form.patchValue({ warehouseSearch: w.Description });
     this.showMapModal.set(false);
   }

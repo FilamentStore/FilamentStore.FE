@@ -134,10 +134,13 @@
       routerLink="/crm/auth/login"
       routerLinkActive="icon-account--active"
       class="icon-account"
-      aria-label="Go to Account"
+      [class.icon-account--logged-in]="isLoggedIn()"
+      [attr.aria-label]="isLoggedIn() ? 'Мій кабінет' : 'Go to Account'"
     >
       <span class="icon-img icon-img--account" aria-hidden="true"></span>
-      <span class="icon-account__label">Увійти</span>
+      <span class="icon-account__label">{{
+        isLoggedIn() ? 'Кабінет' : 'Увійти'
+      }}</span>
     </a>
 
     <a

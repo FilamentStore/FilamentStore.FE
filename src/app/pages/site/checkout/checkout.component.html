@@ -116,6 +116,26 @@
           <section class="checkout__section">
             <h2 class="checkout__section-title">Доставка — Нова Пошта</h2>
 
+            @if (savedAddresses().length > 0) {
+              <div class="checkout__saved-addresses">
+                <span class="checkout__label">Ваші збережені адреси</span>
+                <div class="checkout__saved-addresses-list">
+                  @for (address of savedAddresses(); track address.id) {
+                    <button
+                      type="button"
+                      class="checkout__saved-address-chip"
+                      [class.checkout__saved-address-chip--active]="
+                        activeSavedAddressId() === address.id
+                      "
+                      (click)="selectSavedAddress(address)"
+                    >
+                      {{ address.city }}, {{ address.warehouse }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+
             <!-- City search -->
             <div class="checkout__field">
               <label class="checkout__label" for="cityQuery">
@@ -209,6 +229,7 @@
                   <button
                     class="checkout__map-btn"
                     type="button"
+                    [disabled]="!selectedCity()?.Ref"
                     (click)="openMapModal()"
                     title="Обрати на мапі"
                   >
@@ -241,8 +262,10 @@
                     >
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
-                    <span
-                      >НП №{{ selectedWarehouse()!.Number }} —
+                    <span>
+                      @if (selectedWarehouse()!.Number) {
+                        НП №{{ selectedWarehouse()!.Number }} —
+                      }
                       {{ selectedWarehouse()!.Description }}</span
                     >
                     <button

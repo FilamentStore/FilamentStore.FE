@@ -4,6 +4,7 @@ import {
   ElementRef,
   HostListener,
   ViewChild,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -11,6 +12,8 @@ import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { selectFavoritesCount } from '@store/favorites/favorites.selectors';
 import { selectCartItemsCount } from '@store/cart/cart.selectors';
+import { selectToken } from '@store/auth/auth.selectors';
+import { JwtService } from '@app/services/auth/jwt.service';
 import { IconBadgeComponent } from '@app/components/icon-badge/icon-badge.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -48,12 +51,21 @@ import { SkeletonComponent } from '@app/components/skeleton/skeleton.component';
 })
 export class HeaderComponent {
   private store = inject(Store);
+  private jwt = inject(JwtService);
 
   readonly favoritesCount = toSignal(this.store.select(selectFavoritesCount), {
     initialValue: 0,
   });
   readonly cartCount = toSignal(this.store.select(selectCartItemsCount), {
     initialValue: 0,
+  });
+
+  private readonly authToken = this.store.selectSignal(selectToken);
+
+  readonly isLoggedIn = computed(() => {
+    const token = this.authToken();
+
+    return !!token && !this.jwt.isExpired(token);
   });
   isMenuOpen = false;
   isSearchOpen = false;

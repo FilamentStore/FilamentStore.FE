@@ -158,6 +158,46 @@
     color: var(--color-text-secondary);
   }
 
+  // ── Saved addresses (logged-in users) ──────────────────────────────────────
+
+  &__saved-addresses {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__saved-addresses-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &__saved-address-chip {
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--color-element);
+    background: transparent;
+    color: var(--color-text-main);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition:
+      border-color 0.2s,
+      color 0.2s,
+      background 0.2s;
+
+    &:hover {
+      border-color: var(--color-accent);
+    }
+
+    &--active {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+      background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+    }
+  }
+
   // ── Autocomplete ─────────────────────────────────────────────────────────
 
   &__autocomplete {
@@ -299,8 +339,13 @@
       flex-shrink: 0;
     }
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: color-mix(in srgb, var(--color-accent) 16%, transparent);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   }
 

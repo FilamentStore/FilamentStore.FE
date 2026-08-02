@@ -283,6 +283,7 @@ export class AccountComponent implements OnInit {
 
   selectCity(city: NpCity): void {
     this.selectedCity.set(city);
+    this.pendingCity.set(city.Present);
     this.pendingWarehouse.set('');
     this.addressForm.patchValue({
       cityQuery: city.Present,
