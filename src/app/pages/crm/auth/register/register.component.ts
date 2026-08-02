@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -9,8 +10,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '@app/services/auth/auth.service';
 import { ROUTES } from '@app/constants/app.routes.const';
 
+const ERROR_MESSAGES: Record<string, string> = {
+  bad_request: 'Перевірте правильність заповнення полів',
+  email_exists: 'Цей email вже зареєстрований',
+  server_error: 'Помилка сервера, спробуйте пізніше',
+};
+
 @Component({
-  selector: 'app-crm-login',
+  selector: 'app-register',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -21,23 +28,24 @@ import { ROUTES } from '@app/constants/app.routes.const';
     MatButtonModule,
     MatIconModule,
   ],
-  templateUrl: './crm-login.component.html',
-  styleUrl: './crm-login.component.scss',
+  templateUrl: './register.component.html',
+  styleUrl: './register.component.scss',
 })
-export class CrmLoginComponent {
+export class RegisterComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private auth = inject(AuthService);
 
-  readonly registerPath = `/${ROUTES.crm.root}/${ROUTES.crm.auth.root}/${ROUTES.crm.auth.register}`;
+  readonly loginPath = `/${ROUTES.crm.root}/${ROUTES.crm.auth.root}/${ROUTES.crm.auth.login}`;
 
   hidePassword = signal(true);
   loading = signal(false);
   error = signal<string | null>(null);
 
   form = this.fb.nonNullable.group({
-    username: ['', [Validators.required]],
-    password: ['', [Validators.required]],
+    name: ['', [Validators.required]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
   });
 
   togglePasswordVisibility(event: MouseEvent): void {
@@ -50,18 +58,26 @@ export class CrmLoginComponent {
     this.loading.set(true);
     this.error.set(null);
 
-    const { username, password } = this.form.getRawValue();
+    this.auth.register(this.form.getRawValue()).subscribe({
+      next: res => {
+        if (!res.token) {
+          this.router.navigate([
+            `/${ROUTES.crm.root}/${ROUTES.crm.auth.root}/${ROUTES.crm.auth.login}`,
+          ]);
 
-    this.auth.login(username, password).subscribe({
-      next: user => {
+          return;
+        }
+
         this.router.navigate([
-          user.isAdmin
+          res.user.isAdmin
             ? `/${ROUTES.crm.root}/${ROUTES.crm.dashboard}`
             : `/${ROUTES.site.account}`,
         ]);
       },
-      error: () => {
-        this.error.set('Невірний логін або пароль');
+      error: (err: HttpErrorResponse) => {
+        this.error.set(
+          ERROR_MESSAGES[err.error?.code] ?? 'Не вдалося зареєструватись',
+        );
         this.loading.set(false);
       },
     });
