@@ -23,20 +23,12 @@
   .login-logo {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
     margin-bottom: 16px;
 
-    .login-logo-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
-      color: #22a794;
-    }
-
-    .login-logo-text {
-      font-size: 22px;
-      font-weight: 700;
-      color: #1a1f36;
+    .login-logo-img {
+      height: 64px;
+      width: auto;
     }
   }
 
