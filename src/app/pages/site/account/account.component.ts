@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Subject, of } from 'rxjs';
@@ -69,6 +70,7 @@ export class AccountComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly ordersService = inject(OrdersService);
   private readonly np = inject(NovaPoshtaService);
+  private readonly router = inject(Router);
 
   // ── Profile ────────────────────────────────────────────────────────────
 
@@ -171,6 +173,11 @@ export class AccountComponent implements OnInit {
 
     this.setupCitySearch();
     this.loadOrders(1);
+  }
+
+  logout(): void {
+    this.auth.logout();
+    this.router.navigate(['/']);
   }
 
   // ── Profile edit ───────────────────────────────────────────────────────
