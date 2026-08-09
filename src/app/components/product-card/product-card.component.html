@@ -90,7 +90,7 @@
     @if (isOnRate()) {
       <div class="card__rating" aria-label="Відгуків: 5">
         <span class="card__rating-stars" aria-hidden="true">
-          @for (active of [true, true, true, true, false]; track $index) {
+          @for (active of [true, true, true, true, true]; track $index) {
             <img
               class="card__rating-star"
               [class.card__rating-star--muted]="!active"
