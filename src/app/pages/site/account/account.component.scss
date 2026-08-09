@@ -71,7 +71,8 @@
       opacity 0.2s,
       background 0.2s;
 
-    svg {
+    svg,
+    &-icon {
       width: 16px;
       height: 16px;
       flex-shrink: 0;
@@ -116,7 +117,8 @@
     cursor: pointer;
     transition: background 0.15s;
 
-    svg {
+    svg,
+    img {
       width: 16px;
       height: 16px;
     }
@@ -623,6 +625,92 @@
     &:hover {
       background: var(--color-surface);
     }
+  }
+
+  // ── Order details modal ──────────────────────────────────────────────
+
+  &__order-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+
+  &__order-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__order-item-img {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--color-surface);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    &--placeholder {
+      width: 100%;
+      height: 100%;
+      background: var(--color-surface);
+    }
+  }
+
+  &__order-item-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__order-item-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text-main);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__order-item-attrs {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  &__order-item-qty {
+    flex-shrink: 0;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+  }
+
+  &__order-item-subtotal {
+    flex-shrink: 0;
+    min-width: 70px;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text-main);
+  }
+
+  &__order-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-block-start: 16px;
+    padding-block-start: 16px;
+    border-top: 1.5px solid var(--color-surface);
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--color-text-main);
   }
 
   // ── Animations ────────────────────────────────────────────────────────

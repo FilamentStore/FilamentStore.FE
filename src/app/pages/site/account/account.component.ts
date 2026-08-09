@@ -23,7 +23,7 @@ import {
   NpWarehouse,
 } from '@app/services/nova-poshta.service';
 import { AuthService } from '@app/services/auth/auth.service';
-import { Order, OrdersService } from '@app/services/orders.service';
+import { Order, OrderItem, OrdersService } from '@app/services/orders.service';
 import { Address } from '@app/models/auth.models';
 import { selectCurrentUser } from '@store/auth/auth.selectors';
 
@@ -165,6 +165,8 @@ export class AccountComponent implements OnInit {
   readonly ordersRangeEnd = computed(() =>
     Math.min(this.ordersPage() * ORDERS_PER_PAGE, this.ordersTotal()),
   );
+
+  readonly selectedOrder = signal<Order | null>(null);
 
   ngOnInit(): void {
     if (!this.user()) {
@@ -454,5 +456,21 @@ export class AccountComponent implements OnInit {
 
   statusClass(status: string): string {
     return STATUS_CLASSES[status] ?? '';
+  }
+
+  openOrderDetails(order: Order): void {
+    this.selectedOrder.set(order);
+  }
+
+  closeOrderDetails(): void {
+    this.selectedOrder.set(null);
+  }
+
+  attrLabel(attrs: OrderItem['attributes']): string {
+    if (!attrs) return '';
+
+    return Object.entries(attrs)
+      .map(([name, value]) => `${name}: ${value}`)
+      .join(', ');
   }
 }

@@ -7,16 +7,11 @@
         class="account__btn account__btn--ghost"
         (click)="logout()"
       >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-          <polyline points="16 17 21 12 16 7" />
-          <line x1="21" y1="12" x2="9" y2="12" />
-        </svg>
+        <img
+          src="assets/icons/icon-logout.svg"
+          alt=""
+          class="account__btn-icon"
+        />
         Вийти
       </button>
     </div>
@@ -264,6 +259,7 @@
                 <th>Сума</th>
                 <th>Доставка</th>
                 <th>ТТН</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -281,6 +277,16 @@
                   <td>{{ order.total }} {{ order.currency }}</td>
                   <td>{{ order.city }}, {{ order.warehouse }}</td>
                   <td>{{ order.ttn || '—' }}</td>
+                  <td>
+                    <button
+                      type="button"
+                      class="account__icon-btn"
+                      aria-label="Деталі замовлення"
+                      (click)="openOrderDetails(order)"
+                    >
+                      <img src="assets/icons/icon-eye.svg" alt="" />
+                    </button>
+                  </td>
                 </tr>
               }
             </tbody>
@@ -327,6 +333,66 @@
     </section>
   </div>
 </div>
+
+<!-- ── Модалка деталей замовлення ───────────────────────────────────── -->
+@if (selectedOrder(); as order) {
+  <div class="account__modal-backdrop" (click)="closeOrderDetails()"></div>
+
+  <div class="account__modal">
+    <div class="account__modal-header">
+      <h3 class="account__modal-title">Замовлення #{{ order.id }}</h3>
+      <button
+        type="button"
+        class="account__modal-close"
+        (click)="closeOrderDetails()"
+        aria-label="Закрити"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="account__order-items">
+      @for (item of order.items; track item.variation_id) {
+        <div class="account__order-item">
+          <div class="account__order-item-img">
+            @if (item.image?.src) {
+              <img [src]="item.image!.src" [alt]="item.product_name" />
+            } @else {
+              <div class="account__order-item-img--placeholder"></div>
+            }
+          </div>
+          <div class="account__order-item-info">
+            <span class="account__order-item-name">{{
+              item.product_name
+            }}</span>
+            @if (item.attributes) {
+              <span class="account__order-item-attrs">{{
+                attrLabel(item.attributes)
+              }}</span>
+            }
+          </div>
+          <span class="account__order-item-qty">× {{ item.quantity }}</span>
+          <span class="account__order-item-subtotal"
+            >{{ item.subtotal }} {{ order.currency }}</span
+          >
+        </div>
+      }
+    </div>
+
+    <div class="account__order-total">
+      <span>Разом</span>
+      <strong>{{ order.total }} {{ order.currency }}</strong>
+    </div>
+  </div>
+}
 
 <!-- ── Модалка адреси ───────────────────────────────────────────────── -->
 @if (showAddressModal()) {
