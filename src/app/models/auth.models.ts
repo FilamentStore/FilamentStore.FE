@@ -5,14 +5,40 @@ export interface AuthResponse {
   user_display_name: string;
 }
 
-export interface WpUser {
-  id: number;
-  name: string;
-  email: string;
-  roles: string[];
+export interface Address {
+  id: string;
+  label: string;
+  city: string;
+  warehouse: string;
+  isDefault: boolean;
 }
 
-export interface CrmUser {
+export interface AuthUser {
+  id: number;
   email: string;
   name: string;
+  isAdmin: boolean;
+  phone: string;
+  telegram: string;
+  certif: string;
+  addresses: Address[];
+}
+
+export interface RegisterRequest {
+  email: string;
+  name: string;
+  password: string;
+}
+
+export interface RegisterResponse {
+  user: AuthUser;
+  token: string | null;
+}
+
+export interface UpdateMeRequest {
+  name?: string;
+  phone?: string;
+  telegram?: string;
+  certif?: string;
+  addresses?: Address[];
 }

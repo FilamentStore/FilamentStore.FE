@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { ROUTES } from '@app/constants/app.routes.const';
 import { CrmShellComponent } from '@pages/crm/_layout/crm-shell/crm-shell.component';
 import { CrmLoginComponent } from '@pages/crm/auth/crm-login/crm-login.component';
+import { RegisterComponent } from '@pages/crm/auth/register/register.component';
 import { DashboardComponent } from '@pages/crm/dashboard/dashboard.component';
 import { authGuard } from '@helper/guards/auth.guard';
 import { loginGuard } from '@helper/guards/login.guard';
@@ -16,6 +17,11 @@ export const CRM_ROUTES: Routes = [
         path: crm.auth.login,
         canActivate: [loginGuard],
         component: CrmLoginComponent,
+      },
+      {
+        path: crm.auth.register,
+        canActivate: [loginGuard],
+        component: RegisterComponent,
       },
       { path: '', redirectTo: crm.auth.login, pathMatch: 'full' },
     ],

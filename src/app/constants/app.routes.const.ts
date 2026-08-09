@@ -15,6 +15,7 @@ export const ROUTES = {
     auth: {
       root: 'auth',
       login: 'login',
+      register: 'register',
     },
     dashboard: 'dashboard',
     products: {

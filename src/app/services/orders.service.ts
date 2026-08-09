@@ -70,6 +70,16 @@ export class OrdersService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
 
+  getMy(page = 1, perPage = 5): Observable<OrdersResponse> {
+    const params = new HttpParams()
+      .set('page', String(page))
+      .set('per_page', String(perPage));
+
+    return this.http.get<OrdersResponse>(`${this.baseUrl}/me/orders`, {
+      params,
+    });
+  }
+
   getAll(filters: OrdersFilters = {}): Observable<OrdersResponse> {
     let params = new HttpParams().set(
       'per_page',

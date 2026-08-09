@@ -1,5 +1,6 @@
 import { Routes, UrlSegment } from '@angular/router';
 import { ROUTES } from './constants/app.routes.const';
+import { customerGuard } from './helper/guards/customer.guard';
 
 export const routes: Routes = [
   // Site — з header та footer (завжди перший, але не матчить /crm)
@@ -42,6 +43,7 @@ export const routes: Routes = [
       },
       {
         path: ROUTES.site.account,
+        canActivate: [customerGuard],
         loadComponent: () =>
           import('./pages/site/account/account.component').then(
             m => m.AccountComponent,

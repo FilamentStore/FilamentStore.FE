@@ -1,11 +1,17 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, switchMap, tap } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { environment } from '@env/environment';
 import { StorageService } from '@app/services/storage.service';
 import { JwtService } from '@app/services/auth/jwt.service';
-import { AuthResponse, CrmUser, WpUser } from '@app/models/auth.models';
+import {
+  AuthResponse,
+  AuthUser,
+  RegisterRequest,
+  RegisterResponse,
+  UpdateMeRequest,
+} from '@app/models/auth.models';
 import { AuthActions } from '@store/auth/auth.actions';
 import { selectToken } from '@store/auth/auth.selectors';
 
@@ -23,26 +29,45 @@ export class AuthService {
 
   readonly token = this.store.selectSignal(selectToken);
 
-  login(username: string, password: string): Observable<AuthResponse> {
+  login(username: string, password: string): Observable<AuthUser> {
     return this.http
       .post<AuthResponse>(`${environment.wpJsonUrl}/jwt-auth/v1/token`, {
         username,
         password,
       })
       .pipe(
-        tap(res => {
-          const user: CrmUser = {
-            email: res.user_email,
-            name: res.user_display_name,
-          };
+        switchMap(res =>
+          this.me(res.token).pipe(
+            tap(user => this.setSession(res.token, user)),
+          ),
+        ),
+      );
+  }
 
-          this.storage.set(TOKEN_KEY, res.token);
-          this.storage.set(USER_KEY, user);
-          this.store.dispatch(
-            AuthActions.loginSuccess({ token: res.token, user }),
-          );
+  register(body: RegisterRequest): Observable<RegisterResponse> {
+    return this.http
+      .post<RegisterResponse>(`${environment.apiUrl}/auth/register`, body)
+      .pipe(
+        tap(res => {
+          if (res.token) {
+            this.setSession(res.token, res.user);
+          }
         }),
       );
+  }
+
+  updateMe(body: UpdateMeRequest): Observable<AuthUser> {
+    return this.http
+      .put<AuthUser>(`${environment.apiUrl}/me`, body)
+      .pipe(tap(user => this.setSession(this.token()!, user)));
+  }
+
+  me(token?: string): Observable<AuthUser> {
+    const headers = token
+      ? new HttpHeaders({ Authorization: `Bearer ${token}` })
+      : undefined;
+
+    return this.http.get<AuthUser>(`${environment.apiUrl}/me`, { headers });
   }
 
   validateToken(): Observable<{ code: string; data: { status: number } }> {
@@ -50,10 +75,6 @@ export class AuthService {
       `${environment.wpJsonUrl}/jwt-auth/v1/token/validate`,
       {},
     );
-  }
-
-  getCurrentUser(): Observable<WpUser> {
-    return this.http.get<WpUser>(`${environment.wpJsonUrl}/wp/v2/users/me`);
   }
 
   logout(): void {
@@ -68,5 +89,11 @@ export class AuthService {
     if (!token) return false;
 
     return !this.jwt.isExpired(token);
+  }
+
+  private setSession(token: string, user: AuthUser): void {
+    this.storage.set(TOKEN_KEY, token);
+    this.storage.set(USER_KEY, user);
+    this.store.dispatch(AuthActions.loginSuccess({ token, user }));
   }
 }

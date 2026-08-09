@@ -24,7 +24,6 @@
       <div class="catalog__filters-top">
         <div class="catalog__filters-head">
           <div>
-            <p class="catalog__filters-eyebrow">Підбір параметрів</p>
             <h3 class="catalog__filters-title">Фільтри</h3>
           </div>
           <button
@@ -91,9 +90,6 @@
                   "
                 ></span>
                 {{ cat.name }}
-                @if (cat.count) {
-                  <span class="catalog__filters-count">{{ cat.count }}</span>
-                }
               </label>
             }
           </div>
@@ -114,11 +110,6 @@
                   "
                 ></span>
                 {{ brand.name }}
-                @if (brand.usageCount) {
-                  <span class="catalog__filters-count">{{
-                    brand.usageCount
-                  }}</span>
-                }
               </label>
             }
           </div>
